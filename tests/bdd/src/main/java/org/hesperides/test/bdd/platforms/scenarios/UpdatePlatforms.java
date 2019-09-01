@@ -20,171 +20,243 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
-import static org.hamcrest.Matchers.*;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hesperides.test.bdd.platforms.scenarios.SaveProperties.dataTableToIterableProperties;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class UpdatePlatforms extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
-    @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
-
-    public UpdatePlatforms() {
-        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)(?: updating the value of the \"([^\"]+)\" property accordingly)?$", (String versions, String propertyName) -> {
-            Arrays.stream(versions.split(", ")).forEach(version -> {
-                platformBuilder.setDeployedModulesVersion(version);
-                moduleBuilder.withVersion(version); // to update the properties path
-                testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class));
-                assertOK();
-                platformBuilder.incrementVersionId();
-                if (StringUtils.isNotEmpty(propertyName)) {
-                    platformBuilder.setProperty(propertyName, version);
-                    testContext.setResponseEntity(platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath()));
-                    assertOK();
-                    platformBuilder.incrementVersionId();
-                }
-                platformHistory.addPlatform();
-            });
-        });
-
-        Then("^the platform is successfully updated$", () -> {
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
-            assertEquals(expectedPlatform, actualPlatform);
-        });
-
-        Then("^the platform property model includes this instance property$", () -> {
-            InstancesModelOutput model = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            List<String> actualPropertyNames = model.getInstanceProperties()
-                    .stream()
-                    .map(InstancesModelOutput.InstancePropertyOutput::getName)
-                    .collect(Collectors.toList());
-            assertThat(actualPropertyNames, contains("instance-module-foo"));
-        });
-
-        Then("^the platform has (?:no more|zero) modules$", () -> {
-            PlatformIO platform = testContext.getResponseBody(PlatformIO.class);
-            assertThat(platform.getDeployedModules(), is(empty()));
-        });
-
-        Then("^the platform(?: still)? has (\\d+) global properties$", (Integer count) -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
-            assertThat(properties.getValuedProperties(), hasSize(count));
-        });
-
-        Then("^the platform has no module valued properties$", () -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            assertThat(properties.getValuedProperties(), is(empty()));
-        });
-
-        Then("^the platform version_id is incremented twice$", () -> {
-            Long expectedVersionId = platformBuilder.buildOutput().getVersionId();
-            final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), null, false, PlatformIO.class);
-            Long actualVersionId = responseEntity.getBody().getVersionId();
-            assertEquals(expectedVersionId, actualVersionId);
-        });
-
-        Then("^the platform update is rejected with a conflict error$", this::assertConflict);
-    }
+    @Autowired
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
+    @Autowired
+    private InstanceBuilder instanceBuilder;
+    @Autowired
+    private SaveProperties saveProperties;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     @When("^I( try to)? update this platform" +
-            "(, (?:adding|removing) this module)?" +
-            "(?: in logical group \"([^\"]*)\")?" +
-            "(, adding an instance and an instance property)?" +
-            "(, upgrading its module(?: to version \"([^\"]*)\")?)?" +
-            "(?:, downgrading its module to version \"([^\"]*)\")?" +
-            "(, and requiring the copy of properties)?" +
-            "(, with an empty payload)?" +
-            "(, changing property values)?" +
-            "(, changing the application version)?" +
-            "( to a prod one)?$")
+            "(?:, (?:upgrading|downgrading) its module version to \"([^\"]*)\")?" +
+            "(?:, upgrading its module name to \"([^\"]*)\")?" +
+            "(, upgrading its module to the release version)?" +
+            "(, adding this module(?: again)?(?: in logical group \"([^\"]*)\")?)?" +
+            "(, removing this module)?" +
+            "(, adding an instance(?: (and|with) instance properties)?)?" +
+            "(, clearing the modules)?" +
+            "(, changing the platform version)?" +
+            "( to a prod one)?" +
+            "( and requiring the copy of properties)?$")
     public void whenIupdateThisPlatform(
             String tryTo,
-            String addingOrRemovingModule,
-            String logicalGroup,
-            String addingInstanceAndInstanceProperty,
-            String upgradeModule,
-            String upgradeVersion,
-            String downgradeVersion,
-            String withCopy,
-            String withAnEmptyPayload,
-            String changePropertyValues,
-            String changeApplicationVersion,
-            String toProd) {
-        moduleBuilder.setLogicalGroup(logicalGroup);
-        if (StringUtils.isNotEmpty(addingOrRemovingModule)) {
-            if (addingOrRemovingModule.contains("adding")) {
-                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+            String newModuleVersion,
+            String newModuleName,
+            String upgradeModuleToRelease,
+            String addThisModule,
+            String moduleLogicalGroup,
+            String removeThisModule,
+            String addAnInstance,
+            String addInstanceProperties,
+            String clearModules,
+            String changePlatformVersion,
+            String toProd,
+            String copyProperties) {
+
+        if (isNotEmpty(newModuleVersion)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersion(newModuleVersion);
+        }
+
+        if (isNotEmpty(newModuleName)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).withName(newModuleName);
+        }
+
+        if (isNotEmpty(upgradeModuleToRelease)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(VersionType.RELEASE);
+        }
+
+        if (isNotEmpty(addThisModule)) {
+            if (!addThisModule.contains("again")) {
+                deployedModuleBuilder.reset();
             } else {
-                platformBuilder.withNoModule();
+                deployedModuleBuilder.setPropertiesVersionId(0L);
             }
-        }
-        if (StringUtils.isNotEmpty(upgradeModule)) {
-            platformBuilder.withNoModule();
-            if (StringUtils.isNotEmpty(upgradeVersion)) {
-                moduleBuilder.withVersion(upgradeVersion);
+            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            if (isNotEmpty(moduleLogicalGroup)) {
+                deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
             }
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
-            moduleBuilder.resetPropertiesVersionId();
+            platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
         }
-        if (StringUtils.isNotEmpty(downgradeVersion)) {
-            platformBuilder.withNoModule();
-            moduleBuilder.withVersion(downgradeVersion);
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
-            moduleBuilder.setPropertiesVersionId(2L);
+
+        if (isNotEmpty(removeThisModule)) {
+            platformBuilder.clearDeployedModuleBuilders();
         }
-        if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
-            platformBuilder.withInstance("instance-foo-1");
-            platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-            platformBuilder.incrementVersionId();
-            moduleBuilder.setPropertiesVersionId(1L);
+
+        if (isNotEmpty(addAnInstance)) {
+            if (isNotEmpty(addInstanceProperties)) {
+                // L'ajout de propriétés d'instance nécessitent qu'elles soient définies dans les valorisations
+                // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
+                deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
+                deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
+                saveProperties.saveValuedProperties();
+
+                instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
+            }
+            // J'utilise get(0) pour ne pas appeler dMB.withInstanceBuilder puis platformBuilder.updateDMB
+            // qui incrémente le propertiesVersionId mais c'est à revoir
+            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
         }
-        if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
-            // So that "Then the platform is successfully updated" step validate there is no more modules:
-            platformBuilder.withNoModule();
+
+        if (isNotEmpty(clearModules)) {
+            platformBuilder.clearDeployedModuleBuilders();
         }
-        if (StringUtils.isNotEmpty(changePropertyValues)) {
-            modelBuilder.getProperties().forEach(property -> platformBuilder.setProperty(property.getName(), "42"));
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-            platformBuilder.incrementVersionId();
+
+        if (isNotEmpty(changePlatformVersion)) {
+            platformBuilder.withVersion("1.1");
         }
-        if (StringUtils.isNotEmpty(changeApplicationVersion)) {
-            platformBuilder.withVersion("12");
-        }
+
         if (StringUtils.isNotEmpty(toProd)) {
             platformBuilder.withIsProductionPlatform(true);
         }
-        testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class)));
-        platformHistory.addPlatform();
-        platformBuilder.incrementVersionId();
+
+        platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);
+
+        if (StringUtils.isEmpty(tryTo)) {
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        }
+    }
+
+    public UpdatePlatforms() {
+
+        Given("^the platform(?: \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
+                String platformName, String valuedGlobalInstanceOrIterableProperties, DataTable data) -> {
+
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
+
+            switch (valuedGlobalInstanceOrIterableProperties) {
+                case "global":
+                    platformBuilder.withGlobalProperties(data.asList(ValuedPropertyIO.class));
+                    saveProperties.saveGlobalProperties();
+
+                    break;
+                case "instance":
+                    instanceBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
+                    saveProperties.saveInstanceProperties();
+
+                    break;
+                case "iterable":
+                    deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
+                    saveProperties.saveValuedProperties();
+
+                    break;
+                default:
+                    deployedModuleBuilder.clearValuedProperties();
+                    List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+                    valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
+                    saveProperties.saveValuedProperties();
+                    break;
+            }
+        });
+
+        Given("^the platform has nested iterable properties$", () -> {
+            List<IterableValuedPropertyIO> iterableProperties = Collections.singletonList(
+                    new IterableValuedPropertyIO("a", Collections.singletonList(
+                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                    new ValuedPropertyIO("valued_in_a", "value_a"),
+                                    new IterableValuedPropertyIO("b", Collections.singletonList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                                    new ValuedPropertyIO("valued_in_b", "value_b"),
+                                                    new IterableValuedPropertyIO("c", Collections.singletonList(
+                                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
+                                                                    new ValuedPropertyIO("valued_in_c", "value_c")
+                                                            )))
+                                                    ))
+                                            )))
+                                    )),
+                                    new IterableValuedPropertyIO("d", Collections.singletonList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
+                                                    new ValuedPropertyIO("valued_in_d", "value_d")
+                                            )))
+                                    ))
+                            )))
+                    ))
+            );
+            deployedModuleBuilder.setIterableProperties(iterableProperties);
+            saveProperties.saveValuedProperties();
+        });
+
+        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)" +
+                "(?: updating the value of the \"(.+)\" property accordingly)?$", (
+                String moduleVersions, String propertyName) -> {
+
+            Arrays.stream(moduleVersions.split(", ")).forEach(moduleVersion -> {
+
+                platformBuilder.getDeployedModuleBuilders().get(0).withVersion(moduleVersion);
+                deployedModuleBuilder.withVersion(moduleVersion);
+                platformClient.updatePlatform(platformBuilder.buildInput());
+                platformHistory.updatePlatformBuilder(platformBuilder);
+
+                if (isNotEmpty(propertyName)) {
+                    deployedModuleBuilder.updateValuedProperty(propertyName, moduleVersion);
+                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                    platformHistory.updatePlatformBuilder(platformBuilder);
+                }
+            });
+        });
+
+        Then("^the platform is successfully updated$", () -> createPlatforms.assertPlatform());
+
+        Then("^the platform instance model includes these instance properties$", () -> {
+            InstancesModelOutput expectedInstanceModel = platformBuilder.buildInstanceModel();
+            InstancesModelOutput actualInstanceModel = platformClient.getInstancesModel(platformBuilder.buildInput(),
+                    platformBuilder.getDeployedModuleBuilders().get(0).buildPropertiesPath());
+            assertEquals(expectedInstanceModel, actualInstanceModel);
+        });
+
+        Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
+            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+            Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
+            Assertions.assertThat(matchingProperty).isPresent();
+            assertEquals(expectedValue, matchingProperty.get().getValue());
+        });
+
+        Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
+            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+            Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
+            Assertions.assertThat(matchingProperty).isNotPresent();
+        });
     }
 }

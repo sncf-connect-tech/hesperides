@@ -27,8 +27,8 @@ import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.scenarios.CreatePlatforms;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 public class CreateApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
-    @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
     private ApplicationClient applicationClient;
@@ -47,6 +45,8 @@ public class CreateApplications extends HesperidesScenario implements En {
     private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
     @Autowired
     private AuthorizationCredentialsConfig authorizationCredentialsConfig;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public CreateApplications() {
 
@@ -58,13 +58,13 @@ public class CreateApplications extends HesperidesScenario implements En {
         Given("^an application ?(.+)? associated with the directory group (.+)$", (String applicationName, String directoryGroup) -> {
             createApplication(applicationName);
             assertOK();
-            final String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
+            String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
             addApplicationDirectoryGroups(realDirectoryGroup);
             assertOK();
         });
 
         Given("^its application is associated with the directory group (.+)$", (String directoryGroup) -> {
-            final String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
+            String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
             addApplicationDirectoryGroups(realDirectoryGroup);
             assertOK();
         });
@@ -79,15 +79,15 @@ public class CreateApplications extends HesperidesScenario implements En {
         });
 
         When("^I(?: try to)? add (.*)? directory group to the application$", (String directoryGroup) -> {
-            final String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
+            String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
             addApplicationDirectoryGroups(realDirectoryGroup);
         });
 
         When("^I remove all directory groups on the application$", () -> {
             applicationDirectoryGroupsBuilder.removeDirectoryGroups();
-            testContext.setResponseEntity(applicationClient.setApplicationDirectoryGroups(
+            applicationClient.setApplicationDirectoryGroups(
                     applicationDirectoryGroupsBuilder.getApplicationName(),
-                    applicationDirectoryGroupsBuilder.buildInput()));
+                    applicationDirectoryGroupsBuilder.buildInput());
             assertOK();
         });
     }
@@ -96,7 +96,7 @@ public class CreateApplications extends HesperidesScenario implements En {
         if (StringUtils.isNotEmpty(applicationName)) {
             platformBuilder.withApplicationName(applicationName);
         }
-        testContext.setResponseEntity(platformClient.create(platformBuilder.buildInput()));
+        createPlatforms.createPlatform();
     }
 
     private void addApplicationDirectoryGroups(String directoryGroup) {
@@ -106,8 +106,8 @@ public class CreateApplications extends HesperidesScenario implements En {
     private void addApplicationDirectoryGroups(List<String> directoryGroups) {
         applicationDirectoryGroupsBuilder.withApplicationName(platformBuilder.getApplicationName());
         applicationDirectoryGroupsBuilder.addDirectoryGroups(directoryGroups);
-        testContext.setResponseEntity(applicationClient.setApplicationDirectoryGroups(
+        applicationClient.setApplicationDirectoryGroups(
                 applicationDirectoryGroupsBuilder.getApplicationName(),
-                applicationDirectoryGroupsBuilder.buildInput()));
+                applicationDirectoryGroupsBuilder.buildInput());
     }
 }

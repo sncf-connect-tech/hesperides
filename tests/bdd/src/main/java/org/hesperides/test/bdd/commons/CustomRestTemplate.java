@@ -3,6 +3,8 @@ package org.hesperides.test.bdd.commons;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -13,6 +15,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -27,15 +30,24 @@ import java.util.stream.Collectors;
 
 import static org.hesperides.core.presentation.PresentationConfiguration.configureMessageConverters;
 
-public class DebuggableRestTemplate extends RestTemplate {
+/**
+ * L'intérêt de cette classe est de :
+ * - faciliter le debug avec la méthode wrap
+ * - définir le ResponseEntity dans TestContext automatiquement après chaque appel
+ * - fournir des méthodes utilitaires comme putForEntity ou deleteForEntity
+ */
+public class CustomRestTemplate extends RestTemplate {
 
     private Gson gson;
 
-    public DebuggableRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler) {
+    @Autowired
+    private TestContext testContext;
+
+    public CustomRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler) {
         this(gson, uriTemplateHandler, null);
     }
 
-    public DebuggableRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler, CloseableHttpClient httpClient) {
+    public CustomRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler, CloseableHttpClient httpClient) {
         super();
         this.gson = gson;
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -54,7 +66,8 @@ public class DebuggableRestTemplate extends RestTemplate {
         setMessageConverters(converters);
     }
 
-    // Cette méthode affiche la réponse au format texte en cas d'exception, si l'étape de deserialization ne fonctionne pas, pour faciliter le debug.
+    // Cette méthode affiche la réponse au format texte en cas d'exception,
+    // si l'étape de deserialization ne fonctionne pas, pour faciliter le debug.
     // Pour cela on effectue le parsing de String JSON manuellement.
     private <T> T wrap(String stringResponse, Type responseType) {
         if (responseType == String.class) {
@@ -69,9 +82,11 @@ public class DebuggableRestTemplate extends RestTemplate {
     }
 
     private <T> ResponseEntity<T> wrapForEntity(ResponseEntity<String> stringResponseEntity, Type responseType) {
-        return ResponseEntity.status(stringResponseEntity.getStatusCodeValue())
+        ResponseEntity<T> responseEntity = ResponseEntity.status(stringResponseEntity.getStatusCodeValue())
                 .headers(stringResponseEntity.getHeaders())
                 .body(this.wrap(stringResponseEntity.getBody(), responseType));
+        testContext.setResponseEntity(responseEntity);
+        return responseEntity;
     }
 
     @Override
@@ -205,5 +220,16 @@ public class DebuggableRestTemplate extends RestTemplate {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
         }
+    }
+
+    // Les 2 prochaines méthodes ne sont pas des appels REST standard, elles
+    // correspondent à des cas d'utilisation présents dans Hespérides.
+
+    public <T> ResponseEntity<T> putForEntity(String url, Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
+        return wrapForEntity(super.exchange(url, HttpMethod.PUT, new HttpEntity<>(request), String.class, uriVariables), responseType);
+    }
+
+    public <T> ResponseEntity<T> deleteForEntity(String url, Class<T> responseType, Object... uriVariables) throws RestClientException {
+        return wrapForEntity(super.exchange(url, HttpMethod.DELETE, null, String.class, uriVariables), responseType);
     }
 }

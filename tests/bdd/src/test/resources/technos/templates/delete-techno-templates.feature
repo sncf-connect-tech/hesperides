@@ -9,7 +9,7 @@ Feature: Delete techno templates
     Then the techno template is successfully deleted
 
   Scenario: delete an existing template in a released techno
-    Given a released techno
+    Given an existing released techno
     When I try to delete this techno template
     Then the techno template delete is rejected with a method not allowed error
 

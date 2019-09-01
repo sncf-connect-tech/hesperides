@@ -10,12 +10,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.axonframework.config.EventHandlingConfiguration;
 import org.hesperides.core.presentation.PresentationConfiguration;
-import org.hesperides.test.bdd.commons.DebuggableRestTemplate;
+import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.net.ssl.SSLContext;
@@ -43,8 +42,8 @@ public class IntegTestHttpConfig {
     }
 
     @Bean
-    public RestTemplate buildRestTemplate(Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) throws Exception {
-        return new DebuggableRestTemplate(gson, defaultUriBuilderFactory, buildHttpClient());
+    public CustomRestTemplate buildRestTemplate(Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) throws Exception {
+        return new CustomRestTemplate(gson, defaultUriBuilderFactory, buildHttpClient());
     }
 
     private CloseableHttpClient buildHttpClient() throws Exception {

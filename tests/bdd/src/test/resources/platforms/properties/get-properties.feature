@@ -27,7 +27,7 @@ Feature: Get properties
   Scenario: get properties of a platform with an incorrect version type
     And an existing module with properties
     And an existing platform with this module and valued properties
-    When I try to get the platform properties for this module with an incorrect version type
+    When I try to get the platform properties for this module with an invalid version type
     Then the request is rejected with a bad request error
 
   Scenario: get platform global properties

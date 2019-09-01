@@ -42,43 +42,25 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
     public UpdateTechnoTemplates() {
 
         When("^I( try to)? update this techno template$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
+            technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), tryTo);
+            technoBuilder.updateTemplateBuilder(templateBuilder);
         });
 
         Then("^the techno template is successfully updated$", () -> {
             assertOK();
-            String expectedNamespace = technoBuilder.getNamespace();
-            TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO expectedTemplate = templateBuilder.build();
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the techno template update is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed();
-        });
+        Then("^the techno template update is rejected with a method not allowed error$", this::assertMethodNotAllowed);
 
-        Then("^the techno template update is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno template update is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the techno template update is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the techno template update is rejected with a conflict error$", this::assertConflict);
 
-        Then("^the techno template update is rejected with an internal server error$", () -> {
-            assertInternalServerError();
-        });
+        Then("^the techno template update is rejected with an internal server error$", this::assertInternalServerError);
 
-        Then("^the techno template update is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
-
-        Then("^the techno template is updated$", () -> {
-            assertOK();
-            String expectedNamespace = technoBuilder.getNamespace();
-            TemplateIO expectedTemplate = templateBuilder.withVersionId(2).build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
-            assertEquals(expectedTemplate, actualTemplate);
-        });
+        Then("^the techno template update is rejected with a bad request error$", this::assertBadRequest);
     }
 }

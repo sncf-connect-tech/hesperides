@@ -10,7 +10,7 @@ Feature: Create module templates
     Then the template is successfully added to the module
 
   Scenario: add a template to a released module
-    Given a released module
+    Given an existing released module
     And a template to create
     When I try to add this template to the module
     Then the module template creation is rejected with a method not allowed error
@@ -22,27 +22,26 @@ Feature: Create module templates
     Then the module template creation is rejected with a not found error
 
   Scenario: add a template that already exists
-    Given an existing module
-    And an existing template
-    And a template to create with the same name as the existing one
+    Given an existing module with a template
+    And a template with the same name as the existing one
     When I try to add this template to the module
     Then the module template creation is rejected with a conflict error
 
   Scenario: add a template without a name to an existing module
     Given an existing module
-    And a template to create without a name
+    And a template without a name
     When I try to add this template to the module
     Then the module template creation is rejected with a bad request error
 
   Scenario: add a template without a filename to an existing module
     Given an existing module
-    And a template to create without a filename
+    And a template without a filename
     When I try to add this template to the module
     Then the module template creation is rejected with a bad request error
 
   Scenario: add a template without a location to an existing module
     Given an existing module
-    And a template to create without a location
+    And a template without a location
     When I try to add this template to the module
     Then the module template creation is rejected with a bad request error
 

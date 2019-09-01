@@ -1,21 +1,22 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.test.bdd.technos.TechnoHistory;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class CopyTechnos extends HesperidesScenario implements En {
 
@@ -24,56 +25,49 @@ public class CopyTechnos extends HesperidesScenario implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
-    private ModelBuilder modelBuilder;
+    private TechnoHistory technoHistory;
 
     public CopyTechnos() {
 
-        When("^I( try to)? create a copy of this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(copy("1.0.1", getResponseType(tryTo, TechnoIO.class)));
+        When("^I( try to)? create a copy of this techno(, using the same key)?$", (String tryTo, String sameKey) -> {
+            TechnoIO existingTechno = technoBuilder.build();
+            if (StringUtils.isEmpty(sameKey)) {
+                technoBuilder.withVersion("1.1");
+            }
+            technoClient.copyTechno(existingTechno, technoBuilder.build(), tryTo);
+            // Dans le cas d'une copie de release, la techno
+            // créée devient automatiquement une working copy
+            technoBuilder.withVersionType(VersionType.WORKINGCOPY);
+            // Les templates sont identiques sauf pour le namespace
+            technoBuilder.updateTemplatesNamespace();
+            technoHistory.addTechnoBuilder(technoBuilder);
         });
 
-        When("^I try to create a copy of this techno, using the same key$", () -> {
-            testContext.setResponseEntity(copy(technoBuilder.build().getVersion(), String.class));
-        });
-
-        Then("^the techno is successfully duplicated$", () -> {
+        Then("^the techno is successfully (?:duplicated|released)$", () -> {
             assertCreated();
-            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
-            TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
+            TechnoIO expectedTechno = technoBuilder.build();
+            TechnoIO actualTechno = testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
 
-            // Vérifie la liste des templates
-            // Seul le namespace est différent
-            String expectedNamespace = expectedTechnoBuilder.getNamespace();
-            List<PartialTemplateIO> expectedTemplates = technoClient.getTemplates(technoBuilder.build())
+            List<PartialTemplateIO> expectedTemplates = technoBuilder.getTemplateBuilders()
                     .stream()
-                    .map(expectedTemplate -> new PartialTemplateIO(expectedTemplate.getName(), expectedNamespace, expectedTemplate.getFilename(), expectedTemplate.getLocation()))
+                    .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
+
             List<PartialTemplateIO> actualTemplates = technoClient.getTemplates(actualTechno);
             assertEquals(expectedTemplates, actualTemplates);
         });
 
         Then("^the model of the techno is the same$", () -> {
-            testContext.setResponseEntity(technoClient.getModel(technoBuilder.build(), ModelOutput.class));
+            technoClient.getModel(technoBuilder.build());
             assertOK();
-            ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().buildPropertiesModel();
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
-        });
-
-        Then("^the version type of the duplicated techno is working copy$", () -> {
-            TechnoIO technoOutput = testContext.getResponseBody(TechnoIO.class);
-            assertTrue(technoOutput.getIsWorkingCopy());
         });
 
         Then("^the techno copy is rejected with a not found error$", this::assertNotFound);
 
         Then("^the techno copy is rejected with a conflict error$", this::assertConflict);
-    }
-
-    private ResponseEntity copy(String newVersion, Class responseType) {
-        TechnoIO newTechnoInput = new TechnoBuilder().withVersion(newVersion).build();
-        return technoClient.copy(technoBuilder.build(), newTechnoInput, responseType);
     }
 }

@@ -21,12 +21,12 @@ public class SearchPlatforms extends HesperidesScenario implements En {
 
         When("^I( try to)? search for the platform \"([^\"]*)\" in the application \"([^\"]*)\"$", (
                 String tryTo, String platformName, String applicationName) -> {
-            testContext.setResponseEntity(platformClient.search(applicationName, platformName, getResponseType(tryTo, SearchResultOutput[].class)));
+            platformClient.searchPlatform(applicationName, platformName, tryTo);
         });
 
         Then("^the platform search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
+            List<SearchResultOutput> result = testContext.getResponseBodyAsList();
             assertEquals(nbEntries.intValue(), result.size());
         });
 
@@ -36,9 +36,7 @@ public class SearchPlatforms extends HesperidesScenario implements En {
             assertEquals(platformName, result.get(0).getName());
         });
 
-        Then("^the platform search is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the platform search is rejected with a bad request error$", this::assertBadRequest);
     }
 
 }

@@ -1,21 +1,28 @@
 package org.hesperides.test.bdd.commons;
 
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 @Component
-@Scope("cucumber-glue") // Create and destroy bean on each scenario test
 public class TestContext {
 
     private String authorizationRole = null;
+    @Setter
     private ResponseEntity responseEntity;
 
-    @Autowired
-    private AuthorizationCredentialsConfig authorizationCredentialsConfig;
+    private final AuthorizationCredentialsConfig authorizationCredentialsConfig;
 
+    @Autowired
+    public TestContext(AuthorizationCredentialsConfig authorizationCredentialsConfig) {
+        this.authorizationCredentialsConfig = authorizationCredentialsConfig;
+    }
 
     public String getUsername() {
         return authorizationCredentialsConfig.getTestProfileUsername(authorizationRole);
@@ -25,23 +32,35 @@ public class TestContext {
         return authorizationCredentialsConfig.getTestProfilePassword(authorizationRole);
     }
 
-    public <R> R getResponseBody(Class<R> responseType) {
-        return responseType.cast(responseEntity.getBody());
-    }
-
     public void setAuthorizationRole(String authorizationRole) {
         this.authorizationRole = authorizationRole;
     }
 
-    public ResponseEntity getResponseEntity() {
-        return responseEntity;
+    public <T> T getResponseBody(Class<T> responseType) {
+        return responseType.cast(responseEntity.getBody());
     }
 
-    public void setResponseEntity(ResponseEntity responseEntity) {
-        this.responseEntity = responseEntity;
+    public <T> T getResponseBody() {
+        return (T) responseEntity.getBody();
     }
 
-    public HttpStatus getResponseStatusCode() {
+    public <T> T[] getResponseBodyAsArray() {
+        return (T[]) responseEntity.getBody();
+    }
+
+    public <T> List<T> getResponseBodyAsList() {
+        return Arrays.asList(getResponseBodyAsArray());
+    }
+
+    public int getResponseBodyArrayLength() {
+        return getResponseBodyAsArray().length;
+    }
+
+    public <K, V> Map<K, V> getResponseBodyAsMap() {
+        return (Map<K, V>) responseEntity.getBody();
+    }
+
+    HttpStatus getResponseStatusCode() {
         return responseEntity.getStatusCode();
     }
 }

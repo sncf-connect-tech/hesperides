@@ -10,7 +10,7 @@ Feature: Update module templates
     Then the module template is successfully updated
 
   Scenario: update an existing template in a released module
-    Given a released module with a template
+    Given an existing released module with a template
     And a template to update
     When I try to update this module template
     Then the module template update is rejected with a method not allowed error

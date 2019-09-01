@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
+import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -7,13 +8,13 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.hesperides.test.bdd.users.UserAuthorities;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -34,76 +35,118 @@ public class CreateModules extends HesperidesScenario implements En {
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
-    private ModelBuilder modelBuilder;
+    private ReleaseModules releaseModules;
     @Autowired
     private UserAuthorities userAuthorities;
 
+    @Given("^an existing( released)? module" +
+            "(?: named \"([^\"]*)\")?" +
+            "(?: with version \"([^\"]*)\")?" +
+            "( (?:and|with) (?:this|a) template)?" +
+            "( (?:and|with) properties)?" +
+            "( (?:and|with) password properties)?" +
+            "( (?:and|with) global properties)?" +
+            "( (?:and|with) iterable properties)?" +
+            "( (?:and|with) nested iterable properties)?" +
+            "( (?:and|with) this techno)?$")
+    public void givenAnExistingModule(
+            String released,
+            String moduleName,
+            String moduleVersion,
+            String withThisTemplate,
+            String withProperties,
+            String withPasswordProperties,
+            String withGlobalProperties,
+            String withIterableProperties,
+            String withNestedIterableProperties,
+            String withThisTechno) {
+
+        moduleBuilder.reset();
+
+        if (isNotEmpty(moduleName)) {
+            moduleBuilder.withName(moduleName);
+        }
+
+        if (isNotEmpty(moduleVersion)) {
+            moduleBuilder.withVersion(moduleVersion);
+        }
+
+        if (isNotEmpty(withThisTechno)) {
+            moduleBuilder.withTechnoBuilder(technoBuilder);
+        }
+
+        createModule();
+
+        if (isNotEmpty(withThisTemplate)) {
+            addTemplatePropertiesToModuleBuilder(templateBuilder);
+        }
+
+        if (isNotEmpty(withProperties)) {
+            addPropertyToTemplateContentAndModuleBuilder("module-foo");
+            addPropertyToTemplateContentAndModuleBuilder("module-bar");
+        }
+        if (isNotEmpty(withPasswordProperties)) {
+            propertyBuilder.reset().withName("module-fuzz").withIsPassword();
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+        }
+        if (isNotEmpty(withGlobalProperties)) {
+            addPropertyToTemplateContentAndModuleBuilder("global-module-foo");
+            addPropertyToTemplateContentAndModuleBuilder("global-module-bar");
+        }
+        if (isNotEmpty(withIterableProperties)) {
+            propertyBuilder.reset()
+                    .withName("module-foo")
+                    .withProperty(new PropertyBuilder()
+                            .withName("module-bar"));
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+        }
+        if (isNotEmpty(withNestedIterableProperties)) {
+            propertyBuilder.reset()
+                    .withName("module-foo")
+                    .withProperty(new PropertyBuilder()
+                            .withName("module-bar")
+                            .withProperty(new PropertyBuilder()
+                                    .withName("module-foobar")));
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+        }
+
+        if (isNotEmpty(withThisTemplate) ||
+                isNotEmpty(withProperties) ||
+                isNotEmpty(withGlobalProperties) ||
+                isNotEmpty(withPasswordProperties) ||
+                isNotEmpty(withIterableProperties) ||
+                isNotEmpty(withNestedIterableProperties)) {
+            addTemplateToModule();
+        }
+
+        if (isNotEmpty(released)) {
+            releaseModules.releaseModule();
+            assertOK();
+        }
+    }
+
     public CreateModules() {
 
-        Given("^an existing module" +
-                "(?: named \"([^\"]*)\")?" +
-                "( (?:and|with) (?:a|this) template(?: with a \"/\" in the title)?)?" +
-                "( (?:and|with) properties)?" +
-                "( (?:and|with) password properties)?" +
-                "( (?:and|with) global properties)?" +
-                "( (?:and|with) this techno)?$", (
-                String moduleName,
-                String withTemplate,
-                String withProperties,
-                String withPasswordProperties,
-                String withGlobalProperties,
-                String withThisTechno) -> {
-
-            if (isNotEmpty(moduleName)) {
-                moduleBuilder.reset();
-                moduleBuilder.withName(moduleName);
-            }
-
-            if (isEmpty(withTemplate) || !withTemplate.contains("this")) {
-                templateBuilder.reset();
-            }
-            if (isNotEmpty(withTemplate) && withTemplate.contains("\"/\" in the title")) {
-                templateBuilder.withName("a/template");
-            }
-            if (isNotEmpty(withThisTechno)) {
-                moduleBuilder.withTechno(technoBuilder.build());
-            }
-
-            userAuthorities.ensureUserAuthIsSet();
-            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
-            assertCreated();
-            moduleBuilder.withVersionId(1);
-
-            if (isNotEmpty(withProperties)) {
-                addPropertyToBuilders("module-foo");
-                addPropertyToBuilders("module-bar");
-            }
-            if (isNotEmpty(withPasswordProperties)) {
-                addPropertyToBuilders("module-fuzz", true);
-            }
-
-            if (isNotEmpty(withGlobalProperties)) {
-                addPropertyToBuilders("global-module-foo");
-                addPropertyToBuilders("global-module-bar");
-            }
-            if (isNotEmpty(withTemplate) || isNotEmpty(withProperties) || isNotEmpty(withGlobalProperties)) {
-                moduleBuilder.withTemplate(templateBuilder.build());
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
-            }
-            moduleHistory.addModule();
+        Given("^an existing module with this template content$", (String templateContent) -> {
+            // Cette étape est la fusion de `Given a template with the following content` et de
+            // `Given a module with this template`, il y a 59 tests qui dépendent de cette étape.
+            moduleBuilder.reset();
+            createModule();
+            templateBuilder.setContent(templateContent);
+            addTemplatePropertiesToModuleBuilder(templateBuilder);
+            addTemplateToModule();
         });
 
         Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {
             moduleBuilder.withName("new-module");
-            for (int i = 0; i < nbVersions; i++) {
-                moduleBuilder.withVersion("1." + i);
-                testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
-                assertCreated();
-            }
+            IntStream.range(0, nbVersions).forEach(index -> {
+                moduleBuilder.withVersion("1." + index);
+                createModule();
+            });
         });
 
         Given("^a list of( \\d+)? modules( with different names(?: starting with the same prefix)?)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
-            Integer modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
+            int modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.parseInt(modulesCount.substring(1));
             for (int i = 0; i < modulesToCreateCount; i++) {
                 boolean isLast = i == (modulesToCreateCount - 1);
                 // Note: il faut créer en dernier le module associé à un "match exact",
@@ -118,67 +161,82 @@ public class CreateModules extends HesperidesScenario implements En {
                 } else {
                     moduleBuilder.withVersion("0.0.1" + i);
                 }
-                testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
+                createModule();
                 assertCreated();
             }
         });
 
+        Given("^an existing module with properties with the same name and comment, but different default values, in two templates$", () -> {
+            createModule();
+
+            templateBuilder.reset().withName("template-a").withNamespace(moduleBuilder.buildNamespace());
+            propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("12");
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+            addTemplateToModule();
+
+            templateBuilder.reset().withName("template-b").withNamespace(moduleBuilder.buildNamespace());
+            propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+            addTemplateToModule();
+        });
+
+        Given("^an existing module with properties with the same name but different comments in two templates$", () -> {
+            createModule();
+
+            templateBuilder.reset().withName("template-a").withNamespace(moduleBuilder.buildNamespace());
+            propertyBuilder.reset().withName("foo").withComment("comment-a");
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+            addTemplateToModule();
+
+            templateBuilder.reset().withName("template-b").withNamespace(moduleBuilder.buildNamespace());
+            propertyBuilder.reset().withName("foo").withComment("comment-b");
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+            addTemplateToModule();
+        });
+
+        Given("^the module template properties are modified$", () -> {
+            addPropertyToTemplateContentAndModuleBuilder("patate");
+            moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build());
+            assertOK();
+            moduleBuilder.updateTemplateBuilder(templateBuilder);
+        });
+
         Given("^a module to create" +
-                "(?: with the same name and version)?" +
                 "( with this techno)?" +
+                "(?: with the same name and version)?" +
                 "( but different letter case)?" +
                 "( without a version type)?$", (
                 String withThisTechno,
-                String withDifferentCase,
+                String withDifferentLetterCase,
                 String withoutVersionType) -> {
             moduleBuilder.reset();
-            if (isNotEmpty(withDifferentCase)) {
+            if (isNotEmpty(withDifferentLetterCase)) {
                 moduleBuilder.withName(moduleBuilder.getName().toUpperCase());
             }
             if (isNotEmpty(withThisTechno)) {
-                moduleBuilder.withTechno(technoBuilder.build());
+                moduleBuilder.withTechnoBuilder(technoBuilder);
             }
             if (isNotEmpty(withoutVersionType)) {
                 moduleBuilder.withVersionType(null);
             }
         });
 
-        Given("^an existing module with this template content?$", (String templateContent) -> {
-            userAuthorities.ensureUserAuthIsSet();
-            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
-            assertCreated();
-            templateBuilder.setContent(templateContent);
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+        Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$", (String propertyName, String versions) -> {
+            Arrays.stream(versions.split(", ")).forEach(version -> {
+                moduleBuilder.reset();
+                addPropertyToTemplateContentAndModuleBuilder(propertyName);
+                moduleBuilder.withVersion(version);
+                createModule();
+                addTemplateToModule();
+            });
         });
 
-        Given("^another template in this module with this content?$", (String templateContent) -> {
-            templateBuilder.withName("template2").withFilename("template2.json").setContent(templateContent);
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
-        });
-
-        Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$",
-                (String propertyName, String versions) -> {
-                    addPropertyToBuilders(propertyName);
-                    moduleBuilder.withTemplate(templateBuilder.build());
-                    Arrays.stream(versions.split(", ")).forEach(version -> {
-                        moduleBuilder.withVersion(version);
-                        testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
-                        assertCreated();
-                        moduleBuilder.withVersionId(1);
-                        testContext.setResponseEntity(moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build()));
-                        assertCreated();
-                        moduleHistory.addModule();
-                    });
-                });
-
-        When("^I( try to)? create this module$", (String tryTo) -> {
-            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class)));
-        });
+        When("^I( try to)? create this module$", (String tryTo) -> createModule(tryTo));
 
         Then("^the module is successfully created$", () -> {
             assertCreated();
-            ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO expectedModule = moduleBuilder.build();
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 
@@ -189,16 +247,50 @@ public class CreateModules extends HesperidesScenario implements En {
         Then("^the module creation is rejected with a bad request error$", this::assertBadRequest);
     }
 
-    private void addPropertyToBuilders(String name) {
-        addPropertyToBuilders(name, false);
+    private void addTemplatePropertiesToModuleBuilder(TemplateBuilder templateBuilder) {
+        extractPropertyToModuleBuilder(templateBuilder.getFilename());
+        extractPropertyToModuleBuilder(templateBuilder.getLocation());
+        extractPropertyToModuleBuilder(templateBuilder.getContent());
     }
 
-    private void addPropertyToBuilders(String name, boolean isPassword) {
+    private void extractPropertyToModuleBuilder(String input) {
+        PropertyBuilder.extractProperties(input).forEach(propertyName -> {
+            propertyBuilder.reset().withName(propertyName);
+            moduleBuilder.addPropertyBuilder(propertyBuilder);
+        });
+    }
+
+    private void addPropertyToTemplateContentAndModuleBuilder(String name) {
         propertyBuilder.reset().withName(name);
-        if (isPassword) {
-            propertyBuilder.withIsPassword();
-        }
-        modelBuilder.withProperty(propertyBuilder.build());
+        addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
+    }
+
+    private void addPropertyToTemplateContentAndModuleBuilder(PropertyBuilder propertyBuilder) {
         templateBuilder.withContent(propertyBuilder.toString());
+        moduleBuilder.addPropertyBuilder(propertyBuilder);
+    }
+
+    private void createModule() {
+        createModule(null);
+        assertCreated();
+    }
+
+    private void createModule(String tryTo) {
+        userAuthorities.ensureUserAuthIsSet();
+        moduleClient.createModule(moduleBuilder.build(), tryTo);
+        if (isEmpty(tryTo)) {
+            moduleBuilder.incrementVersionId();
+            moduleHistory.addModuleBuilder(moduleBuilder);
+        }
+    }
+
+    private void addTemplateToModule() {
+        templateBuilder
+                .withVersionId(0)
+                .withNamespace(moduleBuilder.buildNamespace());
+        moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+        assertCreated();
+        moduleBuilder.addTemplateBuilder(templateBuilder);
+        moduleHistory.updateModuleBuilder(moduleBuilder);
     }
 }

@@ -22,12 +22,13 @@ package org.hesperides.test.regression.errors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class UnexpectedException extends AbstractError {
 
-    public UnexpectedException(String entityKey, String latestUri, String testingUri, String message) {
-        super(entityKey, latestUri, testingUri, message);
+    public UnexpectedException(String entityKey, String latestUri, String testingUri, Throwable throwable) {
+        super(entityKey, latestUri, testingUri, StringUtils.defaultString(throwable.getMessage(), throwable.toString()));
     }
 }

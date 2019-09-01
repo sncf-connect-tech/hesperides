@@ -1,16 +1,15 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.junit.Assert.assertEquals;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 
 public class DeleteTechnos extends HesperidesScenario implements En {
 
@@ -19,38 +18,34 @@ public class DeleteTechnos extends HesperidesScenario implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
+    private TechnoHistory technoHistory;
 
     public DeleteTechnos() {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class)));
-            moduleBuilder.removeTechno(technoBuilder.build());
-            modelBuilder.removeProperties(technoBuilder.getProperties());
+            technoClient.deleteTechno(technoBuilder.build(), tryTo);
+            if (isEmpty(tryTo)) {
+                technoHistory.removeTechnoBuilder(technoBuilder);
+            }
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            testContext.setResponseEntity(technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class));
+            technoClient.getTechno(technoBuilder.build(), "should-fail");
             assertNotFound();
         });
 
-        Then("^the techno deletion is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno deletion is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the techno deletion is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the techno deletion is rejected with a conflict error$", this::assertConflict);
 
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
-            testContext.setResponseEntity(technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class));
-            assertEquals(0, getBodyAsArray().length);
-            testContext.setResponseEntity(technoClient.getTemplate(technoBuilder.build().getName(), technoBuilder.build(), String.class));
-            assertNotFound();
+            assertThat(technoClient.getTemplates(technoBuilder.build()), hasSize(0));
+            technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
+                technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), "should-fail");
+                assertNotFound();
+            });
         });
 
     }

@@ -5,9 +5,12 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class UpdateModules extends HesperidesScenario implements En {
@@ -17,39 +20,43 @@ public class UpdateModules extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private ModuleHistory moduleHistory;
+    @Autowired
     private TechnoBuilder technoBuilder;
 
     public UpdateModules() {
 
-        Given("^the module is outdated$", () -> {
-            moduleBuilder.withVersionId(0);
-        });
+        When("^I( try to)? update this module" +
+                "( using the wrong version_id)?" +
+                "( adding this techno)?$", (
+                String tryTo,
+                String usingTheWrongVersionId,
+                String addingThisTechno) -> {
 
-        Given("^this techno is associated to this module$", () -> {
-            moduleBuilder.withTechno(technoBuilder.build());
-        });
+            if (isNotEmpty(usingTheWrongVersionId)) {
+                moduleBuilder.withVersionId(2049);
+            }
+            if (isNotEmpty(addingThisTechno)) {
+                moduleBuilder.withTechnoBuilder(technoBuilder);
+            }
 
-        When("^I( try to)? update this module$", (String tryTo) -> {
-            testContext.setResponseEntity(moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class)));
+            moduleClient.updateModule(moduleBuilder.build(), tryTo);
+            if (isEmpty(tryTo)) {
+                moduleHistory.updateModuleBuilder(moduleBuilder);
+            }
         });
 
         Then("^the module is successfully updated$", () -> {
             assertOK();
-            ModuleIO expectedModule = moduleBuilder.withVersionId(2).build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO expectedModule = moduleBuilder.build();
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 
-        Then("^the module update is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the module update is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the module update is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the module update is rejected with a conflict error$", this::assertConflict);
 
-        Then("^the module update is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the module update is rejected with a bad request error$", this::assertBadRequest);
     }
 }

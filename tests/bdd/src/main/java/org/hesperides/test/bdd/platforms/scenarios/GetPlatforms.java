@@ -21,23 +21,24 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Assertions;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class GetPlatforms extends HesperidesScenario implements En {
 
@@ -48,79 +49,80 @@ public class GetPlatforms extends HesperidesScenario implements En {
     @Autowired
     private PlatformHistory platformHistory;
     @Autowired
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public GetPlatforms() {
 
-        When("^(?:when )?I( try to)? get the platform detail" +
+        When("^I( try to)? get the platform(?: \"([^\"]*)\")? detail" +
                 "( at a specific time in the past)?" +
                 "( at the time of the EPOCH)?" +
                 "( with the wrong letter case)?" +
                 "( requesting the password flag)?$", (
                 String tryTo,
+                String platformName,
                 String withTimestamp,
                 String withEpochTimestamp,
-                String withWrongLetterCase,
-                String requestingThePasswordFlag) -> {
+                String wrongLetterCase,
+                String withPasswordFlag) -> {
+
+            if (isNotEmpty(platformName)) {
+                platformBuilder.withPlatformName(platformName);
+            }
+
             Long timestamp = null;
-            if (StringUtils.isNotEmpty(withTimestamp)) {
-                timestamp = platformHistory.getFirstPlatformTimestamp();
-            } else if (StringUtils.isNotEmpty(withEpochTimestamp)) {
+            if (isNotEmpty(withTimestamp)) {
+                timestamp = platformHistory.getPlatformFirstTimestamp(platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+            } else if (isNotEmpty(withEpochTimestamp)) {
                 timestamp = 0L;
             }
-            PlatformIO platformInput = platformBuilder.buildInput();
-            if (StringUtils.isNotEmpty(withWrongLetterCase)) {
-                platformInput = new PlatformBuilder().withPlatformName(platformBuilder.getPlatformName().toUpperCase()).buildInput();
-            }
-            testContext.setResponseEntity(platformClient.get(platformInput, timestamp, StringUtils.isNotEmpty(requestingThePasswordFlag), getResponseType(tryTo, PlatformIO.class)));
+
+            platformName = isNotEmpty(wrongLetterCase) ? platformBuilder.getPlatformName().toUpperCase() : platformBuilder.getPlatformName();
+            platformClient.getPlatform(platformBuilder.buildInputWithPlatformName(platformName), timestamp, isNotEmpty(withPasswordFlag), tryTo);
         });
 
-        Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {
-            assertOK();
-            PlatformIO expectedPlatform;
-            if (StringUtils.isEmpty(initial)) {
-                expectedPlatform = platformBuilder.buildOutput();
-            } else {
-                expectedPlatform = platformHistory.getInitialPlatformState();
-                expectedPlatform = new PlatformIO(
-                        expectedPlatform.getPlatformName(),
-                        expectedPlatform.getApplicationName(),
-                        expectedPlatform.getVersion(),
-                        expectedPlatform.getIsProductionPlatform(),
-                        expectedPlatform.getDeployedModules().stream().map(deployedModule -> new DeployedModuleIO(
-                                deployedModule.getId(),
-                                moduleBuilder.getPropertiesVersionId(), // Tout ça pour ça, ne fonctionne pas avec plusieurs modules... REFACTORING NECESSAIRE
-                                deployedModule.getName(),
-                                deployedModule.getVersion(),
-                                deployedModule.getIsWorkingCopy(),
-                                deployedModule.getModulePath(),
-                                deployedModule.getPropertiesPath(),
-                                deployedModule.getInstances()))
-                                .collect(Collectors.toList()),
-                        expectedPlatform.getVersionId(),
-                        null);
-            }
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
-            Assert.assertEquals(expectedPlatform, actualPlatform);
-        });
-
-        Then("^there is (\\d+) module on this(?: new)? platform$", (Integer moduleCount) -> {
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
-            assertThat(actualPlatform.getDeployedModules(), hasSize(moduleCount));
-        });
-
-        Then("^there are (\\d+) instances$", (Integer expectedCount) -> {
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
-            int instancesCount = actualPlatform.getDeployedModules().stream()
-                    .mapToInt(deployedModule -> deployedModule.getInstances().size())
-                    .sum();
-            assertEquals(expectedCount.intValue(), instancesCount);
+        Then("^the( initial)? platform detail is successfully retrieved", (String initialPlatform) -> {
+            createPlatforms.assertPlatform(isNotEmpty(initialPlatform) ? platformHistory.getFirstPlatformBuilder(
+                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName()) : platformBuilder);
         });
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
-            Boolean hasPasswords = testContext.getResponseBody(PlatformIO.class).getHasPasswords();
-            Assertions.assertThat(hasPasswords).isNotNull();
+            PlatformIO platform = testContext.getResponseBody();
+            Boolean hasPasswords = platform.getHasPasswords();
+            assertThat(hasPasswords).isNotNull();
             assertEquals("true".equals(trueOrFalse), hasPasswords);
+        });
+
+        Then("^the platform has (\\d+) modules?$", (String expectedNumberOfModules) -> {
+            PlatformIO actualPlatform = testContext.getResponseBody();
+            Assert.assertThat(actualPlatform.getDeployedModules(), hasSize(Integer.parseInt(expectedNumberOfModules)));
+        });
+
+        Then("^the platform has (\\d+) global properties?$", (String expectedNumberOfGlobalProperties) -> {
+            PropertiesIO globalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
+            Assert.assertThat(globalProperties.getValuedProperties(), hasSize(Integer.parseInt(expectedNumberOfGlobalProperties)));
+        });
+
+        // Get platforms using module
+
+        When("^I get the platforms using this module$", () -> {
+            platformClient.getPlatformsUsingModule(moduleBuilder.build());
+        });
+
+        Then("^the platforms using this module are successfully retrieved", () -> {
+            assertOK();
+            List<ModulePlatformsOutput> expectedPlatforms = platformHistory.buildModulePlatforms(deployedModuleBuilder);
+            List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
+            assertEquals(expectedPlatforms, actualPlatforms);
+        });
+
+        Then("^a single platform is retrieved", () -> {
+            assertOK();
+            List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
+            Assert.assertThat(actualPlatforms, hasSize(1));
         });
     }
 }

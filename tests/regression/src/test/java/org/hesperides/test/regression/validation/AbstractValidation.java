@@ -90,7 +90,7 @@ public abstract class AbstractValidation {
         } catch (AssertionError e) {
             regressionLogs.logAndSaveDiff(new Diff(entityKey, readableLatestUri, readableTestingUri, e.getMessage()));
         } catch (Throwable t) {
-            regressionLogs.logAndSaveException(new UnexpectedException(entityKey, readableLatestUri, readableTestingUri, t.getMessage()));
+            regressionLogs.logAndSaveException(new UnexpectedException(entityKey, readableLatestUri, readableTestingUri, t));
         }
         return result;
     }

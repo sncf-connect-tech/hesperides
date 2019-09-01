@@ -3,10 +3,12 @@ package org.hesperides.test.bdd.commons;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +28,11 @@ public class TestContextCleaner {
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
+    private TechnoHistory technoHistory;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
@@ -40,6 +42,10 @@ public class TestContextCleaner {
     @Autowired
     private PlatformHistory platformHistory;
     @Autowired
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private InstanceBuilder instanceBuilder;
+    @Autowired
     private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
     public void reset() {
@@ -48,19 +54,21 @@ public class TestContextCleaner {
     }
 
     private void resetRestTemplateAuthHeader() {
-        // On supprime le BasicAuthenticationInterceptor précédement configuré:
+        // On supprime le BasicAuthenticationInterceptor précédement configuré :
         restTemplate.setInterceptors(Collections.emptyList());
     }
 
     private void resetBuilders() {
         templateBuilder.reset();
         technoBuilder.reset();
+        technoHistory.reset();
         propertyBuilder.reset();
-        modelBuilder.reset();
         moduleBuilder.reset();
         moduleHistory.reset();
         platformBuilder.reset();
         platformHistory.reset();
+        deployedModuleBuilder.reset();
+        instanceBuilder.reset();
         applicationDirectoryGroupsBuilder.reset();
     }
 }

@@ -9,7 +9,7 @@ Feature: Delete technos
     Then the techno is successfully deleted
 
   Scenario: delete a released techno
-    Given a released techno
+    Given an existing released techno
     When I delete this techno
     Then the techno is successfully deleted
 

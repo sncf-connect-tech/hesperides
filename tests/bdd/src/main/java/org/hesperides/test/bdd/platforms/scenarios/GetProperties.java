@@ -21,148 +21,117 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Matcher;
-import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
-import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Every.everyItem;
-import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
-import static org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO.toDomainInstances;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class GetProperties extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
     @Autowired
-    private ModuleClient moduleClient;
-    @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private ModuleHistory moduleHistory;
     @Autowired
     private ModuleBuilder moduleBuilder;
 
     public GetProperties() {
 
-        When("^(?:when )?I( try to)? get the platform properties for this module( at a specific time in the past)?( with an incorrect version type)?$", (String tryTo, String withTimestamp, String withIncorrectVersionType) -> {
-            Long timestamp = null;
-            if (StringUtils.isNotEmpty(withTimestamp)) {
-                timestamp = platformHistory.getFirstPlatformTimestamp();
+        When("^I( try to)? get the platform properties for this module" +
+                "( with an invalid version type)?" +
+                "( at a specific time in the past)?$", (
+                String tryTo,
+                String invalidVersionType,
+                String withTimestamp) -> {
+
+            if (isNotEmpty(invalidVersionType)) {
+                deployedModuleBuilder.withVersionType("TOTO");
             }
-            if (StringUtils.isNotEmpty(withIncorrectVersionType)) {
-                moduleBuilder.withVersionType("TOTO");
-            }
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class)));
+
+            Long timestamp = isEmpty(withTimestamp) ? null : platformHistory.getPlatformFirstTimestamp(
+                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+
+            platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp, tryTo);
         });
 
         When("^I get the global properties of this platform$", () -> {
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), "#"));
+            platformClient.getGlobalProperties(platformBuilder.buildInput());
         });
 
-        Then("^the platform property values are(?: also)? copied$", () -> {
-            // Propriétés valorisées
-            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO(false);
-            assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
-            assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
-            // Propriétés globales
-            PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
-//            platformBuilder.resetGlobalPropertiesVersionId();
-            PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
-            assertEquals(expectedGlobalProperties, actualGlobalProperties);
-        });
+        When("^the( initial)? platform( global)? properties are successfully retrieved$", (
+                String initialProperties, String globalProperties) -> {
 
-        Then("^the (password |non-password |)property values are (not )?obfuscated$", (String selectPasswordProps, String notObfuscated) -> {
-            Matcher<String> isObfusctedOrNot = isNotEmpty(notObfuscated) ? not(equalTo(OBFUSCATED_PASSWORD_VALUE)) : equalTo(OBFUSCATED_PASSWORD_VALUE);
-
-            ModelOutput model = (ModelOutput) moduleClient.getModel(moduleBuilder.build(), ModelOutput.class).getBody();
-            Map<String, PropertyOutput> propertyModelsPerName = model.getProperties().stream().collect(Collectors.toMap(PropertyOutput::getName, Function.identity()));
-            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
-
-            List<ValuedProperty> actualDomainProperties = toDomainInstances(actualProperties.getValuedProperties());
-            List<String> actualPropertyValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
-            assertThat(actualPropertyValues, hasSize(greaterThan(0)));
-            assertThat(actualPropertyValues, everyItem(isObfusctedOrNot));
-
-            List<ValuedProperty> actualIterableDomainProperties = flattenValuedProperties(actualProperties.getIterableValuedProperties());
-            List<String> actualIterablePropertiesValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualIterableDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
-            assertThat(actualIterablePropertiesValues, everyItem(isObfusctedOrNot));
-        });
-
-        Then("^the( initial)? platform( global)? properties are successfully retrieved$", (String initial, String global) -> {
             assertOK();
-            PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformProperties() : platformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
-            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
-            assertEquals(expectedProperties, actualProperties);
+
+            DeployedModuleBuilder deployedModuleBuilder = isEmpty(initialProperties) ? this.deployedModuleBuilder :
+                    platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(), platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
+
+            PropertiesIO expectedModuleProperties = isNotEmpty(globalProperties)
+                    ? platformBuilder.buildProperties() : deployedModuleBuilder.buildProperties();
+
+            PropertiesIO actualModuleProperties = testContext.getResponseBody();
+            assertEquals(expectedModuleProperties, actualModuleProperties);
         });
 
-        Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
+        When("^I get this platform global properties usage$", () -> {
+            platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput());
+        });
+
+        Then("^the platform global properties usage is successfully retrieved$", () -> {
             assertOK();
-            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
-            Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
-            assertTrue(matchingProperty.isPresent());
-            assertEquals(expectedValue, matchingProperty.get().getValue());
+            Map<String, Set<GlobalPropertyUsageOutput>> expectedGlobalPropertiesUsage = platformBuilder.buildGlobalPropertiesUsage(moduleHistory);
+            Map<String, Set<GlobalPropertyUsageOutput>> actualGlobalPropertiesUsage = testContext.getResponseBody();
+            assertEquals(expectedGlobalPropertiesUsage, actualGlobalPropertiesUsage);
         });
 
-        Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
+        Then("^the password property values are obfuscated$", () -> {
             assertOK();
-            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
-            Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
-            assertFalse(matchingProperty.isPresent());
+            PropertiesIO actualProperties = testContext.getResponseBody();
+            actualProperties.getValuedProperties().forEach(valuedProperty -> {
+                if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
+                    assertEquals("********", valuedProperty.getValue());
+                }
+            });
         });
 
-        Then("^there are (\\d+) global properties$", (Integer expectedCount) -> {
-            PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
-            assertEquals(expectedCount.intValue(), actualGlobalProperties.getValuedProperties().size());
+        Then("^the non-password property values are not obfuscated$", () -> {
+            assertOK();
+            PropertiesIO actualProperties = testContext.getResponseBody();
+            actualProperties.getValuedProperties().forEach(valuedProperty -> {
+                if (!moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
+                    assertThat(valuedProperty.getValue()).doesNotContain("********");
+                }
+            });
         });
 
-        Then("^there are (\\d+) module properties$", (Integer expectedCount) -> {
-            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            assertEquals(expectedCount.intValue(), actualProperties.getValuedProperties().size());
+        Then("^the password property values are not obfuscated$", () -> {
+            assertOK();
+            PropertiesIO actualProperties = testContext.getResponseBody();
+            actualProperties.getValuedProperties().forEach(valuedProperty -> {
+                if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
+                    assertThat(valuedProperty.getValue()).doesNotContain("********");
+                }
+            });
         });
-    }
-
-    private static List<String> extractValues(List<ValuedProperty> valuedProperties) {
-        return valuedProperties.stream()
-                .map(ValuedProperty::getValue).collect(Collectors.toList());
-    }
-
-    private static List<String> extractValuesIfPasswordOrNot(List<ValuedProperty> valuedProperties, Map<String, PropertyOutput> propertyModelsPerName, boolean selectPasswordProps) {
-        return valuedProperties.stream()
-                .filter(p -> (!selectPasswordProps) ^ propertyModelsPerName.get(p.getName()).isPassword())
-                .map(ValuedProperty::getValue).collect(Collectors.toList());
-    }
-
-    private static List<ValuedProperty> flattenValuedProperties(Set<IterableValuedPropertyIO> iterableValuedIOProperties) {
-        List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
-                .map(IterableValuedPropertyIO::toDomainInstance)
-                .collect(Collectors.toList());
-        return AbstractValuedProperty.getFlatValuedProperties(iterableValuedProperties);
     }
 }

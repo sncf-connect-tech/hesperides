@@ -20,49 +20,49 @@
  */
 package org.hesperides.test.bdd.modules;
 
-import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.ModuleKeyOutput;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 public class ModuleHistory {
 
-    @Autowired
-    private ModuleBuilder moduleBuilder;
+    @Getter
+    private List<ModuleBuilder> moduleBuilders;
 
-    private List<ModuleBuilder> moduleBuilders = new ArrayList<>();
-    private List<ModuleIO> modules = new ArrayList<>();
+    public ModuleHistory() {
+        reset();
+    }
 
-    public void reset() {
+    public ModuleHistory reset() {
         moduleBuilders = new ArrayList<>();
-        modules = new ArrayList<>();
+        return this;
     }
 
-    public void addModule() {
-        moduleBuilders.add(moduleBuilder);
-        modules.add(moduleBuilder.build());
+    public ModuleBuilder getFirstModuleBuilder() {
+        return moduleBuilders.get(0);
     }
 
-    public List<ModuleKeyOutput> buildTechnoModules() {
-        return Optional.ofNullable(modules)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(module -> new ModuleKeyOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
+    public void addModuleBuilder(ModuleBuilder moduleBuilder) {
+        moduleBuilders.add(SerializationUtils.clone(moduleBuilder));
+    }
+
+    public void removeModuleBuilder(ModuleBuilder moduleBuilderToRemove) {
+        moduleBuilders = moduleBuilders.stream()
+                .filter(existingModuleBuilder -> !existingModuleBuilder.equalsByKey(moduleBuilderToRemove))
                 .collect(Collectors.toList());
     }
 
-    public List<ModuleIO> getModules() {
-        return modules;
-    }
-
-    public List<ModuleBuilder> getModuleBuilders() {
-        return moduleBuilders;
+    public void updateModuleBuilder(ModuleBuilder moduleBuilder) {
+        moduleBuilder.incrementVersionId();
+        ModuleBuilder updatedModuleBuilder = SerializationUtils.clone(moduleBuilder);
+        moduleBuilders = moduleBuilders.stream()
+                .map(existingModuleBuilder -> existingModuleBuilder.equalsByKey(updatedModuleBuilder)
+                        ? updatedModuleBuilder : existingModuleBuilder)
+                .collect(Collectors.toList());
     }
 }

@@ -28,6 +28,7 @@ import org.hesperides.core.domain.platforms.entities.properties.IterableValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,7 @@ import static org.hesperides.core.presentation.io.platforms.properties.IterableV
 
 @Value
 @NonFinal
-public abstract class AbstractValuedPropertyIO {
+public abstract class AbstractValuedPropertyIO implements Serializable {
 
     @NotNull
     String name;

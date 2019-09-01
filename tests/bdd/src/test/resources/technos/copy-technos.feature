@@ -10,10 +10,9 @@ Feature: Copy technos
     And the model of the techno is the same
 
   Scenario: copy a released techno
-    Given a released techno with properties
+    Given an existing released techno with properties
     When I create a copy of this techno
     Then the techno is successfully duplicated
-    But the version type of the duplicated techno is working copy
 
   Scenario: copy a techno that doesn't exist
     Given a techno that doesn't exist
@@ -26,7 +25,7 @@ Feature: Copy technos
     Then the techno copy is rejected with a conflict error
 
   Scenario: copy a released techno with the same key
-    Given a released techno
+    Given an existing released techno
     When I try to create a copy of this techno, using the same key
     Then the techno copy is rejected with a conflict error
 

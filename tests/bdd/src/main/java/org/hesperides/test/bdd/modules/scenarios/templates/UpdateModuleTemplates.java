@@ -41,28 +41,32 @@ public class UpdateModuleTemplates extends HesperidesScenario implements En {
 
     public UpdateModuleTemplates() {
 
+        Given("^the properties are removed from the module$", () -> {
+            templateBuilder.setContent("clear");
+            moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build());
+            moduleBuilder.updateTemplateBuilder(templateBuilder);
+        });
+
         When("^I( try to)? update this module template$", (String tryTo) -> {
-            testContext.setResponseEntity(moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
+            moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), tryTo);
+            moduleBuilder.updateTemplateBuilder(templateBuilder);
         });
 
         Then("^the module template is successfully updated$", () -> {
             assertOK();
-            String expectedNamespace = moduleBuilder.getNamespace();
-            TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO expectedTemplate = templateBuilder.build();
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the module template update is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed();
-        });
+        Then("^the module template update is rejected with a method not allowed error$", this::assertMethodNotAllowed);
 
-        Then("^the module template update is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the module template update is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the module template update is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the module template update is rejected with a conflict error$", this::assertConflict);
+
+        Then("^the module template update is rejected with an internal server error$", this::assertInternalServerError);
+
+        Then("^the module template update is rejected with a bad request error$", this::assertBadRequest);
     }
 }

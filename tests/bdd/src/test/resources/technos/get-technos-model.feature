@@ -13,8 +13,8 @@ Feature: Get techno model
     When I get the model of this techno
     Then the model of this techno contains the properties
 
-  Scenario: get the model of a techno with iterable-ception
-    Given an existing techno with iterable-ception
+  Scenario: get the model of a techno nested iterable properties
+    Given an existing techno with nested iterable properties
     When I get the model of this techno
     Then the model of this techno contains the properties
 
@@ -27,7 +27,7 @@ Feature: Get techno model
     Given an existing techno with properties
     And I delete this techno template
     When I get the model of this techno
-    Then the model of this techno doesn't contain the properties
+    Then the techno model is empty
 
   Scenario: get the model of a techno with an updated template
     Given an existing techno with properties

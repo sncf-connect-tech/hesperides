@@ -15,7 +15,7 @@ Feature: Get technos details
     Then the techno detail is successfully retrieved
 
   Scenario: get the detail of a released techno
-    Given a released techno
+    Given an existing released techno
     When I get the techno detail
     Then the techno detail is successfully retrieved
 

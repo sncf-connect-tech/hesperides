@@ -20,12 +20,14 @@
  */
 package org.hesperides.test.bdd.templatecontainers.builders;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,15 +36,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class PropertyBuilder {
+public class PropertyBuilder implements Serializable {
 
     private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
 
+    @Getter
     private String name;
     private boolean isRequired;
     private String comment;
     private String defaultValue;
     private String pattern;
+    @Getter
     private boolean isPassword;
     private List<PropertyBuilder> properties;
 
@@ -66,11 +70,6 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder withIsRequired() {
-        this.isRequired = true;
-        return this;
-    }
-
     public PropertyBuilder withComment(String comment) {
         this.comment = comment;
         return this;
@@ -78,11 +77,6 @@ public class PropertyBuilder {
 
     public PropertyBuilder withDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
-        return this;
-    }
-
-    public PropertyBuilder withPattern(String pattern) {
-        this.pattern = pattern;
         return this;
     }
 
@@ -125,13 +119,13 @@ public class PropertyBuilder {
                 property.append(" @required");
             }
             if (!StringUtils.isEmpty(comment)) {
-                property.append(" @comment " + comment);
+                property.append(" @comment ").append(comment);
             }
             if (!StringUtils.isEmpty(defaultValue)) {
-                property.append(" @default " + defaultValue);
+                property.append(" @default ").append(defaultValue);
             }
             if (!StringUtils.isEmpty(pattern)) {
-                property.append(" @pattern " + pattern);
+                property.append(" @pattern ").append(pattern);
             }
             if (isPassword) {
                 property.append(" @password");
@@ -152,11 +146,17 @@ public class PropertyBuilder {
         return property.toString();
     }
 
-    public String replacePropertiesWithValues(String input, List<ValuedPropertyIO> predefinedProperties, List<ValuedPropertyIO> properties) {
+    public static String replacePropertiesWithValues(String input, List<ValuedPropertyIO> predefinedProperties, List<ValuedPropertyIO> properties) {
         String result = input;
         properties.addAll(predefinedProperties);
         for (String propertyName : extractProperties(input)) {
-            String propertyValue = properties.stream().filter(valuedProperty -> valuedProperty.getName().equals(propertyName.trim())).map(ValuedPropertyIO::getValue).findFirst().orElse("");
+
+            String propertyValue = properties.stream()
+                    .filter(valuedProperty -> valuedProperty.getName().equals(propertyName.trim()))
+                    .map(ValuedPropertyIO::getValue)
+                    .findFirst()
+                    .orElse("");
+
             result = result.replace("{{" + propertyName + "}}", propertyValue);
         }
         return result;
@@ -165,12 +165,24 @@ public class PropertyBuilder {
     /**
      * Extrait la liste des propriétés qu se trouvent entre moustaches.
      */
-    public List<String> extractProperties(String input) {
+    public static List<String> extractProperties(String input) {
         List<String> properties = new ArrayList<>();
         Matcher matcher = anythingBetweenMustachesPattern.matcher(input);
         while (matcher.find()) {
             properties.add(matcher.group(1));
         }
         return properties;
+    }
+
+    boolean isSimpleProperty() {
+        return !hasProperties();
+    }
+
+    boolean isIterableProperty() {
+        return hasProperties();
+    }
+
+    private boolean hasProperties() {
+        return !CollectionUtils.isEmpty(properties);
     }
 }

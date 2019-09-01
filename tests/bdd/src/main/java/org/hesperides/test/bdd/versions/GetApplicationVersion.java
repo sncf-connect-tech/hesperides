@@ -12,12 +12,12 @@ public class GetApplicationVersion extends HesperidesScenario implements En {
     public GetApplicationVersion() {
 
         When("^I get the application versions$", () -> {
-            testContext.setResponseEntity(restTemplate.getForEntity("/versions", Map.class));
+            restTemplate.getForEntity("/versions", Map.class);
         });
 
         Then("^the versions are returned$", () -> {
             assertOK();
-            Map map = getBodyAsMap();
+            Map map = testContext.getResponseBodyAsMap();
             assertNotNull(map.get("version"));
         });
     }

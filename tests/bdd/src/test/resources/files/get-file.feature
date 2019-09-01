@@ -171,18 +171,6 @@ Feature: Get file
       global-value
       """
 
-  Scenario: get file with iterable-ception properties
-    Given an existing module with this template content
-      """
-      {{#module-foo}}{{#module-bar}}{{module-foobar}}{{/module-bar}}{{/module-foo}}
-      """
-    And an existing platform with this module and iterable-ception
-    When I get the module template file
-    Then the file is successfully retrieved and contains
-    """
-    module-foobar-val-1module-foobar-val-2module-foobar-val-3module-foobar-val-4
-    """
-
   #issue-457
   Scenario: get file with predefined properties
     Given an existing module with this template content
@@ -211,7 +199,7 @@ Feature: Get file
       hesperides.platform.name=test-platform
 
       hesperides.module.name=test-module
-      hesperides.module.version=1.0.0
+      hesperides.module.version=1.0
       hesperides.module.path=
       hesperides.module.path.full=/a/b/c
       hesperides.module.path.0=a
@@ -219,7 +207,7 @@ Feature: Get file
       hesperides.module.path.2=c
       hesperides.module.path.3=
 
-      hesperides.instance.name=instance-foo-1
+      hesperides.instance.name=instance-name
       """
 
   #issue-457
@@ -530,14 +518,14 @@ Feature: Get file
     And the platform has these valued properties
       | name     | value                   |
       | property | {{ instance-property }} |
-    And the platform has these instance properties
-      | name              | value          |
-      | instance-property | instance-value |
     And the platform has these iterable properties
       | iterable | bloc   | name                                 | value                             |
       | a        | bloc-1 | will-be-replaced-by-global-value     | {{ global-property }}             |
       | a        | bloc-1 | will-be-replaced-by-instance-value   | {{ instance-property }}           |
       | a        | bloc-1 | will-be-replaced-by-predefined-value | {{ hesperides.application.name }} |
+    And the platform has these instance properties
+      | name              | value          |
+      | instance-property | instance-value |
     When I get the instance template file
     Then the file is successfully retrieved and contains
       """
@@ -599,8 +587,8 @@ Feature: Get file
     Then the file is successfully retrieved and contains
       """
       test-application
-      /GROUP
-      /GROUP
+      /ABC/DEF
+      /ABC/DEF
       """
 
   Scenario: get file with an iterable property with the same name but 2 different default values
@@ -638,7 +626,7 @@ Feature: Get file
       property: value
       """
 
-  Scenario: get file with an iterable-ception
+  Scenario: get file with nested iterable properties
     Given an existing module with this template content
     """
     {{#a}}
@@ -653,7 +641,7 @@ Feature: Get file
     {{/a}}
     """
     And an existing platform with this module
-    And the platform has iterable-ception
+    And the platform has nested iterable properties
     When I get the module template file
     Then the file is successfully retrieved and contains
     """

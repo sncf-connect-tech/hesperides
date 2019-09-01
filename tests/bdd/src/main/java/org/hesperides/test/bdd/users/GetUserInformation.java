@@ -12,18 +12,20 @@ import static org.junit.Assert.assertThat;
 
 public class GetUserInformation extends HesperidesScenario implements En {
 
+    //TODO UserClient ?
+
     public GetUserInformation() {
 
         When("^I get the current user information$", () -> {
-            testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", UserInfoOutput.class));
+            restTemplate.getForEntity("/users/auth", UserInfoOutput.class);
         });
 
         When("^I get user information about another prod user$", () -> {
-            testContext.setResponseEntity(restTemplate.getForEntity("/users/" + authorizationCredentialsConfig.getProdUsername(), UserInfoOutput.class));
+            restTemplate.getForEntity("/users/" + authorizationCredentialsConfig.getProdUsername(), UserInfoOutput.class);
         });
 
         When("^I get user information about a non-existing user$", () -> {
-            testContext.setResponseEntity(restTemplate.getForEntity("/users/inexistant", String.class));
+            restTemplate.getForEntity("/users/inexistant", String.class);
         });
 
         Then("^(.+) is listed under the user directory groups$", (String expectedAuthorityGroup) -> {
@@ -40,17 +42,15 @@ public class GetUserInformation extends HesperidesScenario implements En {
         });
 
         When("^(?:the user log out|the user re-send valid credentials)$", () ->
-                testContext.setResponseEntity(restTemplate.getForEntity("/users/auth?logout=true", String.class))
+                restTemplate.getForEntity("/users/auth?logout=true", String.class)
         );
 
-        Then("^login is successful$", () ->
-                assertOK()
-        );
+        Then("^login is successful$", this::assertOK);
 
         Then("^user information is returned, (with|without) tech role and (with|without) prod role$", (
                 String withTechRole, String withProdRole) -> {
             assertOK();
-            final UserInfoOutput actualUserInfo = testContext.getResponseBody(UserInfoOutput.class);
+            final UserInfoOutput actualUserInfo = testContext.getResponseBody();
             assertEquals("with".equals(withTechRole), actualUserInfo.getTechUser());
             assertEquals("with".equals(withProdRole), actualUserInfo.getProdUser());
         });

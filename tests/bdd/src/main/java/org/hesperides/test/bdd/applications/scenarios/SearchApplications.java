@@ -1,14 +1,14 @@
-package org.hesperides.test.bdd.platforms.scenarios;
+package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.scenarios.CreatePlatforms;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -19,6 +19,8 @@ public class SearchApplications extends HesperidesScenario implements En {
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public SearchApplications() {
 
@@ -31,10 +33,10 @@ public class SearchApplications extends HesperidesScenario implements En {
                 if (StringUtils.isNotEmpty(withPlatform)) {
                     for (int j = 0; j < nbPlatforms; j++) {
                         platformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
-                        platformClient.create(platformBuilder.buildInput());
+                        createPlatforms.createPlatform();
                     }
                 } else {
-                    platformClient.create(platformBuilder.buildInput());
+                    createPlatforms.createPlatform();
                 }
             }
         });
@@ -44,22 +46,22 @@ public class SearchApplications extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
             }
-            platformClient.create(platformBuilder.buildInput());
+            createPlatforms.createPlatform();
         });
 
         When("^I( try to)? search for the application \"(.*?)\"", (String tryTo, String applicationName) -> {
-            testContext.setResponseEntity(platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class)));
+            platformClient.searchApplication(applicationName, tryTo);
         });
 
         Then("^the application (?:list|search result) contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
+            List<SearchResultOutput> result = testContext.getResponseBodyAsList();
             assertEquals(nbEntries.intValue(), result.size());
         });
 
         Then("^the application \"(.*?)\" is found$", (String applicationName) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
+            List<SearchResultOutput> result = testContext.getResponseBodyAsList();
             assertEquals(applicationName, result.get(0).getName());
         });
 

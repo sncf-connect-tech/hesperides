@@ -26,7 +26,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 public class DeleteTechnoTemplates extends HesperidesScenario implements En {
 
@@ -40,21 +39,19 @@ public class DeleteTechnoTemplates extends HesperidesScenario implements En {
     public DeleteTechnoTemplates() {
 
         When("^I( try to)? delete this techno template$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.deleteTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class)));
+            String templateName = templateBuilder.getName();
+            technoClient.deleteTemplate(templateName, technoBuilder.build(), tryTo);
+            technoBuilder.removeTemplateBuilder(templateName);
         });
 
         Then("^the techno template is successfully deleted$", () -> {
             assertOK();
-            testContext.setResponseEntity(technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class));
+            technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), "it-should-fail");
             assertNotFound();
         });
 
-        Then("^the techno template delete is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed();
-        });
+        Then("^the techno template delete is rejected with a method not allowed error$", this::assertMethodNotAllowed);
 
-        Then("^the techno template delete is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno template delete is rejected with a not found error$", this::assertNotFound);
     }
 }

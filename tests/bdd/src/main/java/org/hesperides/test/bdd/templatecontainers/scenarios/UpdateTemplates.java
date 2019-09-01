@@ -32,15 +32,14 @@ public class UpdateTemplates implements En {
     public UpdateTemplates() {
 
         Given("^a template to update$", () -> {
-            templateBuilder.withVersionId(1);
+            templateBuilder.withContent("this content will be added to the existing content");
         });
 
         Given("^the template is outdated", () -> {
-            templateBuilder.withVersionId(0);
+            templateBuilder.withVersionId(2049);
         });
 
         Given("^the template has an invalid property", () -> {
-            templateBuilder.withVersionId(1);
             templateBuilder.withContent("username = {{{ mysql.user.name }}");
         });
     }

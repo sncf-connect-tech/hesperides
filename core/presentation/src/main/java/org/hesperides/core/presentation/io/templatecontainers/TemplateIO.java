@@ -11,6 +11,7 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Optional;
 
 @Value
@@ -48,7 +49,7 @@ public class TemplateIO {
 
     @Value
     @AllArgsConstructor
-    public static class RightsIO implements DomainPrimer<Template.Rights> {
+    public static class RightsIO implements DomainPrimer<Template.Rights>, Serializable {
 
         FileRightsIO user;
         FileRightsIO group;
@@ -71,7 +72,7 @@ public class TemplateIO {
 
     @Value
     @AllArgsConstructor
-    public static class FileRightsIO implements DomainPrimer<Template.FileRights> {
+    public static class FileRightsIO implements DomainPrimer<Template.FileRights>, Serializable {
 
         Boolean read;
         Boolean write;

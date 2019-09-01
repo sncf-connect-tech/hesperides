@@ -1,23 +1,22 @@
 package org.hesperides.test.bdd.events;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.events.EventOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 
 public class GetEvents extends HesperidesScenario implements En {
 
+    @Autowired
+    private EventClient eventClient;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
@@ -26,37 +25,22 @@ public class GetEvents extends HesperidesScenario implements En {
     public GetEvents() {
 
         When("^I( try to)? get the events of this module$", (String tryTo) -> {
-            testContext.setResponseEntity(getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class)));
+            eventClient.getModuleEvents(moduleBuilder.build(), tryTo);
         });
 
         When("^I( try to)? get the events of this platform$", (String tryTo) -> {
-            testContext.setResponseEntity(getPlatformEvents(platformBuilder.buildInput(), getResponseType(tryTo, EventOutput[].class)));
+            eventClient.getPlatformEvents(platformBuilder.buildInput(), tryTo);
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {
             assertOK();
-            EventOutput[] events = testContext.getResponseBody(EventOutput[].class);
-            assertEquals(nbEvents.intValue(), events.length);
+            List<EventOutput> events = testContext.getResponseBodyAsList();
+            assertThat(events, hasSize(nbEvents));
         });
 
         Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
-            EventOutput[] events = testContext.getResponseBody(EventOutput[].class);
-            assertThat(events[index], hasProperty("type", endsWith(eventType)));
+            List<EventOutput> events = testContext.getResponseBodyAsList();
+            assertThat(events.get(index), hasProperty("type", endsWith(eventType)));
         });
-    }
-
-    public ResponseEntity getModuleEvents(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.getForEntity("/events/modules/{name}/{version}/{type}",
-                responseType,
-                moduleInput.getName(),
-                moduleInput.getVersion(),
-                moduleInput.getIsWorkingCopy() ? "workingcopy" : "release");
-    }
-
-    public ResponseEntity getPlatformEvents(PlatformIO platformInput, Class responseType) {
-        return restTemplate.getForEntity("/events/platforms/{name}/{version}",
-                responseType,
-                platformInput.getApplicationName(),
-                platformInput.getPlatformName());
     }
 }

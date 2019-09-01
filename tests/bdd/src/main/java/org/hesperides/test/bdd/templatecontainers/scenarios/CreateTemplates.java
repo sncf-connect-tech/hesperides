@@ -21,76 +21,62 @@
 package org.hesperides.test.bdd.templatecontainers.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class CreateTemplates extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
-    @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
-    @Autowired
-    private PropertyBuilder propertyBuilder;
 
     public CreateTemplates() {
 
-        Given("^a template to create(?: with name \"([^\"]*)\")?(?: with filename \"([^\"]*)\")?(?: with location \"([^\"]*)\")?$", (
+        Given("^a template(?: to create)?" +
+                "(?: named \"([^\"]*)\")?" +
+                "(?: (?:and|with) filename \"([^\"]*)\")?" +
+                "(?: (?:and|with) location \"([^\"]*)\")?$", (
                 String name, String filename, String location) -> {
-            if (StringUtils.isNotEmpty(name)) {
+
+            templateBuilder.reset();
+
+            if (isNotEmpty(name)) {
                 templateBuilder.withName(name);
             }
-            if (StringUtils.isNotEmpty(filename)) {
+            if (isNotEmpty(filename)) {
                 templateBuilder.withFilename(filename);
-                addPropertiesToModel(filename);
             }
-            if (StringUtils.isNotEmpty(location)) {
+            if (isNotEmpty(location)) {
                 templateBuilder.withLocation(location);
-                addPropertiesToModel(location);
             }
         });
 
-        Given("^an existing template$", () -> {
-            testContext.setResponseEntity(
-                    moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class)
-            );
-            assertCreated();
+        Given("^a template(?: named \"([^\"]*)\")? with the following content$", (String name, String content) -> {
+            templateBuilder.reset();
+            if (isNotEmpty(name)) {
+                templateBuilder.withName(name);
+            }
+            templateBuilder.withContent(content);
         });
 
-        Given("^a template to create with the same name as the existing one$", () -> {
+        Given("^a template with the same name as the existing one$", () -> {
         });
 
-        Given("^a template to create without a name$", () -> {
-            templateBuilder.withName("");
+        Given("^a template without a name$", () -> {
+            templateBuilder.reset().withName("");
         });
 
-        Given("^a template to create without a filename$", () -> {
-            templateBuilder.withName("new-template").withFilename("");
+        Given("^a template without a filename$", () -> {
+            templateBuilder.reset().withName("new-template").withFilename("");
         });
 
-        Given("^a template to create without a location", () -> {
-            templateBuilder.withName("new-template").withLocation("");
+        Given("^a template without a location", () -> {
+            templateBuilder.reset().withName("new-template").withLocation("");
         });
         Given("^this template content", (String templateContent) -> {
             templateBuilder.setContent(templateContent);
-        });
-    }
-
-    private void addPropertiesToModel(String input) {
-        propertyBuilder.extractProperties(input).forEach(property -> {
-            propertyBuilder.reset().withName(property);
-            modelBuilder.withProperty(propertyBuilder.build());
         });
     }
 }

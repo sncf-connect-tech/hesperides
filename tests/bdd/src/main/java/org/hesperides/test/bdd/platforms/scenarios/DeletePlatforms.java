@@ -22,10 +22,13 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class DeletePlatforms extends HesperidesScenario implements En {
 
@@ -33,23 +36,44 @@ public class DeletePlatforms extends HesperidesScenario implements En {
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
+    @Autowired
+    private SaveProperties saveProperties;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public DeletePlatforms() {
 
-        Given("^a platform that doesn't exist$", () -> {
-            platformBuilder.withPlatformName("nope");
+        When("^I( try to)? delete( and restore)? this platform( with the wrong letter case)?$", (
+                String tryTo, String restorePlatform, String wrongLetterCase) -> {
+            platformClient.deletePlatform(platformBuilder.buildInput(), tryTo);
+            if (isEmpty(tryTo) && isEmpty(restorePlatform)) {
+                platformHistory.removePlatformBuilder(platformBuilder);
+            }
+            if (isNotEmpty(restorePlatform)) {
+                assertOK(); // On vérifie d'abord que la suppression s'est bien déroulée
+                String platformName = isNotEmpty(wrongLetterCase) ? platformBuilder.getPlatformName().toUpperCase() : platformBuilder.getPlatformName();
+                platformClient.restorePlatform(platformBuilder.buildInputWithPlatformName(platformName), tryTo);
+            }
         });
 
-        When("^I( try to)? delete this platform$", (String tryTo) -> {
-            testContext.setResponseEntity(platformClient.delete(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
+        When("^I try to restore this platform$", () -> {
+            platformClient.restorePlatform(platformBuilder.buildInput(), "should-fail");
         });
 
         Then("^the platform is successfully deleted", () -> {
             assertOK();
-        });
-
-        Then("^the platform deletion is rejected with a not found error$", () -> {
+            platformClient.getPlatform(platformBuilder.buildInput(), null, false, "should-fail");
             assertNotFound();
         });
+
+        Then("^the platform is successfully restored with its properties and everything", () -> {
+            createPlatforms.assertPlatform();
+            platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties);
+            saveProperties.assertGlobalProperties();
+        });
+
+        Then("^the platform deletion is rejected with a not found error$", this::assertNotFound);
     }
 }

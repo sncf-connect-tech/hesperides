@@ -19,6 +19,6 @@ Feature: Get platform at a given point in time
   Scenario: get properties of a platform with valued properties at a specific time in the past
     Given an existing module with properties
     And an existing platform with this module and valued properties
-    When I update this platform, changing property values
+    When I update the properties
     And I get the platform properties for this module at a specific time in the past
     Then the initial platform properties are successfully retrieved

@@ -41,39 +41,26 @@ public class CreateModuleTemplates extends HesperidesScenario implements En {
 
     public CreateModuleTemplates() {
 
-        Given("^a module template to create$", () -> {
-            templateBuilder
-                    .withName("module-template")
-                    .withFilename("module.js")
-                    .withLocation("/etc");
-        });
-
         When("^I( try to)? add this template to the module$", (String tryTo) -> {
-            moduleBuilder.withTemplate(templateBuilder.build());
-            testContext.setResponseEntity(moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
+            templateBuilder.withNamespace(moduleBuilder.buildNamespace());
+            templateBuilder.withVersionId(0);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), tryTo);
+            moduleBuilder.addTemplateBuilder(templateBuilder);
         });
 
         Then("^the template is successfully added to the module$", () -> {
             assertCreated();
-            TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO expectedTemplate = moduleBuilder.getLastTemplateBuilder().build();
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the module template creation is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed();
-        });
+        Then("^the module template creation is rejected with a method not allowed error$", this::assertMethodNotAllowed);
 
-        Then("^the module template creation is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the module template creation is rejected with a bad request error$", this::assertBadRequest);
 
-        Then("^the module template creation is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the module template creation is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the module template creation is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the module template creation is rejected with a conflict error$", this::assertConflict);
     }
 }

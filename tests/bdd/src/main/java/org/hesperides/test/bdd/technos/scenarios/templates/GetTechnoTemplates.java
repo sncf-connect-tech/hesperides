@@ -29,77 +29,62 @@ import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
 public class GetTechnoTemplates extends HesperidesScenario implements En {
 
-    private static int nbTemplates = 12;
     @Autowired
     private TechnoClient technoClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-    private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
 
     public GetTechnoTemplates() {
 
-        Given("^multiple templates in this techno$", () -> {
-            for (int i = 0; i < nbTemplates; i++) {
-                templateBuilder.withName("template-" + i + 1);
-                technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-                expectedPartialTemplates.add(templateBuilder.buildPartialTemplate(technoBuilder.getNamespace()));
-            }
-        });
+        Given("^multiple templates in this techno$", () -> IntStream.range(0, 12).forEach(index -> addTemplateToExistingTechno("template-" + index + 1)));
 
-        Given("^a template in this techno$", () -> {
-            templateBuilder.withName("a-new-template");
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-        });
+        Given("^a template in this techno$", () -> addTemplateToExistingTechno("a-new-template"));
 
-        Given("^a template that doesn't exist in this techno$", () -> {
-            templateBuilder.withName("nope");
-        });
+        Given("^a template that doesn't exist in this techno$", () -> templateBuilder.withName("doesn-t-exist"));
 
-        When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class)));
-        });
+        When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> technoClient.getTemplates(technoBuilder.build(), tryTo));
 
-        When("^I( try to)? get this template in this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
-        });
+        When("^I( try to)? get this template in this techno$", (String tryTo) ->
+                technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), tryTo));
 
         Then("^a list of all the templates of the techno is returned$", () -> {
             assertOK();
-            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
-            assertEquals(expectedPartialTemplates,
-                    actualPartialTemplates.stream()
-                            .filter(t -> !TemplateBuilder.DEFAULT_NAME.equals(t.getName()))
-                            .collect(Collectors.toList()));
+            List<PartialTemplateIO> expectedPartialTemplates = technoBuilder.getTemplateBuilders().stream().map(TemplateBuilder::buildPartialTemplate).collect(Collectors.toList());
+            List<PartialTemplateIO> actualPartialTemplates = testContext.getResponseBodyAsList();
+            assertEquals(expectedPartialTemplates, actualPartialTemplates);
         });
 
         Then("^the techno template is successfully returned$", () -> {
             assertOK();
-            TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            // On récupère le template depuis la techno pour avoir le bon version_id
+            TemplateIO expectedTemplate = technoBuilder.getLastTemplateBuilder().build();
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the techno template is not found$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno template is not found$", this::assertNotFound);
 
-        Then("^the templates techno is not found$", () -> {
-            assertNotFound();
-        });
+        Then("^the templates techno is not found$", this::assertNotFound);
 
-        Then("^the list of techno templates is empty$", () -> {
-            assertEquals(0, getBodyAsArray().length);
-        });
+        Then("^the list of techno templates is empty$", () -> assertEquals(0, testContext.getResponseBodyArrayLength()));
+    }
+
+    private void addTemplateToExistingTechno(String templateName) {
+        templateBuilder.reset()
+                .withNamespace(technoBuilder.buildNamespace())
+                .withName(templateName);
+        technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
+        assertCreated();
+        technoBuilder.addTemplateBuilder(templateBuilder);
     }
 }

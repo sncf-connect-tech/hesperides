@@ -41,30 +41,22 @@ public class CreateTechnoTemplates extends HesperidesScenario implements En {
 
     public CreateTechnoTemplates() {
 
-        Given("^a techno template to create$", () -> {
-            templateBuilder
-                    .withName("techno-template")
-                    .withFilename("techno.js")
-                    .withLocation("/etc");
-        });
-
         When("^I( try to)? add this template to the techno$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
+            templateBuilder.withNamespace(technoBuilder.buildNamespace());
+            templateBuilder.withVersionId(0);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), tryTo);
+            technoBuilder.addTemplateBuilder(templateBuilder);
         });
 
         Then("^the template is successfully added to the techno$", () -> {
             assertCreated();
-            TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO expectedTemplate = technoBuilder.getLastTemplateBuilder().build();
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the techno template creation is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed();
-        });
+        Then("^the techno template creation is rejected with a method not allowed error$", this::assertMethodNotAllowed);
 
-        Then("^the techno template creation is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the techno template creation is rejected with a bad request error$", this::assertBadRequest);
     }
 }

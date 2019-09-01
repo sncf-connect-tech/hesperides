@@ -21,82 +21,30 @@
 package org.hesperides.test.bdd.technos;
 
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.builders.TemplateContainerBuilder;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
-public class TechnoBuilder {
-
-    private String name;
-    private String version;
-    private String versionType;
-    private List<PropertyOutput> properties;
-
-    private List<TemplateIO> templates;
+public class TechnoBuilder extends TemplateContainerBuilder {
 
     public TechnoBuilder() {
         reset();
     }
 
     public void reset() {
-        // Valeurs par défaut
-        name = "test-techno";
-        version = "1.0.0";
-        versionType = TemplateContainerHelper.WORKINGCOPY;
-        properties = new ArrayList<>();
-        templates = new ArrayList<>();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public TechnoBuilder withName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public TechnoBuilder withVersion(String version) {
-        this.version = version;
-        return this;
-    }
-
-    public TechnoBuilder withVersionType(String versionType) {
-        this.versionType = versionType;
-        return this;
+        reset("test-techno");
     }
 
     public TechnoIO build() {
-        return new TechnoIO(name, version, TemplateContainerHelper.isWorkingCopy(versionType));
+        return buildWithName(name);
     }
 
-    public String getNamespace() {
+    public TechnoIO buildWithName(String name) {
+        return new TechnoIO(name, version, VersionType.toIsWorkingCopy(versionType));
+    }
+
+    public String buildNamespace() {
         return "packages#" + name + "#" + version + "#" + versionType.toUpperCase();
-    }
-
-    public void withProperty(PropertyOutput property) {
-        properties.add(property);
-    }
-
-    public List<PropertyOutput> getProperties() {
-        return properties;
-    }
-
-    public String getVersionType() {
-        return versionType;
-    }
-
-    public TechnoBuilder withTemplate(TemplateIO template) {
-        templates.add(template);
-        return this;
-    }
-
-    public List<TemplateIO> getTemplates() {
-        return templates;
     }
 }

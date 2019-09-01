@@ -4,21 +4,20 @@ import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class GetPropertiesDiff extends HesperidesScenario implements En {
@@ -26,29 +25,31 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
     @Autowired
     private PlatformClient platformClient;
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
     private PlatformHistory platformHistory;
 
     public GetPropertiesDiff() {
         When("^I get the( global)?( instance)? properties diff on (stored|final) values between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
                 String globalProperties, String instanceProperties, String storedOrFinal, String fromPlatformName, String toPlatformName) -> {
-            String propertiesPath = StringUtils.isNotEmpty(globalProperties) ? "#" : moduleBuilder.getPropertiesPath();
-            PlatformIO fromPlatform = platformHistory.getPlatformByName(fromPlatformName);
-            PlatformIO toPlatform = platformHistory.getPlatformByName(toPlatformName);
-            String fromInstance = StringUtils.isNotEmpty(instanceProperties) ? fromPlatform.getDeployedModules().get(0).getInstances().get(0).getName() : null;
-            String toInstance = StringUtils.isNotEmpty(instanceProperties) ? toPlatform.getDeployedModules().get(0).getInstances().get(0).getName() : null;
-            testContext.setResponseEntity(platformClient.getPropertiesDiff(
-                    platformHistory.getPlatformByName(fromPlatformName),
-                    propertiesPath,
+
+            PlatformBuilder fromPlatform = platformHistory.getPlatformByName(fromPlatformName);
+            PlatformBuilder toPlatform = platformHistory.getPlatformByName(toPlatformName);
+
+            String fromPropertiesPath = getPropertiesPath(globalProperties, fromPlatform);
+            String toPropertiesPath = getPropertiesPath(globalProperties, toPlatform);
+
+            String fromInstance = getInstance(instanceProperties, fromPlatform);
+            String toInstance = getInstance(instanceProperties, toPlatform);
+
+            platformClient.getPropertiesDiff(
+                    fromPlatform.buildInput(),
+                    fromPropertiesPath,
                     fromInstance,
-                    platformHistory.getPlatformByName(toPlatformName),
-                    propertiesPath,
+                    toPlatform.buildInput(),
+                    toPropertiesPath,
                     toInstance,
                     storedOrFinal.equals("stored"),
                     null,
-                    PropertiesDiffOutput.class
-            ));
+                    null);
         });
 
         Then("the diff is successfully retrieved", this::assertOK);
@@ -73,6 +74,14 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
             Set<String> differingPropertiesNameExpected = Diff.getDiffering(expectedPropertiesDiff);
             assertEquals("differing", differingPropertiesNameExpected, differingPropertiesName);
         });
+    }
+
+    private String getPropertiesPath(String globalProperties, PlatformBuilder platform) {
+        return isNotEmpty(globalProperties) ? "#" : platform.getDeployedModuleBuilders().get(0).buildPropertiesPath();
+    }
+
+    private String getInstance(String instanceProperties, PlatformBuilder platform) {
+        return isNotEmpty(instanceProperties) ? platform.getDeployedModuleBuilders().get(0).getInstanceBuilders().get(0).getName() : null;
     }
 
     private Set<String> getPropertiesName(Set<AbstractDifferingPropertyOutput> propertiesDiff) {

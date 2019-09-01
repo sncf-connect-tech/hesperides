@@ -10,7 +10,7 @@ Feature: Update modules
     Then the module is successfully updated
 
   Scenario: update a released module
-    Given a released module
+    Given an existing released module
     When I try to update this module
     Then the module update is rejected with a bad request error
 
@@ -21,19 +21,17 @@ Feature: Update modules
 
   Scenario: update an outdated module
     Given an existing module
-    But the module is outdated
-    When I try to update this module
+    When I try to update this module using the wrong version_id
     Then the module update is rejected with a conflict error
 
   Scenario: update a module that has been deleted
     Given an existing module
-    And the module is deleted
+    And I delete this module
     When I try to update this module
     Then the module update is rejected with a not found error
 
   Scenario: update a module with a techno that doesn't exist
     Given an existing module
     And a techno that doesn't exist
-    And this techno is associated to this module
-    When I try to update this module
+    When I try to update this module adding this techno
     Then the module update is rejected with a not found error
