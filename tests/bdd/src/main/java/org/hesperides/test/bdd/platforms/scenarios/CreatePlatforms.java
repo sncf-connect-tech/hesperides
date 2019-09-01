@@ -104,9 +104,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(withAnInstance)) {
             if (isNotEmpty(withInstanceProperties)) {
-                // Propriétés de module enregistrées après la création de plateforme
-                deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
-                deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
                 instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
                 instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
             }
@@ -125,20 +122,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (isNotEmpty(moduleLogicalGroup)) {
                     deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
                 }
-                //TODO descendre les 3 prochains cas après la création et gérer le properties_version_id
-                if (isNotEmpty(withValuedProperties)) {
-                    moduleBuilder.buildPropertiesModel().getProperties().forEach(property ->
-                            deployedModuleBuilder.withValuedProperty(property.getName(), property.getName() + "-value"));
-                }
-                if (isNotEmpty(withIterableProperties)) {
-                    deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
-                            Collections.singletonList(new IterablePropertyItemIO("item",
-                                    Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));
-                }
-                if (isNotEmpty(withFilenameAndLocationValues)) {
-                    deployedModuleBuilder.withValuedProperty("filename", "conf");
-                    deployedModuleBuilder.withValuedProperty("location", "etc");
-                }
                 platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             });
         }
@@ -155,6 +138,23 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties) || isNotEmpty(withFilenameAndLocationValues)) {
+            if (isNotEmpty(withValuedProperties)) {
+                moduleBuilder.buildPropertiesModel().getProperties().forEach(property ->
+                        deployedModuleBuilder.withValuedProperty(property.getName(), property.getName() + "-value"));
+            }
+            if (isNotEmpty(withIterableProperties)) {
+                deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
+                        Collections.singletonList(new IterablePropertyItemIO("item",
+                                Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));
+            }
+            if (isNotEmpty(withInstanceProperties)) {
+                deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
+                deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
+            }
+            if (isNotEmpty(withFilenameAndLocationValues)) {
+                deployedModuleBuilder.withValuedProperty("filename", "conf");
+                deployedModuleBuilder.withValuedProperty("location", "etc");
+            }
             saveProperties.saveValuedProperties();
         }
     }
