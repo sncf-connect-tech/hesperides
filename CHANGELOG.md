@@ -25,6 +25,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2019-08-16
+### Fixed
+
+- Bug lorsque propriété simple & itérable ont le même nom - close #701 (#708) [Lucas Cimon]
+
+
+
 ## 2019-08-13
 ### Added
 
