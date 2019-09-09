@@ -25,6 +25,20 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- Fixing AD integration tests. [Lucas Cimon]
+
+
+
+## 2019-09-04
+### Fixed
+
+- Fixing AD integration tests (#749) [Lucas Cimon]
+
+
+
 ## 2019-08-16
 ### Fixed
 
