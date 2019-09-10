@@ -98,7 +98,7 @@ public class TechnoClient {
     }
 
     public void copyTechno(TechnoIO existingTechnoInput, TechnoIO newTechnoInput, String tryTo) {
-        restTemplate.postForEntity("/templates/packages?from_package_name={name}&from_package_version={version}&from_is_working_copy={isWorkingCopy}",
+        restTemplate.postForEntity("/templates/packages?from_name={name}&from_version={version}&from_is_working_copy={isWorkingCopy}",
                 newTechnoInput,
                 getResponseType(tryTo, TechnoIO.class),
                 existingTechnoInput.getName(),

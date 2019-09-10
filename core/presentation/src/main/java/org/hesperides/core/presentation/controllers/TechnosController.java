@@ -190,8 +190,8 @@ public class TechnosController extends AbstractController {
     @ApiOperation("Create a copy of a techno")
     @PostMapping
     public ResponseEntity<TechnoIO> copyTechno(Authentication authentication,
-                                               @RequestParam("from_package_name") final String fromTechnoName,
-                                               @RequestParam("from_package_version") final String fromTechnoVersion,
+                                               @RequestParam("from_name") final String fromTechnoName,
+                                               @RequestParam("from_version") final String fromTechnoVersion,
                                                @RequestParam("from_is_working_copy") final Boolean isFromWorkingCopy,
                                                @Valid @RequestBody final TechnoIO technoInput) {
 
