@@ -55,10 +55,3 @@ jobs:
           -in ./.travis/codesigning.asc.enc -out ./.travis/codesigning.asc -d
         - gpg --import ./.travis/codesigning.asc
       script: mvn deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml
-notifications:
-  webhooks:
-    urls:
-      - https://outlook.office.com/webhook/838cfd20-344e-4053-97eb-5fa1f7fb25f9@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/287a35ae03c74b2d9e01c33c286f174c/9adc9018-8898-45c6-8f07-e92b8eaeb8a2
-    on_success: change
-    on_failure: change
-  email: false
