@@ -43,12 +43,12 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.GLOBAL;
+import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.PREDEFINED;
 
 @Component
 public class FileUseCases {
@@ -185,7 +185,8 @@ public class FileUseCases {
                                                                    String instanceName,
                                                                    boolean shouldHidePasswordProperties) {
 
-        PropertyVisitorsSequence preparedPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties)
+        PropertyVisitorsSequence preparedPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
+                    platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties, EnumSet.of(GLOBAL, PREDEFINED))
                 .removeMustachesInPropertyValues()
                 .passOverPropertyValuesToChildItems();
         Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);

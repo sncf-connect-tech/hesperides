@@ -18,7 +18,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class GetPropertiesDiff extends HesperidesScenario implements En {
 
@@ -53,6 +56,14 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
         });
 
         Then("the diff is successfully retrieved", this::assertOK);
+
+        Then("the diff is empty", () -> {
+            PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
+            assertThat(actualPropertiesDiff.getCommon(), is(empty()));
+            assertThat(actualPropertiesDiff.getDiffering(), is(empty()));
+            assertThat(actualPropertiesDiff.getOnlyLeft(), is(empty()));
+            assertThat(actualPropertiesDiff.getOnlyRight(), is(empty()));
+        });
 
         And("the resulting diff match these values", (DataTable data) -> {
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);

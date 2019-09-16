@@ -29,7 +29,6 @@ import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,6 +41,7 @@ import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
+import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.WITHOUT_MODEL;
 
 
 @Component
@@ -304,11 +304,11 @@ public class PlatformUseCases {
             PropertyVisitorsSequence fromPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
                     fromPlatform, fromModulePath, fromModuleKey,
                     fromModulePropertiesModels,
-                    fromInstanceName, fromShouldHidePasswordProperties, true, true);
+                    fromInstanceName, fromShouldHidePasswordProperties, EnumSet.of(WITHOUT_MODEL));
             PropertyVisitorsSequence toPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
                     toPlatform, toModulePath, toModuleKey,
                     toModulePropertiesModels,
-                    toInstanceName, toShouldHidePasswordProperties, true, true);
+                    toInstanceName, toShouldHidePasswordProperties, EnumSet.of(WITHOUT_MODEL));
 
             propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
         }
