@@ -255,3 +255,15 @@ Feature: Get properties diffs
     And the resulting diff match these values
       | only_left | only_right | common | differing |
       |           |            | common |           |
+
+  #issue-752
+  Scenario: a diff between modules does not contain global properties
+    Given an existing module
+    And an existing platform named "P1" with this module
+    And an existing platform named "P2" with this module
+    And the platform "P2" has these global properties
+      | name            | value        |
+      | global-property | GLOBAL_VALUE |
+    When I get the properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the diff is empty

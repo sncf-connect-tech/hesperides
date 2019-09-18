@@ -26,9 +26,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
+
 ### Fixed
 
-- Fixing AD integration tests. [Lucas Cimon]
+- Unused global properties appearing in /diff - close #75 [Lucas Cimon]
 
 
 

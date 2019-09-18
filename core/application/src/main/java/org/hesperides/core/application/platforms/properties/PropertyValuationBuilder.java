@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.files.InfiniteMustacheRecursion;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyType;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
@@ -18,6 +19,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.*;
 import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.*;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
@@ -30,19 +32,8 @@ public class PropertyValuationBuilder {
                                                                          Module.Key moduleKey,
                                                                          List<AbstractPropertyView> modulePropertiesModels,
                                                                          String instanceName,
-                                                                         boolean shouldHidePasswordProperties) {
-        return buildPropertyVisitorsSequence(platform, modulePath, moduleKey,
-                modulePropertiesModels, instanceName, shouldHidePasswordProperties, false, false);
-    }
-
-    public static PropertyVisitorsSequence buildPropertyVisitorsSequence(PlatformView platform,
-                                                                         String modulePath,
-                                                                         Module.Key moduleKey,
-                                                                         List<AbstractPropertyView> modulePropertiesModels,
-                                                                         String instanceName,
                                                                          boolean shouldHidePasswordProperties,
-                                                                         boolean excludePredefinedProperties,
-                                                                         boolean includePropertiesWithoutModel) {
+                                                                         EnumSet<PropertyType> propertiesToInclude) {
 
         DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey);
 
@@ -50,14 +41,14 @@ public class PropertyValuationBuilder {
         if (shouldHidePasswordProperties) {
             valuedProperties = hidePasswordProperties(valuedProperties, modulePropertiesModels);
         }
-        PropertyVisitorsSequence propertyVisitors = PropertyVisitorsSequence.fromModelAndValuedProperties(modulePropertiesModels, valuedProperties, includePropertiesWithoutModel);
+        PropertyVisitorsSequence propertyVisitors = PropertyVisitorsSequence.fromModelAndValuedProperties(modulePropertiesModels, valuedProperties, propertiesToInclude.contains(WITHOUT_MODEL));
         List<AbstractValuedPropertyView> valuedPropertiesWithoutModel = extractValuedPropertiesWithoutModel(valuedProperties, propertyVisitors);
         // A ce stade, `valuedProperties` ne contient plus que les valorisations de propriétés sans modèle associé
         PropertyValuationContext valuationContext = new PropertyValuationContext(platform, deployedModule, instanceName, valuedPropertiesWithoutModel);
-        PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors, true, includePropertiesWithoutModel);
+        PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors, propertiesToInclude.contains(GLOBAL), propertiesToInclude.contains(WITHOUT_MODEL));
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive :
         propertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext, 0);
-        if (excludePredefinedProperties) {
+        if (!propertiesToInclude.contains(PREDEFINED)) {
             propertyVisitors = valuationContext.removePredefinedProperties(propertyVisitors);
         }
         return propertyVisitors;
