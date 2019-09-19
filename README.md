@@ -54,6 +54,9 @@ and [Axon](https://axoniq.io) to implement event sourcing.
 
 Available online at <https://voyages-sncf-technologies.github.io/hesperides-gui/>
 
+### Changelog
+All the last features & fixes are listed there: [CHANGELOG.md](https://github.com/voyages-sncf-technologies/hesperides/blob/master/CHANGELOG.md).
+
 ## License
 
 Hesperides is licensed under the GPL V3 license
