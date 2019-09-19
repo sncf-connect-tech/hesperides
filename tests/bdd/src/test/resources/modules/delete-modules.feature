@@ -17,3 +17,9 @@ Feature: Delete modules
     Given a module that doesn't exist
     When I try to delete this module
     Then the module deletion is rejected with a not found error
+
+  Scenario: delete an existing module used by a plateforme
+    Given an existing module
+    And an existing platform with this module
+    When I try to delete this module
+    Then the module deletion is rejected with a conflict error

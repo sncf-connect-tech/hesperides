@@ -3,10 +3,12 @@ package org.hesperides.core.application.modules;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.exceptions.ConflictModuleException;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
@@ -18,7 +20,9 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKe
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -105,6 +109,13 @@ public class ModuleUseCases {
         if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
+
+        List<Module.Key> listeKeys = Arrays.asList( (Module.Key) moduleKey);
+        List<ModuleView> listeModulesViews = moduleQueries.getModulesWithin(listeKeys);
+        if(listeModulesViews != null && !listeModulesViews.isEmpty()) {
+            throw new ConflictModuleException(moduleKey);
+        }
+
         moduleCommands.deleteModule(optionalModuleId.get(), user);
     }
 
