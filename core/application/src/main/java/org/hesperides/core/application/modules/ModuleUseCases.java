@@ -8,6 +8,7 @@ import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
@@ -42,12 +43,14 @@ public class ModuleUseCases {
     private final ModuleCommands moduleCommands;
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
+    private final PlatformQueries platformQueries;
 
     @Autowired
-    public ModuleUseCases(ModuleCommands moduleCommands, ModuleQueries moduleQueries, TechnoQueries technoQueries) {
+    public ModuleUseCases(ModuleCommands moduleCommands, ModuleQueries moduleQueries, TechnoQueries technoQueries, PlatformQueries platformQueries) {
         this.moduleCommands = moduleCommands;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
+        this.platformQueries = platformQueries;
     }
 
     /**
@@ -110,10 +113,9 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(moduleKey);
         }
 
-        List<Module.Key> listeKeys = Arrays.asList( (Module.Key) moduleKey);
-        List<ModuleView> listeModulesViews = moduleQueries.getModulesWithin(listeKeys);
-        if(listeModulesViews != null && !listeModulesViews.isEmpty()) {
-            throw new ConflictModuleException(moduleKey);
+        List<ModulePlatformView> modulePlatformViews = platformQueries.getPlatformsUsingModule( (Module.Key) moduleKey);
+        if(modulePlatformViews != null && !modulePlatformViews.isEmpty()) {
+            throw new ConflictModuleException(moduleKey, modulePlatformViews);
         }
 
         moduleCommands.deleteModule(optionalModuleId.get(), user);

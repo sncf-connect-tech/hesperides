@@ -23,3 +23,11 @@ Feature: Delete modules
     And an existing platform with this module
     When I try to delete this module
     Then the module deletion is rejected with a conflict error
+
+  Scenario: delete an existing module used by a deleted plateforme
+    Given an existing module
+    And an existing platform with this module
+    When I try to delete this platform
+    And the platform is successfully deleted
+    And I try to delete this module
+    Then the module is successfully deleted
