@@ -5,8 +5,11 @@ import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
+import org.hesperides.core.domain.modules.exceptions.ModuleUsedByPlatformsException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.queries.PlatformQueries;
+import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
@@ -18,6 +21,7 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKe
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +42,14 @@ public class ModuleUseCases {
     private final ModuleCommands moduleCommands;
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
+    private final PlatformQueries platformQueries;
 
     @Autowired
-    public ModuleUseCases(ModuleCommands moduleCommands, ModuleQueries moduleQueries, TechnoQueries technoQueries) {
+    public ModuleUseCases(ModuleCommands moduleCommands, ModuleQueries moduleQueries, TechnoQueries technoQueries, PlatformQueries platformQueries) {
         this.moduleCommands = moduleCommands;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
+        this.platformQueries = platformQueries;
     }
 
     /**
@@ -105,6 +111,12 @@ public class ModuleUseCases {
         if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
+
+        List<ModulePlatformView> modulePlatformViews = platformQueries.getPlatformsUsingModule((Module.Key) moduleKey);
+        if (!CollectionUtils.isEmpty(modulePlatformViews)) {
+            throw new ModuleUsedByPlatformsException(moduleKey, modulePlatformViews);
+        }
+
         moduleCommands.deleteModule(optionalModuleId.get(), user);
     }
 

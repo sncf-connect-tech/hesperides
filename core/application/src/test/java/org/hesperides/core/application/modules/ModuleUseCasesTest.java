@@ -4,6 +4,7 @@ import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
+import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -37,6 +38,8 @@ public class ModuleUseCasesTest {
     ModuleCommands moduleCommands;
     @MockBean
     TechnoQueries technoQueries;
+    @MockBean
+    PlatformQueries platformQueries;
 
     @Test(expected = DuplicateModuleException.class)
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {

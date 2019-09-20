@@ -28,3 +28,11 @@ Feature: Delete technos
     And an existing module with this techno
     When I try to delete this techno
     Then the techno deletion is rejected with a conflict error
+
+  Scenario: delete an existing techno used by a deleted module
+    Given an existing techno
+    And an existing module with this techno
+    When I delete this module
+    And the module is successfully deleted
+    And I delete this techno
+    Then the techno is successfully deleted
