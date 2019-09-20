@@ -18,16 +18,16 @@ Feature: Delete modules
     When I try to delete this module
     Then the module deletion is rejected with a not found error
 
-  Scenario: delete an existing module used by a plateforme
+  Scenario: delete an existing module used by a platform
     Given an existing module
     And an existing platform with this module
     When I try to delete this module
     Then the module deletion is rejected with a conflict error
 
-  Scenario: delete an existing module used by a deleted plateforme
+  Scenario: delete an existing module used by a deleted platform
     Given an existing module
     And an existing platform with this module
-    When I try to delete this platform
+    When I delete this platform
     And the platform is successfully deleted
-    And I try to delete this module
+    And I delete this module
     Then the module is successfully deleted

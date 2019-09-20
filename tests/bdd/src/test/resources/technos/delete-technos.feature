@@ -32,7 +32,7 @@ Feature: Delete technos
   Scenario: delete an existing techno used by a deleted module
     Given an existing techno
     And an existing module with this techno
-    When I try to delete this module
+    When I delete this module
     And the module is successfully deleted
-    And I try to delete this techno
+    And I delete this techno
     Then the techno is successfully deleted

@@ -3,9 +3,9 @@ package org.hesperides.core.application.modules;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.exceptions.ConflictModuleException;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
+import org.hesperides.core.domain.modules.exceptions.ModuleUsedByPlatformsException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
@@ -21,9 +21,8 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKe
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -113,9 +112,9 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(moduleKey);
         }
 
-        List<ModulePlatformView> modulePlatformViews = platformQueries.getPlatformsUsingModule( (Module.Key) moduleKey);
-        if(modulePlatformViews != null && !modulePlatformViews.isEmpty()) {
-            throw new ConflictModuleException(moduleKey, modulePlatformViews);
+        List<ModulePlatformView> modulePlatformViews = platformQueries.getPlatformsUsingModule((Module.Key) moduleKey);
+        if (!CollectionUtils.isEmpty(modulePlatformViews)) {
+            throw new ModuleUsedByPlatformsException(moduleKey, modulePlatformViews);
         }
 
         moduleCommands.deleteModule(optionalModuleId.get(), user);
