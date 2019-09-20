@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.exceptions.ConflictModuleException;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleHasWorkingcopyTechnoException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -26,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
