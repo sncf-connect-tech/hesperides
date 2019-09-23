@@ -81,6 +81,12 @@ public class SaveProperties extends HesperidesScenario implements En {
                 assertValuedProperties();
             }
         });
+
+        When("^I try to save a property declared twice with the same name but different values$", () -> {
+            deployedModuleBuilder.withValuedProperty("property-a", "foo");
+            deployedModuleBuilder.withValuedProperty("property-a", "bar");
+            saveValuedProperties("should-fail");
+        });
     }
 
     private void assertValuedProperties() {

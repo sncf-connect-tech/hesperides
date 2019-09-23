@@ -127,3 +127,9 @@ Feature: Save properties the old way
     #Est-ce qu'il ne faudrait pas ne pas passer les properties_version_id pour tester la rétrocompatibilité ?
 
   Scenario: save global properties
+
+  Scenario: save property of platform with the same name of existing one
+    Given an existing module
+    And an existing platform with this module
+    When I try to save a property declared twice with the same name but different values
+    Then the request is rejected with a bad request error
