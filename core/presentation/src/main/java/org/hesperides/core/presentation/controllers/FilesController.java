@@ -41,23 +41,7 @@ public class FilesController extends AbstractController {
                                                                      @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                                                      @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
 
-        // Pour des raisons de retrocompatibilité avec le front,
-        // en attendant que https://github.com/voyages-sncf-technologies/hesperides-gui/pull/164 soit en prod,
-        // nous devons pour le moment supporter simulate=undefined en valeur de paramètre
-        List<InstanceFileOutput> files = filesUseCases.getFiles(
-                applicationName,
-                platformName,
-                modulePath,
-                moduleName,
-                moduleVersion,
-                instanceName,
-                Boolean.TRUE.equals(isWorkingCopy),
-                "true".equals(simulate))
-                .stream()
-                .map(InstanceFileOutput::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(files);
+        return getInstanceFilesNotDeprecated(applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, isWorkingCopy, simulate);
     }
 
     @Deprecated
@@ -76,20 +60,8 @@ public class FilesController extends AbstractController {
                                           @RequestParam("template_namespace") final String templateNamespace,
                                           @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
-        String fileContent = filesUseCases.getFile(
-                applicationName,
-                platformName,
-                modulePath,
-                moduleName,
-                moduleVersion,
-                instanceName,
-                templateName,
-                Boolean.TRUE.equals(isWorkingCopy),
-                templateNamespace,
-                Boolean.TRUE.equals(simulate),
-                new User(authentication));
 
-        return ResponseEntity.ok(fileContent);
+        return getFileNotDeprecated(authentication, applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, templateName, isWorkingCopy, templateNamespace, simulate);
     }
 
     @ApiOperation("Get the list of files of an instance or a module")
