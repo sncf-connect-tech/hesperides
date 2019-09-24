@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api(tags = "6. Files", description = " ")
-@RequestMapping({"/files", "/applications"})
+@Api(tags = "06. Files", description = " ")
+@RequestMapping("/")
 @RestController
 public class FilesController extends AbstractController {
 
@@ -31,8 +31,8 @@ public class FilesController extends AbstractController {
 
     @Deprecated
     @ApiOperation("Get the list of files of an instance or a module")
-    @GetMapping("/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}")
-    public ResponseEntity<List<InstanceFileOutput>> getInstanceFiles(@PathVariable("application_name") final String applicationName,
+    @GetMapping("files/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}")
+    public ResponseEntity<List<InstanceFileOutput>> getInstanceFilesDeprecated(@PathVariable("application_name") final String applicationName,
                                                                      @PathVariable("platform_name") final String platformName,
                                                                      @PathVariable("module_path") final String modulePath,
                                                                      @PathVariable("module_name") final String moduleName,
@@ -41,14 +41,14 @@ public class FilesController extends AbstractController {
                                                                      @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                                                      @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
 
-        return getInstanceFilesNotDeprecated(applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, isWorkingCopy, simulate);
+        return getInstanceFiles(applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, isWorkingCopy, simulate);
     }
 
     @Deprecated
     @ApiOperation("Get a valued template file")
     @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8", path =
-            "/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
-    public ResponseEntity<String> getFile(Authentication authentication,
+            "files/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
+    public ResponseEntity<String> getFileDeprecated(Authentication authentication,
                                           @PathVariable("application_name") final String applicationName,
                                           @PathVariable("platform_name") final String platformName,
                                           @PathVariable("module_path") final String modulePath,
@@ -61,12 +61,12 @@ public class FilesController extends AbstractController {
                                           @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
 
-        return getFileNotDeprecated(authentication, applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, templateName, isWorkingCopy, templateNamespace, simulate);
+        return getFile(authentication, applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, templateName, isWorkingCopy, templateNamespace, simulate);
     }
 
     @ApiOperation("Get the list of files of an instance or a module")
-    @GetMapping("/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/files")
-    public ResponseEntity<List<InstanceFileOutput>> getInstanceFilesNotDeprecated(@PathVariable("application_name") final String applicationName,
+    @GetMapping("applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/files")
+    public ResponseEntity<List<InstanceFileOutput>> getInstanceFiles(@PathVariable("application_name") final String applicationName,
                                                                                   @PathVariable("platform_name") final String platformName,
                                                                                   @PathVariable("module_path") final String modulePath,
                                                                                   @PathVariable("module_name") final String moduleName,
@@ -96,8 +96,8 @@ public class FilesController extends AbstractController {
 
     @ApiOperation("Get a valued template file")
     @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8", path =
-            "/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
-    public ResponseEntity<String> getFileNotDeprecated(Authentication authentication,
+            "applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}/files")
+    public ResponseEntity<String> getFile(Authentication authentication,
                                                        @PathVariable("application_name") final String applicationName,
                                                        @PathVariable("platform_name") final String platformName,
                                                        @PathVariable("module_path") final String modulePath,

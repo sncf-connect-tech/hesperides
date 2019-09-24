@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Slf4j
-@Api(tags = "3. Applications", description = " ")
+@Api(tags = "03. Applications", description = " ")
 @RequestMapping("/applications")
 @RestController
 public class ApplicationsController extends AbstractController {
