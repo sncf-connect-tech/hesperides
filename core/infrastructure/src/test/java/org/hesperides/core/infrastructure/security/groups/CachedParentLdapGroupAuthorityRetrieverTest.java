@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
-import static org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever.MAX_RECURSION;
 import static org.junit.Assert.assertEquals;
 
 public class CachedParentLdapGroupAuthorityRetrieverTest {
@@ -83,12 +81,4 @@ public class CachedParentLdapGroupAuthorityRetrieverTest {
         assertEquals(expected, cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(dummyGroupDN));
     }
 
-
-    @Test(expected = ParentGroupRecursionException.class)
-    public void testParentGroupRecursionException() {
-        final String groupDNBase = "CN=DUMMY_";
-        IntStream.range(0, MAX_RECURSION + 1).forEach(i ->
-                parentGroupsTree.put(groupDNBase + i, new HashSet<>(Arrays.asList(groupDNBase + (i + 1)))));
-        cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(groupDNBase + 0);
-    }
 }

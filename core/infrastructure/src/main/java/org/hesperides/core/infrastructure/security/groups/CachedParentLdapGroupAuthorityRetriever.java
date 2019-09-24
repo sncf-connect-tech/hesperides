@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.security.groups;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
@@ -7,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 public class CachedParentLdapGroupAuthorityRetriever {
 
     static final int MAX_RECURSION = 1000; // arbitraire, existe pour éviter tout risque de boucle infinie
@@ -45,7 +47,7 @@ public class CachedParentLdapGroupAuthorityRetriever {
             groupDNsAtCurrentLevel = groupDNsForNextLevel;
         }
         if (ancestorLevel >= MAX_RECURSION) {
-            throw new ParentGroupRecursionException("Maximum depth of parent group resolution exceeded: " + MAX_RECURSION);
+            log.error("Maximum depth of parent group resolution exceeded: " + MAX_RECURSION);
         }
         return allParentGroups;
     }
