@@ -42,16 +42,20 @@ public class PlatformsController extends AbstractController {
         this.platformUseCases = platformUseCases;
     }
 
-    @PostMapping("/{application_name}/platforms")
-    @ApiOperation("Create platform")
     @Deprecated
+    @ApiOperation("Deprecated - Use POST /applications")
+    @PostMapping("/{application_name}/platforms")
     public ResponseEntity<PlatformIO> createPlatformOld(Authentication authentication,
                                                         @PathVariable("application_name") final String applicationName,
                                                         @RequestParam(value = "from_application", required = false) final String fromApplication,
                                                         @RequestParam(value = "from_platform", required = false) final String fromPlatform,
                                                         @RequestParam(value = "copy_instances_and_properties", defaultValue = "true", required = false) final boolean copyInstancesAndProperties,
                                                         @Valid @RequestBody final PlatformIO platformInput) {
-        return createPlatform(authentication, fromApplication, fromPlatform, copyInstancesAndProperties, platformInput);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-05-03\"")
+                .header("Sunset", "Sat May  4 00:00:00 CEST 2020")
+                .header("Link", "/applications")
+                .body(createPlatform(authentication, fromApplication, fromPlatform, copyInstancesAndProperties, platformInput).getBody());
     }
 
     @PostMapping
@@ -158,12 +162,16 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(modulePlatformsOutputs);
     }
 
+    @Deprecated
     @ApiOperation("Deprecated - Use GET /applications/platforms/perform_search instead")
     @PostMapping("/platforms/perform_search")
-    @Deprecated
     public ResponseEntity<List<SearchResultOutput>> postSearchPlatforms(@RequestParam("applicationName") final String applicationName,
                                                                         @RequestParam(value = "platformName", required = false) final String platformName) {
-        return searchPlatforms(applicationName, platformName);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-04-23\"")
+                .header("Sunset", "Wed Apr 24 00:00:00 CEST 2020")
+                .header("Link", "/applications/platforms/perform_search")
+                .body(searchPlatforms(applicationName, platformName).getBody());
     }
 
     @ApiOperation("List platforms of a given application")

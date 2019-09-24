@@ -166,7 +166,11 @@ public class TechnosController extends AbstractController {
     @Deprecated
     public ResponseEntity<List<TechnoIO>> postSearch(@ApiParam(value = "Format: name (+ version)", required = true)
                                                      @RequestParam final String terms) {
-        return search(terms, 0);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-04-24\"")
+                .header("Sunset", "Wed Apr 25 00:00:00 CEST 2020")
+                .header("Link", "/technos/perform_search")
+                .body(search(terms, 0).getBody());
     }
 
     @ApiOperation("Search for technos")

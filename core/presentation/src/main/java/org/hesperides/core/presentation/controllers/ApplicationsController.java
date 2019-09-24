@@ -73,7 +73,11 @@ public class ApplicationsController extends AbstractController {
     @PostMapping("/perform_search")
     @Deprecated
     public ResponseEntity<List<SearchResultOutput>> postSearchApplications(@RequestParam("name") String applicationName) {
-        return searchApplications(applicationName);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-07-30\"")
+                .header("Sunset", "Wed Jul 31 00:00:00 CEST 2020")
+                .header("Link", "/perform_search")
+                .body(searchApplications(applicationName).getBody());
     }
 
     @ApiOperation("Search applications")
