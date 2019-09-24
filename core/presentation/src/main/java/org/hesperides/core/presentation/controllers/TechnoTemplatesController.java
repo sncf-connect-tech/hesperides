@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api(tags = "7. Techno templates", description = " ")
+@Api(tags = "8. Techno templates", description = " ")
 @RequestMapping({"/templates/packages", "/technos"})
 @RestController
 public class TechnoTemplatesController extends AbstractController {

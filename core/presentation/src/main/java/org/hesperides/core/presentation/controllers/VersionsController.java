@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Api(tags = "9. Users and versions", description = " ")
+@Api(tags = "10. Users and versions", description = " ")
 @RequestMapping("/versions")
 @RestController
 public class VersionsController extends AbstractController {
