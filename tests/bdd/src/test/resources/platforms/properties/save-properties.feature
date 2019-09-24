@@ -128,7 +128,7 @@ Feature: Save properties the old way
 
   Scenario: save global properties
 
-  Scenario: save property of platform with the same name of existing one
+  Scenario: save a property declared twice with the same name but different values
     Given an existing module
     And an existing platform with this module
     When I try to save a property declared twice with the same name but different values

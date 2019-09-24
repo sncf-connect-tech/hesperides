@@ -34,12 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
@@ -396,8 +393,8 @@ public class PlatformUseCases {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
 
-        if(!CollectionUtils.isEmpty (abstractValuedProperties) && isDuplicated (abstractValuedProperties)) {
-            throw new IllegalArgumentException("Saving properties with duplicates keys is forbidden");
+        if (containsDuplicateKeys(abstractValuedProperties)) {
+            throw new IllegalArgumentException("Saving properties with duplicate keys is forbidden");
         }
 
         Long expectedPropertiesVersionId = getPropertiesVersionId(platformKey, propertiesPath);
@@ -444,7 +441,7 @@ public class PlatformUseCases {
             }
         });
     }
-
+    
     public PlatformView restoreDeletedPlatform(final Platform.Key platformKey, final User user) {
         if (platformQueries.platformExists(platformKey)) {
             throw new IllegalArgumentException("Cannot restore an existing platform");
@@ -474,16 +471,9 @@ public class PlatformUseCases {
         return applications;
     }
 
-    private boolean isDuplicated(List<AbstractValuedProperty> abstractValuedProperties) {
-        List <String> duplicates = new ArrayList<>();
-
-        List<String> propertiesNames = abstractValuedProperties
-                .stream().map(e -> e.getName())
-                .collect(Collectors.toList());
-
-        propertiesNames.stream()
-                .filter(e -> Collections.frequency(propertiesNames, e) >1)
-                .collect(Collectors.toList()).forEach(e -> duplicates.add(e));
-        return !CollectionUtils.isEmpty(duplicates) && !CollectionUtils.hasUniqueObject(duplicates);
+    private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {
+        return !CollectionUtils.isEmpty(list) && !list.stream()
+                .map(AbstractValuedProperty::getName)
+                .allMatch(new HashSet<>()::add);
     }
 }
