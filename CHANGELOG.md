@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
-### Fixed
+## 2019-09-24
+### Deprecated
 
-- #699 Netoyage api rest déprécier les ressources débutant par /files et les renommer (#757) [Bhoye05]
+- Les ressources débutant par /files et sont renommée en /applications/.../files - close #699. [Bhoye05]
 
 
 
@@ -46,7 +46,7 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 
 
-## 2019-09-18
+## 2019-09-19
 ### Fixed
 
 - Unused global properties appearing in /diff - close #752 (#753) [Lucas Cimon]
