@@ -60,7 +60,7 @@ public class FilesController extends AbstractController {
                                           @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                           @RequestParam("template_namespace") final String templateNamespace,
                                           @RequestParam(value = "simulate", required = false) final Boolean simulate) {
-        
+
         return getFile(authentication, applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, templateName, isWorkingCopy, templateNamespace, simulate);
     }
 
