@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api(tags = "4. Properties", description = " ")
+@Api(tags = "05. Properties", description = " ")
 @RequestMapping("/applications")
 @RestController
 public class PropertiesController extends AbstractController {

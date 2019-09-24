@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api(tags = "4. Platforms", description = " ")
+@Api(tags = "04. Platforms", description = " ")
 @RequestMapping("/applications")
 @RestController
 public class PlatformsController extends AbstractController {

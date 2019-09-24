@@ -26,10 +26,30 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
-
 ### Fixed
 
-- Unused global properties appearing in /diff - close #75 [Lucas Cimon]
+- #699 Netoyage api rest déprécier les ressources débutant par /files et les renommer (#757) [Bhoye05]
+
+
+
+## 2019-09-23
+### Changed
+
+- /technos/create_release query params names to remove deprecated "package" term. [Lucas Cimon]
+
+
+
+## 2019-09-20
+### Fixed
+
+- #350  Refuser la suppression des modules/technos utilisés par des plateformes. [Bhoye05]
+
+
+
+## 2019-09-18
+### Fixed
+
+- Unused global properties appearing in /diff - close #752 (#753) [Lucas Cimon]
 
 
 

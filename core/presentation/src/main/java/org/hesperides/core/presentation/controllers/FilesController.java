@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api(tags = "5. Files", description = " ")
-@RequestMapping("/files")
+@Api(tags = "06. Files", description = " ")
+@RequestMapping("/")
 @RestController
 public class FilesController extends AbstractController {
 
@@ -29,9 +29,10 @@ public class FilesController extends AbstractController {
         this.filesUseCases = filesUseCases;
     }
 
+    @Deprecated
     @ApiOperation("Get the list of files of an instance or a module")
-    @GetMapping("/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}")
-    public ResponseEntity<List<InstanceFileOutput>> getInstanceFiles(@PathVariable("application_name") final String applicationName,
+    @GetMapping("files/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}")
+    public ResponseEntity<List<InstanceFileOutput>> getInstanceFilesDeprecated(@PathVariable("application_name") final String applicationName,
                                                                      @PathVariable("platform_name") final String platformName,
                                                                      @PathVariable("module_path") final String modulePath,
                                                                      @PathVariable("module_name") final String moduleName,
@@ -39,6 +40,40 @@ public class FilesController extends AbstractController {
                                                                      @PathVariable("instance_name") final String instanceName,
                                                                      @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                                                      @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
+
+        return getInstanceFiles(applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, isWorkingCopy, simulate);
+    }
+
+    @Deprecated
+    @ApiOperation("Get a valued template file")
+    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8", path =
+            "files/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
+    public ResponseEntity<String> getFileDeprecated(Authentication authentication,
+                                          @PathVariable("application_name") final String applicationName,
+                                          @PathVariable("platform_name") final String platformName,
+                                          @PathVariable("module_path") final String modulePath,
+                                          @PathVariable("module_name") final String moduleName,
+                                          @PathVariable("module_version") final String moduleVersion,
+                                          @PathVariable("instance_name") final String instanceName,
+                                          @PathVariable("template_name") final String templateName,
+                                          @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                          @RequestParam("template_namespace") final String templateNamespace,
+                                          @RequestParam(value = "simulate", required = false) final Boolean simulate) {
+
+
+        return getFile(authentication, applicationName, platformName, modulePath, moduleName, moduleVersion, instanceName, templateName, isWorkingCopy, templateNamespace, simulate);
+    }
+
+    @ApiOperation("Get the list of files of an instance or a module")
+    @GetMapping("applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/files")
+    public ResponseEntity<List<InstanceFileOutput>> getInstanceFiles(@PathVariable("application_name") final String applicationName,
+                                                                                  @PathVariable("platform_name") final String platformName,
+                                                                                  @PathVariable("module_path") final String modulePath,
+                                                                                  @PathVariable("module_name") final String moduleName,
+                                                                                  @PathVariable("module_version") final String moduleVersion,
+                                                                                  @PathVariable("instance_name") final String instanceName,
+                                                                                  @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                                                                  @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
 
         // Pour des raisons de retrocompatibilité avec le front,
         // en attendant que https://github.com/voyages-sncf-technologies/hesperides-gui/pull/164 soit en prod,
@@ -61,18 +96,18 @@ public class FilesController extends AbstractController {
 
     @ApiOperation("Get a valued template file")
     @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8", path =
-            "/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
+            "applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}/files")
     public ResponseEntity<String> getFile(Authentication authentication,
-                                          @PathVariable("application_name") final String applicationName,
-                                          @PathVariable("platform_name") final String platformName,
-                                          @PathVariable("module_path") final String modulePath,
-                                          @PathVariable("module_name") final String moduleName,
-                                          @PathVariable("module_version") final String moduleVersion,
-                                          @PathVariable("instance_name") final String instanceName,
-                                          @PathVariable("template_name") final String templateName,
-                                          @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
-                                          @RequestParam("template_namespace") final String templateNamespace,
-                                          @RequestParam(value = "simulate", required = false) final Boolean simulate) {
+                                                       @PathVariable("application_name") final String applicationName,
+                                                       @PathVariable("platform_name") final String platformName,
+                                                       @PathVariable("module_path") final String modulePath,
+                                                       @PathVariable("module_name") final String moduleName,
+                                                       @PathVariable("module_version") final String moduleVersion,
+                                                       @PathVariable("instance_name") final String instanceName,
+                                                       @PathVariable("template_name") final String templateName,
+                                                       @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                                       @RequestParam("template_namespace") final String templateNamespace,
+                                                       @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
         String fileContent = filesUseCases.getFile(
                 applicationName,
@@ -89,4 +124,5 @@ public class FilesController extends AbstractController {
 
         return ResponseEntity.ok(fileContent);
     }
+
 }

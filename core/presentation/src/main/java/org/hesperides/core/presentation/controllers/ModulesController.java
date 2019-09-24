@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api(tags = "1. Modules", description = " ", position = 1)
+@Api(tags = "01. Modules", description = " ", position = 1)
 @RequestMapping("/modules")
 @RestController
 public class ModulesController extends AbstractController {
