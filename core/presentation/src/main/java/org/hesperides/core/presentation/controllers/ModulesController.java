@@ -202,7 +202,11 @@ public class ModulesController extends AbstractController {
     @Deprecated
     public ResponseEntity<List<ModuleIO>> postSearch(@ApiParam(value = "Format: name (+ version)", required = true)
                                                      @RequestParam final String terms) {
-        return search(terms, 0);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-04-23\"")
+                .header("Sunset", "Wed Apr 24 00:00:00 CEST 2020")
+                .header("Link", "/modules/perform_search")
+                .body(search(terms, 0).getBody());
     }
 
     @ApiOperation("Search for modules")
@@ -228,7 +232,11 @@ public class ModulesController extends AbstractController {
     @Deprecated
     public ResponseEntity<ModuleIO> postSearchSingle(@ApiParam(value = "Format: name (+ version) (+ true|false)", required = true)
                                                      @RequestParam final String terms) {
-        return searchSingle(terms);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-04-23\"")
+                .header("Sunset", "Wed Apr 24 00:00:00 CEST 2020")
+                .header("Link", "/modules/perform_search")
+                .body(searchSingle(terms).getBody());
     }
 
     @ApiOperation("Search for a single module")

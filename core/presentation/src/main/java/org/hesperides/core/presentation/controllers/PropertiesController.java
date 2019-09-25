@@ -76,7 +76,11 @@ public class PropertiesController extends AbstractController {
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
                                                        @Valid @RequestBody final PropertiesIO properties) {
-        return updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2019-08-02\"")
+                .header("Sunset", "Sat Aug  3 00:00:00 CEST 2020")
+                .header("Link", String.format("/applications/%s/platforms/%s/properties", applicationName, platformName))
+                .body(updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties).getBody());
     }
 
 
