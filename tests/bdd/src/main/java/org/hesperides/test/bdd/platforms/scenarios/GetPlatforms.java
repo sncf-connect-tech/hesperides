@@ -85,7 +85,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the( initial)? platform detail is successfully retrieved", (String initialPlatform) -> {
-            createPlatforms.assertPlatform(isNotEmpty(initialPlatform) ? platformHistory.getFirstPlatformBuilder(
+            createPlatforms.assertPlatformEquals(isNotEmpty(initialPlatform) ? platformHistory.getFirstPlatformBuilder(
                     platformBuilder.getApplicationName(), platformBuilder.getPlatformName()) : platformBuilder);
         });
 

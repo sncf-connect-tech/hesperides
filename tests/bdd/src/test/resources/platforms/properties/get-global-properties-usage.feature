@@ -28,21 +28,14 @@ Feature: Get global properties usage
     Then the platform global properties usage is successfully retrieved
 
   Scenario: get global properties used in iterable properties
-    Given an existing module with iterable properties
+    Given an existing module with iterable properties referencing global properties
     And an existing platform with this module and global properties
-    And the deployed module has properties with values referencing global properties
     When I get this platform global properties usage
     Then the platform global properties usage is successfully retrieved
 
-  Scenario: get global property used in iterable properties
-    Given an existing module with this template content
-       """
-      {{#a}}
-        {{ global-property }}
-      {{/a}}
-      """
-    And an existing platform with this module
-    And the platform has these global properties
-      | global-property | global-value |
+  Scenario: get global properties used in iterable properties values
+    Given an existing module with iterable properties
+    And an existing platform with this module and global properties
+    And the deployed module has iterable properties with values referencing the global properties
     When I get this platform global properties usage
     Then the platform global properties usage is successfully retrieved

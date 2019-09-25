@@ -46,7 +46,7 @@ public class CreateModules extends HesperidesScenario implements En {
             "( (?:and|with) properties)?" +
             "( (?:and|with) password properties)?" +
             "( (?:and|with) global properties)?" +
-            "( (?:and|with) iterable properties)?" +
+            "( (?:and|with) iterable properties(?: referencing global properties)?)?" +
             "( (?:and|with) nested iterable properties)?" +
             "( (?:and|with) this techno)?$")
     public void givenAnExistingModule(
@@ -94,10 +94,11 @@ public class CreateModules extends HesperidesScenario implements En {
             addPropertyToTemplateContentAndModuleBuilder("global-module-bar");
         }
         if (isNotEmpty(withIterableProperties)) {
+            String propertyName = withIterableProperties.contains("global") ? "global-module-foo" : "module-bar";
             propertyBuilder.reset()
                     .withName("module-foo")
                     .withProperty(new PropertyBuilder()
-                            .withName("module-bar"));
+                            .withName(propertyName));
             addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
         }
         if (isNotEmpty(withNestedIterableProperties)) {
