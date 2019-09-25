@@ -62,7 +62,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
                                 .withName("techno-bar"));
                 addPropertyToBuilders(propertyBuilder);
             }
-            if (isNotEmpty(withIterableProperties)) {
+            if (isNotEmpty(withNestedIterableProperties)) {
                 propertyBuilder.reset()
                         .withName("techno-foo")
                         .withProperty(new PropertyBuilder()

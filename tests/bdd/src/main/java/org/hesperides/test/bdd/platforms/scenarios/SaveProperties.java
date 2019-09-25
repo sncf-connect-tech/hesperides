@@ -32,10 +32,7 @@ import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -60,6 +57,16 @@ public class SaveProperties extends HesperidesScenario implements En {
             deployedModuleBuilder.withValuedProperty("property-a", "{{global-module-foo}}");
             deployedModuleBuilder.withValuedProperty("property-b", "{{global-techno-foo}}");
             deployedModuleBuilder.withValuedProperty("property-c", "{{global-filename}}{{global-location}}");
+            saveValuedProperties();
+        });
+
+        Given("^the deployed module has iterable properties with values referencing the global properties$", () -> {
+            deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
+                    Collections.singletonList(new IterablePropertyItemIO("item", Arrays.asList(
+                            new ValuedPropertyIO("property-a", "{{global-module-foo}}"),
+                            new ValuedPropertyIO("property-b", "{{global-techno-foo}}"),
+                            new ValuedPropertyIO("property-c", "{{global-filename}}{{global-location}}")
+                    )))));
             saveValuedProperties();
         });
 
@@ -124,7 +131,7 @@ public class SaveProperties extends HesperidesScenario implements En {
     }
 
     void saveInstanceProperties() {
-        deployedModuleBuilder.updateOrAddInstanceBuilder(instanceBuilder);
+        deployedModuleBuilder.upsertInstanceBuilder(instanceBuilder);
         platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
         platformClient.updatePlatform(platformBuilder.buildInput());
         platformHistory.updatePlatformBuilder(platformBuilder);

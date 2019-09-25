@@ -26,15 +26,14 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.*;
@@ -196,32 +195,77 @@ public class PlatformBuilder implements Serializable {
 
     public Map<String, Set<GlobalPropertyUsageOutput>> buildGlobalPropertiesUsage(ModuleHistory moduleHistory) {
         Map<String, Set<GlobalPropertyUsageOutput>> result = new HashMap<>();
-        globalProperties.forEach(globalProperty -> {
+        globalProperties.stream().map(ValuedPropertyIO::getName).forEach(globalPropertyName -> {
+
             Set<GlobalPropertyUsageOutput> globalPropertyUsage = new HashSet<>();
             deployedModuleBuilders.forEach(deployedModuleBuilder -> {
 
                 boolean isFoundInDeployedModulePropertyValues = deployedModuleBuilder.getValuedProperties()
                         .stream()
-                        .map(ValuedPropertyIO::getValue)
-                        .map(PropertyBuilder::extractProperties)
-                        .flatMap(List::stream)
-                        .anyMatch(property -> property.equals(globalProperty.getName()));
+                        .anyMatch(valuedProperty -> globalPropertyIsFoundInValues(globalPropertyName, valuedProperty));
 
-                boolean isFoundInModulePropertyModel = deployedModuleBuilder.findMatchingModuleBuilder(moduleHistory)
-                        .map(ModuleBuilder::buildPropertiesModel)
-                        .map(ModelOutput::getProperties)
-                        .orElseGet(Collections::emptySet)
-                        .stream()
-                        .map(PropertyOutput::getName)
-                        .anyMatch(property -> property.equals(globalProperty.getName()));
+                if (!isFoundInDeployedModulePropertyValues) {
+                    // Si on ne la trouve pas dans les propriétés simples,
+                    // on la recherche dans les propriétés itérables
+                    isFoundInDeployedModulePropertyValues = deployedModuleBuilder.getIterableProperties()
+                            .stream()
+                            .anyMatch(valuedProperty -> globalPropertyIsFoundInValues(globalPropertyName, valuedProperty));
+                }
+
+                Optional<ModelOutput> modelOutput = deployedModuleBuilder.findMatchingModuleBuilder(moduleHistory).map(ModuleBuilder::buildPropertiesModel);
+                Set<PropertyOutput> simpleProperties = modelOutput.map(ModelOutput::getProperties).orElseGet(Collections::emptySet);
+                boolean isFoundInModulePropertyModel = globalPropertyIsFoundInProperties(globalPropertyName, simpleProperties);
+
+                if (!isFoundInModulePropertyModel) {
+                    // Même chose
+                    Set<PropertyOutput> iterableProperties = modelOutput.map(ModelOutput::getIterableProperties).orElseGet(Collections::emptySet);
+                    isFoundInModulePropertyModel = globalPropertyIsFoundInProperties(globalPropertyName, iterableProperties);
+                }
 
                 if (isFoundInDeployedModulePropertyValues || isFoundInModulePropertyModel) {
                     globalPropertyUsage.add(new GlobalPropertyUsageOutput(isFoundInModulePropertyModel, deployedModuleBuilder.buildPropertiesPath()));
                 }
             });
-            result.put(globalProperty.getName(), globalPropertyUsage);
+            result.put(globalPropertyName, globalPropertyUsage);
         });
         return result;
+    }
+
+    private static boolean globalPropertyIsFoundInValues(String globalPropertyName, AbstractValuedPropertyIO abstractValuedProperty) {
+        boolean found = false;
+        if (abstractValuedProperty instanceof ValuedPropertyIO) {
+
+            ValuedPropertyIO valuedProperty = (ValuedPropertyIO) abstractValuedProperty;
+            found = PropertyBuilder.extractProperties(valuedProperty.getValue())
+                    .stream()
+                    .anyMatch(extractedPropertyName -> extractedPropertyName.equals(globalPropertyName));
+
+        } else if (abstractValuedProperty instanceof IterableValuedPropertyIO) {
+
+            IterableValuedPropertyIO iterableValuedProperty = (IterableValuedPropertyIO) abstractValuedProperty;
+            found = iterableValuedProperty.getIterablePropertyItems()
+                    .stream()
+                    .map(IterablePropertyItemIO::getAbstractValuedProperties)
+                    .flatMap(List::stream)
+                    .anyMatch(itemProperty -> globalPropertyIsFoundInValues(globalPropertyName, itemProperty));
+        }
+        return found;
+    }
+
+    private static boolean globalPropertyIsFoundInProperties(String globalPropertyName, Set<PropertyOutput> properties) {
+        return properties.stream().anyMatch(property -> globalPropertyIsFoundInProperty(globalPropertyName, property));
+    }
+
+    private static boolean globalPropertyIsFoundInProperty(String globalPropertyName, PropertyOutput property) {
+        boolean found;
+        if (CollectionUtils.isEmpty(property.getProperties())) {
+            found = property.getName().equals(globalPropertyName);
+        } else {
+            found = property.getProperties()
+                    .stream()
+                    .anyMatch(propertyOutput -> globalPropertyIsFoundInProperty(globalPropertyName, propertyOutput));
+        }
+        return found;
     }
 
     public List<ValuedPropertyIO> getAllModuleProperties() {
