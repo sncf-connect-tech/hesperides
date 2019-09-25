@@ -1,4 +1,4 @@
-# Points d'accès déprécié
+# Points d'accès dépréciés
 
 Nous mettons à jour l'API petit à petit. Cela implique parfois de déprécier
 certains endpoints afin de les remplacer sans les supprimer.
