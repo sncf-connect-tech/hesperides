@@ -24,21 +24,19 @@ import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput
 import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
+import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
 
 @Component
 public class ApplicationClient {
 
-    private final RestTemplate restTemplate;
+    private final CustomRestTemplate restTemplate;
 
     @Autowired
-    public ApplicationClient(RestTemplate restTemplate) {
+    public ApplicationClient(CustomRestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
@@ -61,10 +59,8 @@ public class ApplicationClient {
     }
 
     public void setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {
-        //TODO utiliser customtemplate.putForEntity
-        restTemplate.exchange("/applications/{application_name}/directory_groups",
-                HttpMethod.PUT,
-                new HttpEntity<>(applicationDirectoryGroups),
+        restTemplate.put("/applications/{application_name}/directory_groups",
+                applicationDirectoryGroups,
                 String.class,
                 applicationName);
     }
