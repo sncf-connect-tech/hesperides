@@ -30,7 +30,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 
 @Component
 public class ApplicationClient {

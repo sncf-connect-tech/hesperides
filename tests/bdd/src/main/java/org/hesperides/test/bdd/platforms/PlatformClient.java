@@ -22,7 +22,10 @@ package org.hesperides.test.bdd.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.*;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
@@ -39,7 +42,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 
 @Component
 public class PlatformClient {
@@ -48,13 +51,9 @@ public class PlatformClient {
     private final TestContext testContext;
 
     @Autowired
-    public PlatformClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate, TestContext testContext) {
+    public PlatformClient(CustomRestTemplate restTemplate, TestContext testContext) {
         this.restTemplate = restTemplate;
         this.testContext = testContext;
-    }
-
-    public void createPlatform(PlatformIO platformInput) {
-        createPlatform(platformInput, null);
     }
 
     public void createPlatform(PlatformIO platformInput, String tryTo) {
@@ -266,9 +265,5 @@ public class PlatformClient {
                 getResponseType(tryTo, PlatformIO.class),
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
-    }
-
-    public void getAllApplications() {
-        restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 }
