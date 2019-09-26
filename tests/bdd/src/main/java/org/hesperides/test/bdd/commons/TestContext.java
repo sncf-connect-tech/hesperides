@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.commons;
 
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,10 @@ public class TestContext {
     @Autowired
     public TestContext(AuthorizationCredentialsConfig authorizationCredentialsConfig) {
         this.authorizationCredentialsConfig = authorizationCredentialsConfig;
+    }
+
+    public static Class getResponseType(String tryTo, Class defaultResponseType) {
+        return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
     }
 
     public String getUsername() {

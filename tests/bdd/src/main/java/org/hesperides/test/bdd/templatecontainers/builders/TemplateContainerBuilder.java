@@ -66,7 +66,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
         this.versionType = versionType;
     }
 
-    public abstract String buildNamespace();
+    protected abstract String buildNamespace();
 
     public ModelOutput buildPropertiesModel() {
         Set<PropertyOutput> simpleProperties = propertyBuilders.stream()

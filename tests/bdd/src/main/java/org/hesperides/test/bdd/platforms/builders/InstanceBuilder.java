@@ -64,7 +64,7 @@ public class InstanceBuilder implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    public InstanceIO build() {
+    private InstanceIO build() {
         return new InstanceIO(name, new HashSet<>(valuedProperties));
     }
 

@@ -37,7 +37,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import java.util.List;
 
 import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.urlEncodeUtf8;
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.NONE;
 
 @Component
@@ -48,7 +48,7 @@ public class ModuleClient {
     private final TestContext testContext;
 
     @Autowired
-    public ModuleClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate,
+    public ModuleClient(CustomRestTemplate restTemplate,
                         DefaultUriBuilderFactory defaultUriBuilderFactory,
                         TestContext testContext) {
         this.restTemplate = restTemplate;

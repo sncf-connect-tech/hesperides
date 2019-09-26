@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 
 @Component
 public class TechnoClient {
@@ -42,7 +42,7 @@ public class TechnoClient {
     private final TestContext testContext;
 
     @Autowired
-    public TechnoClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate, TestContext testContext) {
+    public TechnoClient(CustomRestTemplate restTemplate, TestContext testContext) {
         this.restTemplate = restTemplate;
         this.testContext = testContext;
     }

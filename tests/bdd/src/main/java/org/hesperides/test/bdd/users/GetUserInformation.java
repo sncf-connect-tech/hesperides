@@ -3,6 +3,7 @@ package org.hesperides.test.bdd.users;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.UserInfoOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -12,26 +13,24 @@ import static org.junit.Assert.assertThat;
 
 public class GetUserInformation extends HesperidesScenario implements En {
 
-    //TODO UserClient ?
+    @Autowired
+    private UserClient userClient;
 
     public GetUserInformation() {
 
-        When("^I get the current user information$", () -> {
-            restTemplate.getForEntity("/users/auth", UserInfoOutput.class);
-        });
+        When("^I get the current user information$", () ->
+                userClient.getCurrentUserInfo());
 
-        When("^I get user information about another prod user$", () -> {
-            restTemplate.getForEntity("/users/" + authorizationCredentialsConfig.getProdUsername(), UserInfoOutput.class);
-        });
+        When("^I get user information about another prod user$", () ->
+                userClient.getUserInfo(authorizationCredentialsConfig.getProdUsername()));
 
-        When("^I get user information about a non-existing user$", () -> {
-            restTemplate.getForEntity("/users/inexistant", String.class);
-        });
+        When("^I get user information about a non-existing user$", () ->
+                userClient.getUserInfo("inexistant", "should-fail"));
 
         Then("^(.+) is listed under the user directory groups$", (String expectedAuthorityGroup) -> {
             assertOK();
             List<String> actualAuthorityGroups = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getDirectoryGroupCNs();
-            final String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(expectedAuthorityGroup);
+            String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(expectedAuthorityGroup);
             assertThat(actualAuthorityGroups, hasItem(realDirectoryGroup));
         });
 
@@ -42,15 +41,14 @@ public class GetUserInformation extends HesperidesScenario implements En {
         });
 
         When("^(?:the user log out|the user re-send valid credentials)$", () ->
-                restTemplate.getForEntity("/users/auth?logout=true", String.class)
-        );
+                userClient.logout());
 
         Then("^login is successful$", this::assertOK);
 
         Then("^user information is returned, (with|without) tech role and (with|without) prod role$", (
                 String withTechRole, String withProdRole) -> {
             assertOK();
-            final UserInfoOutput actualUserInfo = testContext.getResponseBody();
+            UserInfoOutput actualUserInfo = testContext.getResponseBody();
             assertEquals("with".equals(withTechRole), actualUserInfo.getTechUser());
             assertEquals("with".equals(withProdRole), actualUserInfo.getProdUser());
         });

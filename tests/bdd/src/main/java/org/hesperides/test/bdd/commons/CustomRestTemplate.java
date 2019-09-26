@@ -3,7 +3,6 @@ package org.hesperides.test.bdd.commons;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -15,7 +14,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -38,7 +36,7 @@ import static org.hesperides.core.presentation.PresentationConfiguration.configu
  */
 public class CustomRestTemplate extends RestTemplate {
 
-    private Gson gson;
+    private final Gson gson;
 
     @Autowired
     private TestContext testContext;
