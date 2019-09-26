@@ -119,10 +119,10 @@ public class GetPlatforms extends HesperidesScenario implements En {
             assertEquals(expectedPlatforms, actualPlatforms);
         });
 
-        Then("^a single platform is retrieved", () -> {
+        Then("^(\\d+) platforms? (?:are|is) retrieved", (Integer count) -> {
             assertOK();
             List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
-            Assert.assertThat(actualPlatforms, hasSize(1));
+            Assert.assertThat(actualPlatforms, hasSize(count));
         });
     }
 }

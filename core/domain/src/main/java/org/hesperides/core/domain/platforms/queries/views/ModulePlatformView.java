@@ -6,4 +6,7 @@ import lombok.Value;
 public class ModulePlatformView {
     String applicationName;
     String platformName;
+    public String toString() {
+        return applicationName + "-" + platformName;
+    }
 }
