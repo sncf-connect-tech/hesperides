@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class ModuleUsedByPlatformsException extends DuplicateException {
     public ModuleUsedByPlatformsException(TemplateContainer.Key moduleKey, List<ModulePlatformView> modulePlatformViews) {
         super("could not delete a module with key: " + moduleKey.getNamespaceWithoutPrefix() +
-                " as it's used by "+ modulePlatformViews.stream()
+                " as it's used by those platforms: "+ modulePlatformViews.stream()
                 .map(ModulePlatformView::toString).collect(Collectors.joining(" - ")) );
     }
 }

@@ -19,4 +19,12 @@ Feature: Get platforms using module
     And an existing module named "module-b" with version "1"
     And an existing platform named "P3" with this module
     When I get the platforms using this module
-    Then a single platform is retrieved
+    Then 1 platform is retrieved
+
+  #issue-765
+  Scenario: get platforms using a module that was removed from a platform
+    Given an existing module
+    And an existing platform with this module
+    And I update this platform, clearing the modules
+    When I get the platforms using this module
+    Then 0 platforms are retrieved
