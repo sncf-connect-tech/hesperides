@@ -23,7 +23,7 @@ Ce résultat est stocké dans le contexte juste après l'appel à l'API dans la 
 
 ## Try to
 
-Nous partons du principe que lors que l'étape d'un scénario contient l'expression `...try to...`, l'appel à l'API retournera une erreur. Cela implique que nous attendons un corps de type `String`.
+Nous partons du principe que lorsque l'étape d'un scénario contient l'expression `...try to...`, l'appel à l'API retournera une erreur. Cela implique que nous attendons un corps de type `String` au lieu du flux JSON.
 
 Lorsqu'une méthode attend un paramètre nommé `tryTo` mais qu'il n'est pas fourni par la définition de l'étape du scénario, la convention est de fournir la chaîne de caractère `"should-fail"`.
 
@@ -35,7 +35,7 @@ La classe `PlatformHistory` aussi mais elle va un peu plus loin. Pour répondre 
 
 ## Factorisation
 
-La gestion des `version_id` et l'historisation des `Builder` se trouve dans les méthodes `CreatePlatforms.createPlatform`, `SaveProperties.saveGlobalProperties`, `CreateModule.createModule`, etc. 
+La gestion des `version_id` et l'historisation des `Builder` est effectuée implicitement par les méthodes `CreatePlatforms.createPlatform`, `SaveProperties.saveGlobalProperties`, `CreateModule.createModule`, etc. 
 
 Il suffit d'utiliser l'injection de dépendance pour accéder à ces méthodes.
 
