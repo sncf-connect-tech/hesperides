@@ -1,18 +1,19 @@
 package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
-import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 @Value
 public class GlobalPropertyUsageView {
@@ -36,21 +37,21 @@ public class GlobalPropertyUsageView {
      * <p>
      * Dans tous les autres cas, isRemovedFromTemplate = false;
      */
-    public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<ModuleSimplePropertiesView> modulesSimpleProperties) {
+    public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<AbstractPropertyView> abstractPropertyViews) {
         Set<GlobalPropertyUsageView> globalPropertyUsages = new HashSet<>();
 
         deployedModules.forEach(deployedModule -> {
-            List<PropertyView> moduleSimpleProperties = getModuleSimpleProperties(modulesSimpleProperties, deployedModule.getModuleKey());
+            List<PropertyView> modulesProperties = getModulesPropertiesViews(abstractPropertyViews, deployedModule.getModuleKey());
             String propertiesPath = deployedModule.getPropertiesPath();
 
-            if (propertyNameIsInProperties(globalPropertyName, moduleSimpleProperties)) {
+            if (propertyNameIsInProperties(globalPropertyName, modulesProperties)) {
                 globalPropertyUsages.add(new GlobalPropertyUsageView(false, propertiesPath));
-
             }
-            List<String> valuedPropertiesName = getSimpleValuedPropertiesNameUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
+
+            List<String> valuedPropertiesName = getIterablesValudPropertiesNamesUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
             if (!CollectionUtils.isEmpty(valuedPropertiesName)) {
                 valuedPropertiesName.forEach(valuedPropertyName -> {
-                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName, moduleSimpleProperties);
+                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName, modulesProperties);
                     globalPropertyUsages.add(new GlobalPropertyUsageView(isRemovedFromTemplate, propertiesPath));
                 });
             }
@@ -58,27 +59,34 @@ public class GlobalPropertyUsageView {
         return globalPropertyUsages;
     }
 
-    private static List<PropertyView> getModuleSimpleProperties(List<ModuleSimplePropertiesView> modulesSimpleProperties, TemplateContainer.Key moduleKey) {
-        return modulesSimpleProperties
-                .stream()
-                .filter(moduleModel -> moduleModel.getModuleKey().equals(moduleKey))
-                .findFirst()
-                .map(ModuleSimplePropertiesView::getProperties)
-                .orElseGet(Collections::emptyList);
+    private static List<PropertyView> getModulesPropertiesViews(List<AbstractPropertyView> abstractPropertyViews, TemplateContainer.Key moduleKey) {
+        Stream<PropertyView> propertyViewStream = AbstractPropertyView.getFlatProperties(abstractPropertyViews);
+        List<PropertyView> propertyViews = propertyViewStream.collect(Collectors.toList());
+        return propertyViews;
     }
 
-    private static List<String> getSimpleValuedPropertiesNameUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
+
+    private static List<String> getIterablesValudPropertiesNamesUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
         return valuedProperties.stream()
-                .filter(ValuedPropertyView.class::isInstance)
-                .map(ValuedPropertyView.class::cast)
-                .filter(valuedProperty -> globalPropertyIsUsedInValuedProperty(valuedProperty, globalPropertyName))
-                .map(ValuedPropertyView::getName)
-                .collect(Collectors.toList());
+                .filter(abstractValuedPropertyView -> globalPropertyIsUsedInIterablesProperties(globalPropertyName, abstractValuedPropertyView))
+                .map(abstractValuedPropertyView -> abstractValuedPropertyView.getName()).collect(Collectors.toList());
     }
+
 
     private static boolean globalPropertyIsUsedInValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
         List<String> valuesBetweenCurlyBrackets = ValuedProperty.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
         return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
+    }
+
+    private static boolean globalPropertyIsUsedInIterablesProperties(String globalPropertyName, AbstractValuedPropertyView abstractValuedPropertyView) {
+        if (abstractValuedPropertyView instanceof ValuedPropertyView) {
+            return globalPropertyIsUsedInValuedProperty((ValuedPropertyView) abstractValuedPropertyView, globalPropertyName);
+        } else {
+            IterableValuedPropertyView iterableValuedPropertyView = (IterableValuedPropertyView) abstractValuedPropertyView;
+            return iterableValuedPropertyView.getIterablePropertyItems()
+                    .stream().anyMatch(iterablePropertyItemView -> iterablePropertyItemView.getAbstractValuedPropertyViews()
+                            .stream().anyMatch(abstractValuedPropertyView1 -> globalPropertyIsUsedInIterablesProperties(globalPropertyName, abstractValuedPropertyView1)));
+        }
     }
 
     private static boolean propertyNameIsInProperties(String propertyName, List<PropertyView> moduleProperties) {
