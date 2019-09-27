@@ -33,9 +33,11 @@ Les classes `TechnoHistory` et `ModuleHistory` contiennent la liste des `Builder
 
 La classe `PlatformHistory` aussi mais elle va un peu plus loin. Pour répondre aux cas d'utilisation permettant de récupérer les données d'une plateforme à un instant T, nous sauvegardons les `Builder` de chaque plateforme *à chaque `POST/PUT` envoyé à l'API*, et nous associons ce builder à un timestamp.
 
-## Factorisation des méthodes création et mise à jour
+## Factorisation
 
-Afin de simplifier la gestion des `version_id` et l'historisation des `Builder` lors des créations et mises à jour d'entités, certaines méthodes peuvent être réutilisées.
+La gestion des `version_id` et l'historisation des `Builder` se trouve dans les méthodes `CreatePlatforms.createPlatform`, `SaveProperties.saveGlobalProperties`, `CreateModule.createModule`, etc. 
+
+Il suffit d'utiliser l'injection de dépendance pour accéder à ces méthodes.
 
 Exemple :
 
@@ -43,7 +45,3 @@ Exemple :
     private SaveProperties saveProperties;
     ...
     saveProperties.saveValuedProperties();
-    
-Autres méthodes : `CreatePlatforms.createPlatform`, `SaveProperties.saveGlobalProperties`, `CreateModule.createModule`, etc.
-
-Il suffit d'utiliser l'injection de dépendance pour accéder à ces méthodes. 
