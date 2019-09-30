@@ -37,21 +37,21 @@ public class GlobalPropertyUsageView {
      * <p>
      * Dans tous les autres cas, isRemovedFromTemplate = false;
      */
-    public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<ModulePropertiesView> propertiesViews) {
+    public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<ModulePropertiesView> modulesProperties) {
         Set<GlobalPropertyUsageView> globalPropertyUsages = new HashSet<>();
 
         deployedModules.forEach(deployedModule -> {
-            List<AbstractPropertyView> modulesProperties = getModulesPropertiesViews(propertiesViews, deployedModule.getModuleKey());
+            List<AbstractPropertyView> moduleProperties = getPropertiesForModule(modulesProperties, deployedModule.getModuleKey());
             String propertiesPath = deployedModule.getPropertiesPath();
 
-            if (propertyNameIsInProperties(globalPropertyName, modulesProperties)) {
+            if (propertyNameIsInProperties(globalPropertyName, moduleProperties)) {
                 globalPropertyUsages.add(new GlobalPropertyUsageView(false, propertiesPath));
             }
 
-            List<String> valuedPropertiesName = getIterablesValudPropertiesNamesUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
+            List<String> valuedPropertiesName = getNamesOfPropertyValuesUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
             if (!CollectionUtils.isEmpty(valuedPropertiesName)) {
                 valuedPropertiesName.forEach(valuedPropertyName -> {
-                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName, modulesProperties);
+                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName, moduleProperties);
                     globalPropertyUsages.add(new GlobalPropertyUsageView(isRemovedFromTemplate, propertiesPath));
                 });
             }
@@ -59,8 +59,8 @@ public class GlobalPropertyUsageView {
         return globalPropertyUsages;
     }
 
-    private static List<AbstractPropertyView> getModulesPropertiesViews(List<ModulePropertiesView> modulePropertiesViews, TemplateContainer.Key moduleKey) {
-        return modulePropertiesViews
+    private static List<AbstractPropertyView> getPropertiesForModule(List<ModulePropertiesView> modulesProperties, TemplateContainer.Key moduleKey) {
+        return modulesProperties
                 .stream()
                 .filter(modulePropertiesView -> modulePropertiesView.getModuleKey().equals(moduleKey))
                 .findFirst()
@@ -68,36 +68,37 @@ public class GlobalPropertyUsageView {
                 .orElseGet(Collections::emptyList);
     }
 
-    private static List<String> getIterablesValudPropertiesNamesUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
+    private static List<String> getNamesOfPropertyValuesUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
         return valuedProperties.stream()
-                .filter(abstractValuedPropertyView -> globalPropertyIsUsedInIterablesProperties(globalPropertyName, abstractValuedPropertyView))
-                .map(abstractValuedPropertyView -> abstractValuedPropertyView.getName()).collect(Collectors.toList());
+                .filter(valuedProperty -> globalPropertyIsUsedInValuedProperty(globalPropertyName, valuedProperty))
+                .map(valuedProperty -> valuedProperty.getName())
+                .collect(Collectors.toList());
     }
 
 
-    private static boolean globalPropertyIsUsedInValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
+    private static boolean globalPropertyIsUsedInSimpleValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
         List<String> valuesBetweenCurlyBrackets = ValuedProperty.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
         return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
     }
 
-    private static boolean globalPropertyIsUsedInIterablesProperties(String globalPropertyName, AbstractValuedPropertyView abstractValuedPropertyView) {
-        if (abstractValuedPropertyView instanceof ValuedPropertyView) {
-            return globalPropertyIsUsedInValuedProperty((ValuedPropertyView) abstractValuedPropertyView, globalPropertyName);
-        } else {
-            IterableValuedPropertyView iterableValuedPropertyView = (IterableValuedPropertyView) abstractValuedPropertyView;
-            return iterableValuedPropertyView.getIterablePropertyItems()
-                    .stream().anyMatch(iterablePropertyItemView -> iterablePropertyItemView.getAbstractValuedPropertyViews()
-                            .stream().anyMatch(abstractValuedPropertyView1 -> globalPropertyIsUsedInIterablesProperties(globalPropertyName, abstractValuedPropertyView1)));
+    private static boolean globalPropertyIsUsedInValuedProperty(String globalPropertyName, AbstractValuedPropertyView valuedProperty) {
+        boolean found = false;
+        if (valuedProperty instanceof ValuedPropertyView) {
+            ValuedPropertyView simpleValuedProperty = (ValuedPropertyView) valuedProperty;
+            found = globalPropertyIsUsedInSimpleValuedProperty(simpleValuedProperty, globalPropertyName);
+        } else if (valuedProperty instanceof IterableValuedPropertyView) {
+            IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) valuedProperty;
+            found = iterableValuedProperty.getIterablePropertyItems().stream()
+                    .map(IterablePropertyItemView::getAbstractValuedPropertyViews)
+                    .flatMap(List::stream)
+                    .anyMatch(abstractValuedProperty -> globalPropertyIsUsedInValuedProperty(globalPropertyName, abstractValuedProperty));
+
         }
+        return found;
     }
 
     private static boolean propertyNameIsInProperties(String propertyName, List<AbstractPropertyView> abstractProperties) {
-
-        return abstractProperties.stream()
-                .anyMatch(abstractProperty -> abstractProperty.getName().equals(propertyName))
-                || abstractProperties.stream()
-                .anyMatch(abstractProperty -> abstractProperty.flattenProperties()
-                        .anyMatch(property -> property.getName().equals(propertyName)));
-
+        return AbstractPropertyView.getFlatProperties(abstractProperties)
+                .anyMatch(property -> property.getName().equals(propertyName));
     }
 }
