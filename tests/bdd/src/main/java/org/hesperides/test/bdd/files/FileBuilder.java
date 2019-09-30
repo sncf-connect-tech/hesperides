@@ -64,6 +64,10 @@ public class FileBuilder {
         this.moduleBuilder = moduleBuilder;
     }
 
+    public void reset() {
+        simulate = false;
+    }
+
     private Optional<DeployedModuleBuilder> getDeployedModuleBuilder() {
         return platformBuilder.findMatchingDeployedModuleBuilder(moduleBuilder);
     }

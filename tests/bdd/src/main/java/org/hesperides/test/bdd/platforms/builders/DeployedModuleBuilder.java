@@ -205,13 +205,13 @@ public class DeployedModuleBuilder implements Serializable {
                 modulePath.equals(deployedModuleBuilder.modulePath);
     }
 
-    public Optional<ModuleBuilder> findMatchingModuleBuilder(ModuleHistory moduleHistory) {
+    Optional<ModuleBuilder> findMatchingModuleBuilder(ModuleHistory moduleHistory) {
         return moduleHistory.getModuleBuilders().stream()
                 .filter(this::matchModuleBuilder)
                 .findFirst();
     }
 
-    public boolean matchModuleBuilder(ModuleBuilder moduleBuilder) {
+    boolean matchModuleBuilder(ModuleBuilder moduleBuilder) {
         return name.equals(moduleBuilder.getName()) &&
                 version.equals(moduleBuilder.getVersion()) &&
                 versionType.equals(moduleBuilder.getVersionType());
@@ -232,5 +232,9 @@ public class DeployedModuleBuilder implements Serializable {
 
     public void clearValuedProperties() {
         valuedProperties = new ArrayList<>();
+    }
+
+    public void removeInstanceBuilder(String instanceName) {
+        instanceBuilders.removeIf(instanceBuilder -> instanceBuilder.getName().equals(instanceName));
     }
 }

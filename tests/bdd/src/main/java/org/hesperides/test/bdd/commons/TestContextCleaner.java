@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.commons;
 
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
+import org.hesperides.test.bdd.files.FileBuilder;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -46,6 +47,8 @@ public class TestContextCleaner {
     @Autowired
     private InstanceBuilder instanceBuilder;
     @Autowired
+    private FileBuilder fileBuilder;
+    @Autowired
     private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
     public void reset() {
@@ -69,6 +72,7 @@ public class TestContextCleaner {
         platformHistory.reset();
         deployedModuleBuilder.reset();
         instanceBuilder.reset();
+        fileBuilder.reset();
         applicationDirectoryGroupsBuilder.reset();
     }
 }

@@ -103,7 +103,11 @@ public class DeployedModule {
     }
 
     private String generatePropertiesPath() {
-        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        return generatePropertiesPath(moduleKey, modulePath);
+    }
+
+    public static String generatePropertiesPath(Module.Key moduleKey, String modulePath) {
         return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 
@@ -198,7 +202,7 @@ public class DeployedModule {
                 instancesModel);
     }
 
-    public boolean isActiveModule() {
+    boolean isActiveModule() {
         return id != null && id > 0;
     }
 }

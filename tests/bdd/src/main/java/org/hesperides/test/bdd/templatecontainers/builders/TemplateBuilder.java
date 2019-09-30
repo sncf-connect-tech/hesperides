@@ -34,7 +34,6 @@ public class TemplateBuilder implements Serializable {
 
     @Getter
     private String name;
-    @Getter
     private String namespace;
     @Getter
     private String filename;

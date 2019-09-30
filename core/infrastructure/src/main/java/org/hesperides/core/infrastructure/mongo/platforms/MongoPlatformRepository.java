@@ -4,7 +4,6 @@ import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.repository.ExistsQuery;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -31,29 +30,27 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{ 'key.applicationName' : ?0 }", fields = "{ 'deployedModules' : 0 }")
     List<PlatformDocument> findPlatformsForApplicationAndExcludeModules(String applicationName);
 
-    @Query(value = "{ 'deployedModules': { $elemMatch: { 'name' : ?0, 'version' : ?1, 'isWorkingCopy' : ?2, 'id' : { $gt: 0 } }}}", fields = "{ 'key' : 1 }")
+    @Query(value = "{ 'deployedModules' : { $elemMatch : { 'name' : ?0, 'version' : ?1, 'isWorkingCopy' : ?2, 'id' : { $gt : 0 } }}}", fields = "{ 'key' : 1 }")
     List<PlatformDocument> findPlatformsUsingModule(String moduleName, String moduleVersion, boolean isWorkingCopy);
 
     @Query(value = "{}", fields = "{ 'key.applicationName' : 1 }")
     List<PlatformDocument> listApplicationNames();
 
     // case-insensitive
-    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' } }")
+    @Query(value = "{ 'key.applicationName' : { '$regex' : ?0, '$options' : 'i' } }")
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
     // case-insensitive
-    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' }, 'key.platformName': { '$regex' : ?1, '$options' : 'i' } }")
+    @Query(value = "{ 'key.applicationName' : { '$regex' : ?0, '$options' : 'i' }, 'key.platformName' : { '$regex' : ?1, '$options' : 'i' } }")
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
-    // Pour les 3 prochaines requêtes, nous utilisons `$gt: 0` car `$ne: 0` ne retournait pas de résultat
-    @Query(value = "{ 'key': ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'id' : { $gt: 0 }, 'propertiesPath' : ?1 }}}")
+    // Nous utilisons `$gt : 0` car `$ne : 0` ne retournait pas de résultat
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'id' : { $gt : 0 }, 'propertiesPath' : ?1 }}}")
     Optional<PlatformDocument> findModuleByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
 
-    @ExistsQuery("{ 'key' : ?0, 'deployedModules.id' : { $gt: 0 }, 'deployedModules.name' : ?1, 'deployedModules.version' : ?2, 'deployedModules.isWorkingCopy' : ?3, 'deployedModules.modulePath' : ?4}")
-    boolean existsByPlatformKeyAndModuleKeyAndPath(PlatformKeyDocument platformKeyDocument, String moduleName, String moduleVersion, boolean isWorkingCopy, String modulePath);
-
-    @ExistsQuery(value = "{ 'key' : ?0, 'deployedModules.id' : { $gt: 0 }, 'deployedModules.name' : ?1, 'deployedModules.version' : ?2, 'deployedModules.isWorkingCopy' : ?3, 'deployedModules.modulePath' : ?4, 'deployedModules.instances.name' : ?5}")
-    boolean existsByPlatformKeyAndModuleKeyAndPathAndInstanceName(PlatformKeyDocument platformKeyDocument, String moduleName, String moduleVersion, boolean isWorkingCopy, String modulePath, String instanceName);
+    // issue-767 : `$gt : 0` n'est pas pris en compte dans cette requête, à voir avec la nouvelle version de Mongo
+//    @ExistsQuery("{ 'key' : ?0, 'deployedModules.id' : { $gt : 0 }, 'deployedModules.name' : ?1, 'deployedModules.version' : ?2, 'deployedModules.isWorkingCopy' : ?3, 'deployedModules.modulePath' : ?4, 'deployedModules.instances.name' : ?5}")
+//    boolean existsByPlatformKeyAndModuleKeyAndPathAndInstanceName(PlatformKeyDocument platformKeyDocument, String moduleName, String moduleVersion, boolean isWorkingCopy, String modulePath, String instanceName);
 
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalProperties' : 1 }")
     Optional<PlatformDocument> findGlobalPropertiesByPlatformKey(PlatformKeyDocument platformKeyDocument);

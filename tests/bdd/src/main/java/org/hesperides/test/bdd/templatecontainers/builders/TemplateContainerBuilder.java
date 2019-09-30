@@ -92,9 +92,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
     }
 
     public void removeTemplateBuilder(String templateName) {
-        templateBuilders = templateBuilders.stream()
-                .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
-                .collect(Collectors.toList());
+        templateBuilders.removeIf(templateBuilder -> !templateBuilder.getName().equals(templateName));
     }
 
     public void updateTemplateBuilder(TemplateBuilder templateBuilder) {

@@ -49,19 +49,25 @@ public class GetFile extends HesperidesScenario implements En {
 
     public GetFile() {
 
-        When("^I( try to)? get the (instance|module)? template file$", (String tryTo, String instanceOrModule) -> {
+        When("^I( try to)? get the (instance|module)? template file(?: for instance(?: named \"([^\"]*)\")?)?$", (
+                String tryTo, String instanceOrModule, String instanceName) -> {
+
+            if (isEmpty(instanceName)) {
+                instanceName = fileBuilder.buildInstanceName();
+            }
 
             fileBuilder.setSimulate("module".equals(instanceOrModule));
+
             fileClient.getFile(
                     platformBuilder.getApplicationName(),
                     platformBuilder.getPlatformName(),
                     fileBuilder.buildModulePath(),
                     moduleBuilder.getName(),
                     moduleBuilder.getVersion(),
-                    fileBuilder.buildInstanceName(),
+                    instanceName,
                     templateBuilder.getName(),
                     moduleBuilder.isWorkingCopy(),
-                    templateBuilder.getNamespace(),
+                    moduleBuilder.buildNamespace(),
                     fileBuilder.isSimulate());
         });
 
