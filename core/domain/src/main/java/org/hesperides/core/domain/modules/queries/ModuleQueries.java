@@ -4,7 +4,6 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
@@ -65,8 +64,8 @@ public class ModuleQueries extends AxonQueries {
         return querySyncList(new GetModulePropertiesQuery(moduleKey), AbstractPropertyView.class);
     }
 
-    public List<ModuleSimplePropertiesView> getModulesSimpleProperties(List<TemplateContainer.Key> modulesKeys) {
-        return querySyncList(new GetModulesSimplePropertiesQuery(modulesKeys), ModuleSimplePropertiesView.class);
+    public List<ModulePropertiesView> getModulesProperties(List<TemplateContainer.Key> modulesKeys) {
+        return querySyncList(new GetModulesPropertiesQuery(modulesKeys), ModulePropertiesView.class);
     }
 
     public List<TemplateContainerKeyView> getModulesUsingTechno(String technoId) {

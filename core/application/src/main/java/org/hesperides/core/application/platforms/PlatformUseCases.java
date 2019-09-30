@@ -5,6 +5,7 @@ import org.hesperides.core.application.platforms.properties.PropertyValuationBui
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
+import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
@@ -362,13 +363,13 @@ public class PlatformUseCases {
                 .stream()
                 .map(DeployedModuleView::getModuleKey)
                 .collect(Collectors.toList());
-        List<AbstractPropertyView> abstractPropertyViews = new ArrayList<>();
-        modulesKeys.forEach(moduleKey -> abstractPropertyViews.addAll(moduleQueries.getPropertiesModel(moduleKey)));
+
+        List<ModulePropertiesView> modulesProperties = moduleQueries.getModulesProperties(modulesKeys);
 
         return platform.getGlobalProperties().stream()
                 .map(ValuedPropertyView::getName)
                 .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
-                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, deployedModules, abstractPropertyViews)));
+                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, deployedModules, modulesProperties)));
     }
 
     public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {

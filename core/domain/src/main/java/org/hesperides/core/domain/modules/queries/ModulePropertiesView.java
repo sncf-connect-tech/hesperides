@@ -22,12 +22,12 @@ package org.hesperides.core.domain.modules.queries;
 
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 
 import java.util.List;
 
 @Value
-public class ModuleSimplePropertiesView {
+public class ModulePropertiesView {
     Module.Key moduleKey;
-    List<PropertyView> properties;
+    List<AbstractPropertyView> properties;
 }

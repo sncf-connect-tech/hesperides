@@ -1,18 +1,18 @@
 package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
+import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Value
@@ -37,11 +37,11 @@ public class GlobalPropertyUsageView {
      * <p>
      * Dans tous les autres cas, isRemovedFromTemplate = false;
      */
-    public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<AbstractPropertyView> abstractPropertyViews) {
+    public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<ModulePropertiesView> propertiesViews) {
         Set<GlobalPropertyUsageView> globalPropertyUsages = new HashSet<>();
 
         deployedModules.forEach(deployedModule -> {
-            List<PropertyView> modulesProperties = getModulesPropertiesViews(abstractPropertyViews, deployedModule.getModuleKey());
+            List<AbstractPropertyView> modulesProperties = getModulesPropertiesViews(propertiesViews, deployedModule.getModuleKey());
             String propertiesPath = deployedModule.getPropertiesPath();
 
             if (propertyNameIsInProperties(globalPropertyName, modulesProperties)) {
@@ -59,12 +59,14 @@ public class GlobalPropertyUsageView {
         return globalPropertyUsages;
     }
 
-    private static List<PropertyView> getModulesPropertiesViews(List<AbstractPropertyView> abstractPropertyViews, TemplateContainer.Key moduleKey) {
-        Stream<PropertyView> propertyViewStream = AbstractPropertyView.getFlatProperties(abstractPropertyViews);
-        List<PropertyView> propertyViews = propertyViewStream.collect(Collectors.toList());
-        return propertyViews;
+    private static List<AbstractPropertyView> getModulesPropertiesViews(List<ModulePropertiesView> modulePropertiesViews, TemplateContainer.Key moduleKey) {
+        return modulePropertiesViews
+                .stream()
+                .filter(modulePropertiesView -> modulePropertiesView.getModuleKey().equals(moduleKey))
+                .findFirst()
+                .map(ModulePropertiesView::getProperties)
+                .orElseGet(Collections::emptyList);
     }
-
 
     private static List<String> getIterablesValudPropertiesNamesUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
         return valuedProperties.stream()
@@ -89,8 +91,13 @@ public class GlobalPropertyUsageView {
         }
     }
 
-    private static boolean propertyNameIsInProperties(String propertyName, List<PropertyView> moduleProperties) {
-        return moduleProperties.stream()
-                .anyMatch(propertyView -> propertyView.getName().equals(propertyName));
+    private static boolean propertyNameIsInProperties(String propertyName, List<AbstractPropertyView> abstractProperties) {
+
+        return abstractProperties.stream()
+                .anyMatch(abstractProperty -> abstractProperty.getName().equals(propertyName))
+                || abstractProperties.stream()
+                .anyMatch(abstractProperty -> abstractProperty.flattenProperties()
+                        .anyMatch(property -> property.getName().equals(propertyName)));
+
     }
 }
