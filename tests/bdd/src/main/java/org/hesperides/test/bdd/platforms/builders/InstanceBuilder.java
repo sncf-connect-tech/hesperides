@@ -53,6 +53,10 @@ public class InstanceBuilder implements Serializable {
         return this;
     }
 
+    public void withName(String name) {
+        this.name = name;
+    }
+
     public void withValuedProperty(String name, String value) {
         valuedProperties.add(new ValuedPropertyIO(name, value));
     }

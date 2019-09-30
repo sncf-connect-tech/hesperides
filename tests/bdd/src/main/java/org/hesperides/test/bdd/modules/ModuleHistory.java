@@ -52,9 +52,7 @@ public class ModuleHistory {
     }
 
     public void removeModuleBuilder(ModuleBuilder moduleBuilderToRemove) {
-        moduleBuilders = moduleBuilders.stream()
-                .filter(existingModuleBuilder -> !existingModuleBuilder.equalsByKey(moduleBuilderToRemove))
-                .collect(Collectors.toList());
+        moduleBuilders.removeIf(existingModuleBuilder -> !existingModuleBuilder.equalsByKey(moduleBuilderToRemove));
     }
 
     public void updateModuleBuilder(ModuleBuilder moduleBuilder) {

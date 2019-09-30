@@ -71,7 +71,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "(, upgrading its module to the release version)?" +
             "(, adding this module(?: again)?(?: in logical group \"([^\"]*)\")?)?" +
             "(, removing this module)?" +
-            "(, adding an instance(?: (and|with) instance properties)?)?" +
+            "(, adding an instance(?: named \"([^\"]*)\")?(?: (and|with) instance properties)?)?" +
+            "(?:, removing the instance named \"([^\"]*)\")?" +
             "(, clearing the modules)?" +
             "(, changing the platform version)?" +
             "( to a prod one)?" +
@@ -85,7 +86,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String moduleLogicalGroup,
             String removeThisModule,
             String addAnInstance,
+            String instanceName,
             String addInstanceProperties,
+            String removeInstance,
             String clearModules,
             String changePlatformVersion,
             String toProd,
@@ -121,6 +124,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(addAnInstance)) {
+            if (isNotEmpty(instanceName)) {
+                instanceBuilder.withName(instanceName);
+            }
             if (isNotEmpty(addInstanceProperties)) {
                 // L'ajout de propriétés d'instance nécessitent qu'elles soient définies dans les valorisations
                 // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
@@ -136,6 +142,10 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
         }
 
+        if (isNotEmpty(removeInstance)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).removeInstanceBuilder(removeInstance);
+        }
+
         if (isNotEmpty(clearModules)) {
             platformBuilder.clearDeployedModuleBuilders();
         }
@@ -144,7 +154,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withVersion("1.1");
         }
 
-        if (StringUtils.isNotEmpty(toProd)) {
+        if (isNotEmpty(toProd)) {
             platformBuilder.withIsProductionPlatform(true);
         }
 

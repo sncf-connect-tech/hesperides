@@ -755,3 +755,12 @@ Feature: Get file
       """
       global-value
       """
+
+  #issue-767
+  Scenario: get file of an instance that only exists in an archived module
+    Given an existing module with a template
+    And an existing platform with this module and an instance named "A"
+    And a copy of this module in version "2.0"
+    And I update this platform, upgrading its module version to "2.0", adding an instance named "B", removing the instance named "A"
+    When I try to get the instance template file for instance named "A"
+    Then the resource is not found

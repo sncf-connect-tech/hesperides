@@ -112,8 +112,8 @@ public class PlatformQueries extends AxonQueries {
         return querySyncList(new GetGlobalPropertiesQuery(platformKey), ValuedPropertyView.class);
     }
 
-    public boolean instanceExists(Platform.Key platformKey, Module.Key moduleKey, String modulePath, String instanceName) {
-        return querySync(new InstanceExistsQuery(platformKey, moduleKey, modulePath, instanceName), Boolean.class);
+    public boolean instanceExists(Platform.Key platformKey, String propertiesPath, String instanceName) {
+        return querySync(new InstanceExistsQuery(platformKey, propertiesPath, instanceName), Boolean.class);
     }
 
     public boolean applicationExists(String applicationName) {

@@ -51,7 +51,7 @@ public class TechnoDocument {
     private List<TemplateDocument> templates;
     private List<AbstractPropertyDocument> properties;
 
-    public TechnoDocument(String id, Techno techno) {
+    TechnoDocument(String id, Techno techno) {
         this.id = id;
         this.key = new KeyDocument(techno.getKey());
         this.templates = TemplateDocument.fromDomainInstances(techno.getTemplates());
@@ -81,7 +81,7 @@ public class TechnoDocument {
         );
     }
 
-    public TechnoView toTechnoView() {
+    TechnoView toTechnoView() {
         TemplateContainer.Key technoKey = getDomainKey();
         return new TechnoView(key.getName(), key.getVersion(), key.isWorkingCopy(),
                 TemplateDocument.toTemplateViews(templates, technoKey));
@@ -99,11 +99,11 @@ public class TechnoDocument {
         addTemplate(updatedTemplateDocument);
     }
 
-    public void removeTemplate(String templateName) {
+    void removeTemplate(String templateName) {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
     }
 
-    public void extractPropertiesAndSave(MongoTechnoRepository technoRepository) {
+    void extractPropertiesAndSave(MongoTechnoRepository technoRepository) {
         this.setProperties(extractPropertiesFromTemplates());
         technoRepository.save(this);
     }
@@ -112,11 +112,10 @@ public class TechnoDocument {
         TemplateContainer.Key technoKey = getDomainKey();
         List<Template> templates = TemplateDocument.toDomainInstances(this.templates, technoKey);
         List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates, key.toString());
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
-        return abstractPropertyDocuments;
+        return AbstractPropertyDocument.fromDomainInstances(abstractProperties);
     }
 
-    public Techno.Key getDomainKey() {
+    Techno.Key getDomainKey() {
         return new Techno.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
     }
 }
