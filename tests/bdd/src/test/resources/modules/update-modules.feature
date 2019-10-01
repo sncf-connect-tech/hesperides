@@ -35,3 +35,4 @@ Feature: Update modules
     And a techno that doesn't exist
     When I try to update this module adding this techno
     Then the module update is rejected with a not found error
+

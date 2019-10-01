@@ -3,7 +3,7 @@ package org.hesperides.core.infrastructure.mongo.modules;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
+import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
@@ -11,7 +11,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
-import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -110,13 +109,11 @@ public class ModuleDocument {
         return new Module.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
     }
 
-    public ModuleSimplePropertiesView toModuleSimplePropertiesView() {
-        return new ModuleSimplePropertiesView(
+    public ModulePropertiesView toModulePropertiesView() {
+        return new ModulePropertiesView(
                 getDomainKey(),
                 properties.stream()
-                        .filter(PropertyDocument.class::isInstance)
-                        .map(PropertyDocument.class::cast)
-                        .map(PropertyDocument::toView)
+                        .map(abstractPropertyDocument -> abstractPropertyDocument.toView())
                         .collect(Collectors.toList()));
     }
 }

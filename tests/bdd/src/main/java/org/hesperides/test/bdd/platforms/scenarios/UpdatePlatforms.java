@@ -268,5 +268,6 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             Assertions.assertThat(matchingProperty).isNotPresent();
         });
+
     }
 }

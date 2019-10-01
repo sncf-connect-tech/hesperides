@@ -54,6 +54,7 @@ public class DeployedModuleBuilder implements Serializable {
     @Getter
     @Setter
     private List<ValuedPropertyIO> valuedProperties;
+    @Getter
     @Setter
     private List<IterableValuedPropertyIO> iterableProperties;
     @Getter
@@ -217,7 +218,7 @@ public class DeployedModuleBuilder implements Serializable {
                 versionType.equals(moduleBuilder.getVersionType());
     }
 
-    public void updateOrAddInstanceBuilder(InstanceBuilder instanceBuilder) {
+    public void upsertInstanceBuilder(InstanceBuilder instanceBuilder) {
 
         if (instanceBuilders.stream().anyMatch(existingInstanceBuilder ->
                 existingInstanceBuilder.getName().equals(instanceBuilder.getName()))) {

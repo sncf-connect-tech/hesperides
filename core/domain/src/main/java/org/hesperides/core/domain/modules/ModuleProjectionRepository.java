@@ -3,7 +3,7 @@ package org.hesperides.core.domain.modules;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
+import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
@@ -54,7 +54,7 @@ public interface ModuleProjectionRepository {
     List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query);
 
     @QueryHandler
-    List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query);
+    List<ModulePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesPropertiesQuery query);
 
     @QueryHandler
     List<TemplateContainerKeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query);

@@ -159,6 +159,7 @@ public class PlatformHistory {
         return getFirstPlatformTimestampedBuilder(applicationName, platformName).getPlatformBuilder();
     }
 
+
     private TimestampedBuilder getFirstPlatformTimestampedBuilder(String applicationName, String platformName) {
         return platforms.stream()
                 .filter(platform -> platform.getPlatformKey().getApplicationName().equals(applicationName) &&

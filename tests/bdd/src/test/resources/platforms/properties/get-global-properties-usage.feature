@@ -26,3 +26,16 @@ Feature: Get global properties usage
     And the properties are removed from the module
     When I get this platform global properties usage
     Then the platform global properties usage is successfully retrieved
+
+  Scenario: get global properties used in iterable properties
+    Given an existing module with iterable properties referencing global properties
+    And an existing platform with this module and global properties
+    When I get this platform global properties usage
+    Then the platform global properties usage is successfully retrieved
+
+  Scenario: get global properties used in iterable properties values
+    Given an existing module with iterable properties
+    And an existing platform with this module and global properties
+    And the deployed module has iterable properties with values referencing the global properties
+    When I get this platform global properties usage
+    Then the platform global properties usage is successfully retrieved

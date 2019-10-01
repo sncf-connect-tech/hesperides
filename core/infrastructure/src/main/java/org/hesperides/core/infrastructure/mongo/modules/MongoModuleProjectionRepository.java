@@ -8,7 +8,7 @@ import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
+import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
@@ -196,12 +196,12 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     @Timed
-    public List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query) {
+    public List<ModulePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesPropertiesQuery query) {
         List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
 
         return moduleRepository.findPropertiesByKeyIn(modulesKeys)
                 .stream()
-                .map(ModuleDocument::toModuleSimplePropertiesView)
+                .map(ModuleDocument::toModulePropertiesView)
                 .collect(Collectors.toList());
     }
 

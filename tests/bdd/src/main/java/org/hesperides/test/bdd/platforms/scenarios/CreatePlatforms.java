@@ -261,10 +261,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     }
 
     void assertPlatform() {
-        assertPlatform(platformBuilder);
+        assertPlatformEquals(platformBuilder);
     }
 
-    void assertPlatform(PlatformBuilder platformBuilder) {
+    void assertPlatformEquals(PlatformBuilder platformBuilder) {
         assertOK();
         PlatformIO expectedPlatform = platformBuilder.buildOutput();
         PlatformIO actualPlatform = testContext.getResponseBody();
