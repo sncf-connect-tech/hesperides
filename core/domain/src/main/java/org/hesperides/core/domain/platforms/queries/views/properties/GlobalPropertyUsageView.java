@@ -62,7 +62,7 @@ public class GlobalPropertyUsageView {
     private static List<AbstractPropertyView> getPropertiesOfGivenModule(List<ModulePropertiesView> modulesProperties, TemplateContainer.Key moduleKey) {
         return modulesProperties
                 .stream()
-                .filter(modulePropertiesView -> modulePropertiesView.getModuleKey().equals(moduleKey))
+                .filter(moduleProperties -> moduleProperties.getModuleKey().equals(moduleKey))
                 .findFirst()
                 .map(ModulePropertiesView::getProperties)
                 .orElseGet(Collections::emptyList);
@@ -78,9 +78,11 @@ public class GlobalPropertyUsageView {
 
     private static boolean globalPropertyIsUsedInValuedProperty(String globalPropertyName, AbstractValuedPropertyView valuedProperty) {
         boolean found = false;
+
         if (valuedProperty instanceof ValuedPropertyView) {
             ValuedPropertyView simpleValuedProperty = (ValuedPropertyView) valuedProperty;
             found = globalPropertyIsUsedInSimpleValuedProperty(simpleValuedProperty, globalPropertyName);
+
         } else if (valuedProperty instanceof IterableValuedPropertyView) {
             IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) valuedProperty;
             found = iterableValuedProperty.getIterablePropertyItems().stream()
