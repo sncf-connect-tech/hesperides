@@ -41,7 +41,7 @@ public class GlobalPropertyUsageView {
         Set<GlobalPropertyUsageView> globalPropertyUsages = new HashSet<>();
 
         deployedModules.forEach(deployedModule -> {
-            List<AbstractPropertyView> moduleProperties = getPropertiesForModule(modulesProperties, deployedModule.getModuleKey());
+            List<AbstractPropertyView> moduleProperties = getPropertiesOfGivenModule(modulesProperties, deployedModule.getModuleKey());
             String propertiesPath = deployedModule.getPropertiesPath();
 
             if (propertyNameIsInProperties(globalPropertyName, moduleProperties)) {
@@ -59,7 +59,7 @@ public class GlobalPropertyUsageView {
         return globalPropertyUsages;
     }
 
-    private static List<AbstractPropertyView> getPropertiesForModule(List<ModulePropertiesView> modulesProperties, TemplateContainer.Key moduleKey) {
+    private static List<AbstractPropertyView> getPropertiesOfGivenModule(List<ModulePropertiesView> modulesProperties, TemplateContainer.Key moduleKey) {
         return modulesProperties
                 .stream()
                 .filter(modulePropertiesView -> modulePropertiesView.getModuleKey().equals(moduleKey))
@@ -71,15 +71,10 @@ public class GlobalPropertyUsageView {
     private static List<String> getNamesOfPropertyValuesUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
         return valuedProperties.stream()
                 .filter(valuedProperty -> globalPropertyIsUsedInValuedProperty(globalPropertyName, valuedProperty))
-                .map(valuedProperty -> valuedProperty.getName())
+                .map(AbstractValuedPropertyView::getName)
                 .collect(Collectors.toList());
     }
 
-
-    private static boolean globalPropertyIsUsedInSimpleValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
-        List<String> valuesBetweenCurlyBrackets = ValuedProperty.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
-        return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
-    }
 
     private static boolean globalPropertyIsUsedInValuedProperty(String globalPropertyName, AbstractValuedPropertyView valuedProperty) {
         boolean found = false;
@@ -95,6 +90,11 @@ public class GlobalPropertyUsageView {
 
         }
         return found;
+    }
+
+    private static boolean globalPropertyIsUsedInSimpleValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
+        List<String> valuesBetweenCurlyBrackets = ValuedProperty.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
+        return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
     }
 
     private static boolean propertyNameIsInProperties(String propertyName, List<AbstractPropertyView> abstractProperties) {

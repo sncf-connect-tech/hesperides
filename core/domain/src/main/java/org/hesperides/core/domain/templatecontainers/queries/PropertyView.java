@@ -32,7 +32,7 @@ public class PropertyView extends AbstractPropertyView {
     }
 
     @Override
-    public Stream<PropertyView> flattenProperties() {
+    protected Stream<PropertyView> flattenProperties() {
         return Stream.of(this);
     }
 
