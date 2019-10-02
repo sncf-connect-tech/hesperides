@@ -764,3 +764,16 @@ Feature: Get file
     And I update this platform, upgrading its module version to "2.0", adding an instance named "B", removing the instance named "A"
     When I try to get the instance template file for instance named "A"
     Then the resource is not found
+
+  #issue-530
+  Scenario: get file with default value without valorization
+    Given an existing module with this template content
+      """
+      {{ property | @default 12 }}
+      """
+    And an existing platform with this module
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      12
+      """
