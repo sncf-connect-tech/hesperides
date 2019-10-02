@@ -159,17 +159,29 @@ public class PlatformHistory {
         return getFirstPlatformTimestampedBuilder(applicationName, platformName).getPlatformBuilder();
     }
 
-
     private TimestampedBuilder getFirstPlatformTimestampedBuilder(String applicationName, String platformName) {
         return platforms.stream()
                 .filter(platform -> platform.getPlatformKey().getApplicationName().equals(applicationName) &&
                         platform.getPlatformKey().getPlatformName().equals(platformName))
                 .findFirst()
                 .map(PlatformTimestampedBuilders::getTimestampedBuilders)
-                .orElseThrow(() -> new RuntimeException("Can't find platform " + applicationName + "-" + platformName))
-                .stream()
-                .min(Comparator.comparing(TimestampedBuilder::getTimestamp))
-                .orElseThrow(() -> new RuntimeException("Can't get first timestamped platform builder"));
+                .map(timestampedBuilders -> timestampedBuilders.get(0))
+                .orElseThrow(() -> new RuntimeException("Can't find platform " + applicationName + "-" + platformName));
+    }
+
+    public Long getPenultimatePlatformTimestamp(String applicationName, String platformName) {
+        return getPenultimatePlatformTimestampBuilder(applicationName, platformName).getTimestamp();
+    }
+
+    // penultimate = second to last = avant dernier
+    private TimestampedBuilder getPenultimatePlatformTimestampBuilder(String applicationName, String platformName) {
+        return platforms.stream()
+                .filter(platform -> platform.getPlatformKey().getApplicationName().equals(applicationName) &&
+                        platform.getPlatformKey().getPlatformName().equals(platformName))
+                .findFirst()
+                .map(PlatformTimestampedBuilders::getTimestampedBuilders)
+                .map(timestampedBuilders -> timestampedBuilders.get(timestampedBuilders.size() - 2))
+                .orElseThrow(() -> new RuntimeException("Can't find platform " + applicationName + "-" + platformName));
     }
 
     @Data

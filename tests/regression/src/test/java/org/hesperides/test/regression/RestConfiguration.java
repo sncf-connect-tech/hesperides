@@ -33,7 +33,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +59,7 @@ public class RestConfiguration {
                 .filter(httpMessageConverter -> !(httpMessageConverter instanceof MappingJackson2HttpMessageConverter))
                 .collect(Collectors.toList());
         // Il est important de mettre ce converter à l'index 0, sinon il n'est pas pris en compte
-        converters.add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
+        converters.add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         converters.add(new GsonHttpMessageConverter());
         restTemplate.setMessageConverters(converters);
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
