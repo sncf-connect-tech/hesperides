@@ -12,3 +12,8 @@ Feature: Get modules versions
     Given a module that doesn't exist
     When I get the module versions
     Then a list of 0 elements is returned
+
+  Scenario: get a single version of a module that has been released
+    Given an existing released module
+    When I get the module versions
+    Then a list of 1 element is returned

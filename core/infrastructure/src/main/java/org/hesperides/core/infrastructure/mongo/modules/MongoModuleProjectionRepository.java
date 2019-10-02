@@ -164,6 +164,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .stream()
                 .map(ModuleDocument::getKey)
                 .map(KeyDocument::getVersion)
+                .distinct()
                 .collect(Collectors.toList());
     }
 
