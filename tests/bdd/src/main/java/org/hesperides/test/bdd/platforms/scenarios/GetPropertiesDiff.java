@@ -4,6 +4,7 @@ import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -29,8 +30,11 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
     private PlatformClient platformClient;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private PlatformBuilder platformBuilder;
 
     public GetPropertiesDiff() {
+
         When("^I get the( global)?( instance)? properties diff on (stored|final) values between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
                 String globalProperties, String instanceProperties, String storedOrFinal, String fromPlatformName, String toPlatformName) -> {
 
@@ -51,8 +55,26 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
                     toPropertiesPath,
                     toInstance,
                     storedOrFinal.equals("stored"),
-                    null,
                     null);
+        });
+
+        When("^I get the( global)?( instance)? properties diff on (stored|final) values between the first and second version of the platform values$", (
+                String globalProperties, String instanceProperties, String storedOrFinal) -> {
+
+            PlatformIO platform = platformBuilder.buildInput();
+            String propertiesPath = getPropertiesPath(globalProperties, platformBuilder);
+            String instance = getInstance(instanceProperties, platformBuilder);
+            Long timestamp = platformHistory.getPenultimatePlatformTimestamp(platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+
+            platformClient.getPropertiesDiff(
+                    platform,
+                    propertiesPath,
+                    instance,
+                    platform,
+                    propertiesPath,
+                    instance,
+                    storedOrFinal.equals("stored"),
+                    timestamp);
         });
 
         Then("the diff is successfully retrieved", this::assertOK);
@@ -65,7 +87,7 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
             assertThat(actualPropertiesDiff.getOnlyRight(), is(empty()));
         });
 
-        And("the resulting diff match these values", (DataTable data) -> {
+        Then("the resulting diff match these values", (DataTable data) -> {
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
             Set<Diff> expectedPropertiesDiff = new HashSet<>(data.asList(Diff.class));
 

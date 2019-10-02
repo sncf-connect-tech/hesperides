@@ -177,7 +177,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
             switch (valuedGlobalInstanceOrIterableProperties) {
                 case "global":
-                    platformBuilder.withGlobalProperties(data.asList(ValuedPropertyIO.class));
+                    platformBuilder.setGlobalProperties(data.asList(ValuedPropertyIO.class));
                     saveProperties.saveGlobalProperties();
 
                     break;
