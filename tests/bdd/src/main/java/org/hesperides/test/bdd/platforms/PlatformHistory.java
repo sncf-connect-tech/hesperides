@@ -155,7 +155,14 @@ public class PlatformHistory {
         return getFirstPlatformTimestampedBuilder(applicationName, platformName).getTimestamp();
     }
 
-    public PlatformBuilder getFirstPlatformBuilder(String applicationName, String platformName) {
+    public PlatformBuilder getFirstPlatformBuilder(String applicationName, String platformName, boolean withProperties) {
+        if(withProperties) {
+            return platforms.stream()
+                    .filter(platform-> platform.getPlatformKey().getApplicationName().equals(applicationName) &&
+                            platform.getPlatformKey().getPlatformName().equals(platformName) && platform.getTimestampedBuilders()
+                            .stream().filter(timestampedBuilder -> timestampedBuilder.getPlatformBuilder().getDeployedModuleBuilders()
+                                    .stream().filter(deployedModuleBuilder -> !deployedModuleBuilder.getValuedProperties().isEmpty()).))
+        }
         return getFirstPlatformTimestampedBuilder(applicationName, platformName).getPlatformBuilder();
     }
 
