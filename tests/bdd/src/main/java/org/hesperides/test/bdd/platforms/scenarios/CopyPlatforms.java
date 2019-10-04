@@ -119,5 +119,10 @@ public class CopyPlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with a not found error$", this::assertNotFound);
 
         Then("^the platform copy fails with a conflict error$", this::assertConflict);
+
+        And("^the initial valued properties of version \"([^\"]*)\" are present$", (String arg0) -> {
+            platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties);
+            saveProperties.assertGlobalProperties();
+        });
     }
 }

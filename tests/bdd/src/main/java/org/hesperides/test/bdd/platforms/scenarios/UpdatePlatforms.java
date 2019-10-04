@@ -21,6 +21,8 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
@@ -259,4 +261,5 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             Assertions.assertThat(matchingProperty).isNotPresent();
         });
     }
+
 }
