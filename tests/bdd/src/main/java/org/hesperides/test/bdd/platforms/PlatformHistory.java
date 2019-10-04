@@ -156,14 +156,25 @@ public class PlatformHistory {
     }
 
     public PlatformBuilder getFirstPlatformBuilder(String applicationName, String platformName, boolean withProperties) {
+        TimestampedBuilder localTimestampedBuilder;
         if(withProperties) {
-            return platforms.stream()
+            localTimestampedBuilder = platforms.stream()
                     .filter(platform-> platform.getPlatformKey().getApplicationName().equals(applicationName) &&
                             platform.getPlatformKey().getPlatformName().equals(platformName) && platform.getTimestampedBuilders()
-                            .stream().filter(timestampedBuilder -> timestampedBuilder.getPlatformBuilder().getDeployedModuleBuilders()
-                                    .stream().filter(deployedModuleBuilder -> !deployedModuleBuilder.getValuedProperties().isEmpty()).))
+                            .stream().anyMatch(timestampedBuilder -> timestampedBuilder.getPlatformBuilder().getDeployedModuleBuilders()
+                                    .stream().anyMatch(deployedModuleBuilder -> !deployedModuleBuilder.getValuedProperties().isEmpty())))
+                    .findFirst()
+                    .map(PlatformTimestampedBuilders::getTimestampedBuilders)
+                    .orElseThrow(() -> new RuntimeException("Can't find platform " + applicationName + "-" + platformName))
+                    .stream()
+                    .min(Comparator.comparing(TimestampedBuilder::getTimestamp))
+                    .orElseThrow(() -> new RuntimeException("Can't get first timestamped platform builder"));
+
         }
-        return getFirstPlatformTimestampedBuilder(applicationName, platformName).getPlatformBuilder();
+        else {
+            localTimestampedBuilder = getFirstPlatformTimestampedBuilder(applicationName, platformName);
+        }
+        return localTimestampedBuilder.getPlatformBuilder();
     }
 
     private TimestampedBuilder getFirstPlatformTimestampedBuilder(String applicationName, String platformName) {
