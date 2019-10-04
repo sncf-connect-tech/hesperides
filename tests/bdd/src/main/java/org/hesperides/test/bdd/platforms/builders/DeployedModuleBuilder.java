@@ -234,4 +234,8 @@ public class DeployedModuleBuilder implements Serializable {
     public void clearValuedProperties() {
         valuedProperties = new ArrayList<>();
     }
+
+    public void removeInstanceBuilder(String instanceName) {
+        instanceBuilders.removeIf(instanceBuilder -> instanceBuilder.getName().equals(instanceName));
+    }
 }

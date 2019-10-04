@@ -20,19 +20,13 @@
  */
 package org.hesperides.test.bdd.commons;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class HesperidesScenario {
-
-    //TODO Quel est l'intérêt de cette classe ? Est-ce qu'on peut pas tout passer dans TestContext ?
 
     @Autowired
     protected TestContext testContext;
@@ -41,23 +35,19 @@ public class HesperidesScenario {
     @Autowired
     protected AuthorizationCredentialsConfig authorizationCredentialsConfig;
 
-    public static Class getResponseType(String tryTo, Class defaultResponseType) {
-        return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
-    }
-
-    public void assertOK() {
+    protected void assertOK() {
         assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
     }
 
-    public void assertCreated() {
+    protected void assertCreated() {
         assertEquals(HttpStatus.CREATED, testContext.getResponseStatusCode());
     }
 
-    public void assertNotFound() {
+    protected void assertNotFound() {
         assertEquals(HttpStatus.NOT_FOUND, testContext.getResponseStatusCode());
     }
 
-    public void assertConflict() {
+    protected void assertConflict() {
         assertEquals(HttpStatus.CONFLICT, testContext.getResponseStatusCode());
     }
 
@@ -65,7 +55,7 @@ public class HesperidesScenario {
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, testContext.getResponseStatusCode());
     }
 
-    public void assertBadRequest() {
+    protected void assertBadRequest() {
         assertEquals(HttpStatus.BAD_REQUEST, testContext.getResponseStatusCode());
     }
 

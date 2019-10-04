@@ -67,7 +67,6 @@ public class UserAuthorities extends HesperidesScenario implements En {
         Given("^a user that does not belong to any group$", () -> {
             Set<String> userGroupCNs = setRoleAndReturnUserGroupCNs(NOGROUP_TEST_PROFILE);
             Assertions.assertThat(userGroupCNs).isEmpty();
-            ;
         });
 
         Then("^the user is retrieved without any group$", () -> {

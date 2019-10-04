@@ -69,7 +69,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             "(?: named \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|those) modules?)?" +
             "(?: in logical group \"([^\"]*)\")?" +
-            "( (?:and|with) an instance)?" +
+            "( (?:and|with) an instance(?: named \"([^\"]*)\")?)?" +
             "( (?:and|with) valued properties)?" +
             "( (?:and|with) iterable properties)?" +
             "( (?:and|with) global properties)?" +
@@ -83,6 +83,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             String withThoseModule,
             String moduleLogicalGroup,
             String withAnInstance,
+            String instanceName,
             String withValuedProperties,
             String withIterableProperties,
             String withGlobalProperties,
@@ -103,6 +104,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(withAnInstance)) {
+            if (isNotEmpty(instanceName)) {
+                instanceBuilder.withName(instanceName);
+            }
             if (isNotEmpty(withInstanceProperties)) {
                 instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
                 instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");

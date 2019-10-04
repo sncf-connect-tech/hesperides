@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 
 @Component
 public class FileClient {
@@ -69,8 +69,6 @@ public class FileClient {
             boolean isWorkingCopy,
             String templateNamespace,
             boolean simulate) {
-
-        //https://hesperides-dev:56789/rest/files/applications/TLH/platforms/DEV-XXX/%23ROOT_GROUP%23PARENT_GROUP%23CHILD_GROUP/module-tlh/2/instances/default/techno-template?isWorkingCopy=true&template_namespace=packages%23techno-tlh%231%23WORKINGCOPY&simulate=true
 
         restTemplate.getForEntity("/files/applications/{application_name}/platforms/{platform_name}" +
                         "/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}" +

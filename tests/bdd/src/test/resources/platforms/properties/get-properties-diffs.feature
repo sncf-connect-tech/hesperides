@@ -220,16 +220,49 @@ Feature: Get properties diffs
   Scenario: get iterable properties diff on stored values between two platforms
 
   Scenario: get properties diff on the same platform at a different timestamp
-
-  Scenario: get properties diff between two platforms at a different timestamp
+    Given an existing module with this template content
+      """
+      {{only-p1}}
+      {{only-p2}}
+      {{common-property}}
+      {{differing-property}}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name               | value    |
+      | only-p1            | value    |
+      | common-property    | value    |
+      | differing-property | p1-value |
+    And the platform has these valued properties
+      | name               | value    |
+      | only-p2            | value    |
+      | common-property    | value    |
+      | differing-property | p2-value |
+    When I get the properties diff on final values between the first and second version of the platform values
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common          | differing          |
+      | only-p2   | only-p1    | common-property | differing-property |
 
   Scenario: get global properties diff on the same platform at a different timestamp
-
-  Scenario: get global properties diff between two platforms at a different timestamp
+    Given an existing platform
+    And the platform has these global properties
+      | name               | value    |
+      | only-p1            | value    |
+      | common-property    | value    |
+      | differing-property | p1-value |
+    And the platform has these global properties
+      | name               | value    |
+      | only-p2            | value    |
+      | common-property    | value    |
+      | differing-property | p2-value |
+    When I get the global properties diff on final values between the first and second version of the platform values
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common          | differing          |
+      | only-p2   | only-p1    | common-property | differing-property |
 
   Scenario: get iterable properties diff on the same platform at a different timestamp
-
-  Scenario: get iterable properties diff between two platforms at a different timestamp
 
   Scenario: get global properties diffs with a property that is empty in the left and not provided in the right
     Given an existing platform named "P1"

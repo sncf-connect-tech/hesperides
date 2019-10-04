@@ -28,7 +28,7 @@ import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 
 @Component
 public class ApplicationClient {

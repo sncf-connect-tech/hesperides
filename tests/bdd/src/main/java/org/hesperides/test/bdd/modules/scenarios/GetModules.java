@@ -48,7 +48,7 @@ public class GetModules extends HesperidesScenario implements En {
             moduleClient.getModuleTypes(module.getName(), module.getVersion());
         });
 
-        When("^I get the module versions$", () -> moduleClient.getModuleVersions("new-module"));
+        When("^I get the module versions$", () -> moduleClient.getModuleVersions(moduleBuilder.getName()));
 
         When("^I get the modules using this techno$", () -> {
             moduleClient.getModulesUsingTechno(technoBuilder.build());

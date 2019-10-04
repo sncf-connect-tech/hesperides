@@ -139,7 +139,6 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {
-            moduleBuilder.withName("new-module");
             IntStream.range(0, nbVersions).forEach(index -> {
                 moduleBuilder.withVersion("1." + index);
                 createModule();

@@ -436,14 +436,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Timed
     public Boolean onInstanceExistsQuery(InstanceExistsQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        Module.Key moduleKey = query.getModuleKey();
-        return platformRepository.existsByPlatformKeyAndModuleKeyAndPathAndInstanceName(
-                platformKeyDocument,
-                moduleKey.getName(),
-                moduleKey.getVersion(),
-                moduleKey.isWorkingCopy(),
-                query.getModulePath(),
-                query.getInstanceName());
+        return platformRepository.findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath())
+                .map(PlatformDocument::getActiveDeployedModules)
+                .orElse(Stream.empty())
+                .map(DeployedModuleDocument::getInstances)
+                .flatMap(List::stream)
+                .anyMatch(instance -> instance.getName().equals(query.getInstanceName()));
     }
 
     @Override

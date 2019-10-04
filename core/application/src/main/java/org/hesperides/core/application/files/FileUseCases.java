@@ -27,6 +27,7 @@ import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.IterablePropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
@@ -172,7 +173,10 @@ public class FileUseCases {
                                           String modulePath,
                                           boolean getModuleValuesIfInstanceDoesntExist,
                                           String instanceName) {
-        if (!getModuleValuesIfInstanceDoesntExist && !platformQueries.instanceExists(platformKey, moduleKey, modulePath, instanceName)) {
+
+        String propertiesPath = DeployedModule.generatePropertiesPath(moduleKey, modulePath);
+
+        if (!getModuleValuesIfInstanceDoesntExist && !platformQueries.instanceExists(platformKey, propertiesPath, instanceName)) {
             throw new InstanceNotFoundException(platformKey, moduleKey, modulePath, instanceName);
         }
     }

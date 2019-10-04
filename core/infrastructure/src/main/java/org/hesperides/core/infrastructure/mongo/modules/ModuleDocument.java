@@ -64,7 +64,7 @@ public class ModuleDocument {
         addTemplate(updatedTemplateDocument);
     }
 
-    public void removeTemplate(String templateName) {
+    void removeTemplate(String templateName) {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
     }
 

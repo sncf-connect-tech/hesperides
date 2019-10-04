@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.platforms.builders;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
@@ -55,6 +56,7 @@ public class PlatformBuilder implements Serializable {
     @Getter
     private Long globalPropertiesVersionId;
     @Getter
+    @Setter
     private List<ValuedPropertyIO> globalProperties;
 
     public PlatformBuilder() {
@@ -95,10 +97,6 @@ public class PlatformBuilder implements Serializable {
 
     public void withGlobalProperty(String name, String value) {
         globalProperties.add(new ValuedPropertyIO(name, value));
-    }
-
-    public void withGlobalProperties(List<ValuedPropertyIO> globalProperties) {
-        this.globalProperties.addAll(globalProperties);
     }
 
     public PlatformBuilder withVersionId(long versionId) {
@@ -173,11 +171,6 @@ public class PlatformBuilder implements Serializable {
 
     public void clearDeployedModuleBuilders() {
         deployedModuleBuilders = new ArrayList<>();
-    }
-
-    public boolean equalsByKey(PlatformBuilder platformBuilder) {
-        return applicationName.equals(platformBuilder.getApplicationName())
-                && platformName.equals(platformBuilder.getPlatformName());
     }
 
     public InstancesModelOutput buildInstanceModel() {

@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class TechnoHistory {
@@ -49,8 +48,6 @@ public class TechnoHistory {
     }
 
     public void removeTechnoBuilder(TechnoBuilder technoBuilderToRemove) {
-        technoBuilders = technoBuilders.stream()
-                .filter(existingTechnoBuilder -> !existingTechnoBuilder.equalsByKey(technoBuilderToRemove))
-                .collect(Collectors.toList());
+        technoBuilders.removeIf(existingTechnoBuilder -> !existingTechnoBuilder.equalsByKey(technoBuilderToRemove));
     }
 }

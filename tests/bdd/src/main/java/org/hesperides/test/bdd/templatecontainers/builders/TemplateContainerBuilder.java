@@ -66,7 +66,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
         this.versionType = versionType;
     }
 
-    public abstract String buildNamespace();
+    protected abstract String buildNamespace();
 
     public ModelOutput buildPropertiesModel() {
         Set<PropertyOutput> simpleProperties = propertyBuilders.stream()
@@ -92,9 +92,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
     }
 
     public void removeTemplateBuilder(String templateName) {
-        templateBuilders = templateBuilders.stream()
-                .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
-                .collect(Collectors.toList());
+        templateBuilders.removeIf(templateBuilder -> !templateBuilder.getName().equals(templateName));
     }
 
     public void updateTemplateBuilder(TemplateBuilder templateBuilder) {

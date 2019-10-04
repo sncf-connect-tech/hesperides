@@ -32,11 +32,8 @@ import java.io.Serializable;
 @Component
 public class TemplateBuilder implements Serializable {
 
-    public static String DEFAULT_NAME = "template";
-
     @Getter
     private String name;
-    @Getter
     private String namespace;
     @Getter
     private String filename;
@@ -53,7 +50,7 @@ public class TemplateBuilder implements Serializable {
     }
 
     public TemplateBuilder reset() {
-        name = DEFAULT_NAME;
+        name = "template";
         this.namespace = null;
         filename = "template.json";
         location = "/location";
