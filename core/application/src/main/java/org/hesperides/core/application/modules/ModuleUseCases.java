@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
+import org.hesperides.core.domain.modules.exceptions.ModuleHasWorkingcopyTechnoException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.exceptions.ModuleUsedByPlatformsException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -27,9 +28,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Collections.swap;
+import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.VersionType.release;
+import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.VersionType.workingcopy;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -230,19 +234,25 @@ public class ModuleUseCases {
 
     public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
 
+        TemplateContainer.Key existingModuleKey = new Module.Key(moduleName, moduleVersion, workingcopy);
+        Module existingModule = moduleQueries
+                .getOptionalModule(existingModuleKey)
+                .orElseThrow(() -> new ModuleNotFoundException(existingModuleKey))
+                .toDomainInstance();
+
+        List<Techno> workingcopyTechnos = existingModule.getTechnos().stream()
+                .filter(techno -> techno.getKey().isWorkingCopy())
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(workingcopyTechnos)) {
+            throw new ModuleHasWorkingcopyTechnoException(existingModuleKey, workingcopyTechnos);
+        }
+
         String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
-        TemplateContainer.Key newModuleKey = new Module.Key(moduleName, version, TemplateContainer.VersionType.release);
+        TemplateContainer.Key newModuleKey = new Module.Key(moduleName, version, release);
         if (moduleQueries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
 
-        TemplateContainer.Key existingModuleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
-        Optional<ModuleView> optionalModuleView = moduleQueries.getOptionalModule(existingModuleKey);
-        if (!optionalModuleView.isPresent()) {
-            throw new ModuleNotFoundException(existingModuleKey);
-        }
-
-        Module existingModule = optionalModuleView.get().toDomainInstance();
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         moduleCommands.createModule(moduleRelease, user);

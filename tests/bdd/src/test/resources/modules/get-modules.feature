@@ -10,7 +10,7 @@ Feature: Get modules detail
     Then the module detail is successfully retrieved
 
   Scenario: get the detail of a released module
-    Given an existing techno
+    Given an existing released techno
     And an existing released module with this techno
     When I get the module detail
     Then the module detail is successfully retrieved

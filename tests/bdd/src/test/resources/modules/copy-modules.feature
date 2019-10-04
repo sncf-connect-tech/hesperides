@@ -11,7 +11,7 @@ Feature: Copy modules
     And the model of the duplicated module is the same
 
   Scenario: copy a released module
-    Given an existing techno with properties
+    Given an existing released techno with properties
     And an existing released module with properties and this techno
     When I create a copy of this module
     Then the module is successfully duplicated
@@ -24,8 +24,8 @@ Feature: Copy modules
     Then the module copy is rejected with a bad request error
 
   Scenario: copy a module without specifying if source module is a working copy
-    Given an existing techno with properties
-    Given an existing released module with properties and this techno
+    Given an existing released techno with properties
+    And an existing released module with properties and this techno
     When I try to create a copy of this module without specifying whether it is a workingcopy
     Then the module copy is rejected with a bad request error
 

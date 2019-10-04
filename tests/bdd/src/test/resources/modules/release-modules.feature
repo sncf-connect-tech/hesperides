@@ -4,20 +4,17 @@ Feature: Release modules
     Given an authenticated user
 
   Scenario: release an existing module
-    Given an existing techno
-    And an existing module with this techno
+    Given an existing module
     When I release this module
     Then the module is successfully released
 
   Scenario: release an already released module with the same version
-    Given an existing techno
-    And an existing released module with this techno
+    Given an existing released module
     When I try to release this module
     Then the module release is rejected with a conflict error
 
   Scenario: release an existing module with a different version
-    Given an existing techno
-    And an existing module with this techno
+    Given an existing module
     When I release this module in version "2.0.0"
     Then the module is successfully released
 
@@ -27,7 +24,19 @@ Feature: Release modules
     Then the module release is rejected with a not found error
 
   Scenario: release a module without specifying its version
-    Given an existing techno
-    And an existing module with this techno
+    Given an existing module
     When I try to release this module without specifying its version
     Then the module release is rejected with a bad request error
+
+  #issue-378
+  Scenario: trying to release a module that has an unreleased techno should fail
+    Given an existing techno
+    And an existing module with this techno
+    When I try to release this module
+    Then the module release is rejected with a conflict error
+
+  Scenario: release a module that has a released techno
+    Given an existing released techno
+    And an existing module with this techno
+    When I release this module
+    Then the module is successfully released

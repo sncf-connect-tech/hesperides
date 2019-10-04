@@ -77,10 +77,6 @@ public abstract class TemplateContainer {
             this.minimizedForm = minimizedForm;
         }
 
-        public String getMinimizedForm() {
-            return minimizedForm;
-        }
-
         public static VersionType fromMinimizedForm(final String minimizedForm) {
             return Stream.of(VersionType.values()).filter(v -> v.minimizedForm.equals(minimizedForm))
                     .findFirst()
