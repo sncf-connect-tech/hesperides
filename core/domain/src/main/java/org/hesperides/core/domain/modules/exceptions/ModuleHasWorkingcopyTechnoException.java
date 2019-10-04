@@ -20,11 +20,19 @@
  */
 package org.hesperides.core.domain.modules.exceptions;
 
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-public class ModuleHasUnreleasedTechnoException extends RuntimeException {
-    public ModuleHasUnreleasedTechnoException(TemplateContainer.Key moduleKey) {
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class ModuleHasWorkingcopyTechnoException extends RuntimeException {
+    public ModuleHasWorkingcopyTechnoException(TemplateContainer.Key moduleKey, List<Techno> technos) {
         super("Can't release module " + moduleKey.getNamespaceWithoutPrefix() +
-                " because it has at least one unreleased techno");
+                " because it has " + technos.size() + " working copy techno(s): " +
+                technos.stream()
+                        .map(Techno::getKey)
+                        .map(TemplateContainer.Key::getNamespaceWithoutPrefix)
+                        .collect(Collectors.joining(", ")));
     }
 }

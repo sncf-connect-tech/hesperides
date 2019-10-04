@@ -13,8 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.VersionType.workingcopy;
-
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class Module extends TemplateContainer {
@@ -68,11 +66,6 @@ public class Module extends TemplateContainer {
                 super.getTemplatesName().stream(),
                 Techno.getTemplatesName(technos).stream())
                 .collect(Collectors.toList());
-    }
-
-    public boolean hasAnyUnreleasedTechno() {
-        return technos.stream()
-                .anyMatch(techno -> techno.getKey().getVersionType().equals(workingcopy));
     }
 
     public static class Key extends TemplateContainer.Key {
