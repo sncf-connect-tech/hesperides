@@ -37,7 +37,7 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -103,7 +103,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(upgradeModuleToRelease)) {
-            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(VersionTypes.RELEASE);
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(TestVersionType.RELEASE);
         }
 
         if (isNotEmpty(addThisModule)) {

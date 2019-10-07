@@ -5,7 +5,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -52,7 +52,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
             moduleBuilder.withVersion(releaseVersion);
         }
         if (isEmpty(tryTo)) {
-            moduleBuilder.withVersionType(VersionTypes.RELEASE);
+            moduleBuilder.withVersionType(TestVersionType.RELEASE);
             moduleBuilder.updateTemplatesNamespace();
             moduleHistory.addModuleBuilder(moduleBuilder);
         }

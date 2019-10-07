@@ -31,7 +31,7 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -66,7 +66,7 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     public Module.Key getModuleKey() {
-        return new Module.Key(name, version, VersionTypes.fromString(versionType));
+        return new Module.Key(name, version, TestVersionType.toDomainVersionType(versionType));
     }
 
     public DeployedModuleBuilder reset() {
@@ -155,7 +155,7 @@ public class DeployedModuleBuilder implements Serializable {
                 propertiesVersionId,
                 name,
                 version,
-                VersionTypes.toIsWorkingCopy(versionType),
+                TestVersionType.toIsWorkingCopy(versionType),
                 modulePath,
                 propertiesPath,
                 InstanceBuilder.build(instanceBuilders));

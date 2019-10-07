@@ -28,7 +28,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.commons.TestContext;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -73,7 +73,7 @@ public class ModuleClient {
     }
 
     public void getModule(ModuleIO moduleInput, String tryTo) {
-        getModule(moduleInput, VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()), tryTo);
+        getModule(moduleInput, TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()), tryTo);
     }
 
     public void getModule(ModuleIO moduleInput, String versionType, String tryTo) {
@@ -98,7 +98,7 @@ public class ModuleClient {
                 getResponseType(tryTo, ResponseEntity.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public void copyModule(ModuleIO existingModuleInput, ModuleIO newModuleInput, String tryTo) {
@@ -119,7 +119,7 @@ public class ModuleClient {
                 getResponseType(tryTo, ModelOutput.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public void addTemplate(TemplateIO templateInput, ModuleIO moduleInput) {
@@ -133,7 +133,7 @@ public class ModuleClient {
                 getResponseType(tryTo, TemplateIO.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public void updateTemplate(TemplateIO templateInput, ModuleIO moduleInput) {
@@ -146,7 +146,7 @@ public class ModuleClient {
                 getResponseType(tryTo, TemplateIO.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public List<PartialTemplateIO> getTemplates(ModuleIO moduleInput) {
@@ -159,7 +159,7 @@ public class ModuleClient {
                 getResponseType(tryTo, PartialTemplateIO[].class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public void getTemplate(String templateName, ModuleIO moduleInput, String tryTo) {
@@ -176,7 +176,7 @@ public class ModuleClient {
                     getResponseType(tryTo, TemplateIO.class),
                     moduleInput.getName(),
                     moduleInput.getVersion(),
-                    VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                    TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
         } finally {
             defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
         }
@@ -192,7 +192,7 @@ public class ModuleClient {
                     getResponseType(tryTo, ResponseEntity.class),
                     urlEncodeUtf8(moduleInput.getName()),
                     urlEncodeUtf8(moduleInput.getVersion()),
-                    VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                    TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
         } finally {
             defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
         }
@@ -216,7 +216,7 @@ public class ModuleClient {
                 ModuleKeyOutput[].class,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
     public void updateModule(ModuleIO moduleInput, String tryTo) {

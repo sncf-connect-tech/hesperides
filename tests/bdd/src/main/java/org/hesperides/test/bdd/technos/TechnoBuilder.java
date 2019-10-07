@@ -21,7 +21,7 @@
 package org.hesperides.test.bdd.technos;
 
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateContainerBuilder;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +41,7 @@ public class TechnoBuilder extends TemplateContainerBuilder {
     }
 
     public TechnoIO buildWithName(String name) {
-        return new TechnoIO(name, version, VersionTypes.toIsWorkingCopy(versionType));
+        return new TechnoIO(name, version, TestVersionType.toIsWorkingCopy(versionType));
     }
 
     public String buildNamespace() {
