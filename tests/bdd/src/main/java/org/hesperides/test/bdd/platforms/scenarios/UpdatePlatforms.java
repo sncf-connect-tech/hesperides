@@ -21,8 +21,6 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
-import cucumber.api.PendingException;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +37,7 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -105,7 +103,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(upgradeModuleToRelease)) {
-            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(VersionType.RELEASE);
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(VersionTypes.RELEASE);
         }
 
         if (isNotEmpty(addThisModule)) {

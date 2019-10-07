@@ -24,7 +24,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
     protected void reset(String name) {
         this.name = name;
         version = "1.0";
-        versionType = VersionType.WORKINGCOPY;
+        versionType = VersionTypes.WORKINGCOPY;
         templateBuilders = new ArrayList<>();
         propertyBuilders = new ArrayList<>();
     }
@@ -121,7 +121,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
     }
 
     public boolean isWorkingCopy() {
-        return VersionType.toIsWorkingCopy(versionType);
+        return VersionTypes.toIsWorkingCopy(versionType);
     }
 
     public boolean isPasswordProperty(String propertyName) {

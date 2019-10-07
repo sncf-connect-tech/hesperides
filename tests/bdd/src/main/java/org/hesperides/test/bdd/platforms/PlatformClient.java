@@ -31,7 +31,7 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.commons.TestContext;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -255,7 +255,7 @@ public class PlatformClient {
                 ModulePlatformsOutput[].class,
                 module.getName(),
                 module.getVersion(),
-                VersionType.fromIsWorkingCopy(module.getIsWorkingCopy()));
+                VersionTypes.fromIsWorkingCopy(module.getIsWorkingCopy()));
     }
 
     public void restorePlatform(PlatformIO platformInput, String tryTo) {

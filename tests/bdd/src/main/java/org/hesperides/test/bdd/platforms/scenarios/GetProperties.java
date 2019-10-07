@@ -84,7 +84,7 @@ public class GetProperties extends HesperidesScenario implements En {
             assertOK();
 
             DeployedModuleBuilder deployedModuleBuilder = isEmpty(initialProperties) ? this.deployedModuleBuilder :
-                    platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(), platformBuilder.getPlatformName(), false).getDeployedModuleBuilders().get(0);
+                    platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(), platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
 
             PropertiesIO expectedModuleProperties = isNotEmpty(globalProperties)
                     ? platformBuilder.buildProperties() : deployedModuleBuilder.buildProperties();

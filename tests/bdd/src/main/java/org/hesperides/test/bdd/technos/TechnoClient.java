@@ -26,7 +26,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.commons.TestContext;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class TechnoClient {
                 getResponseType(tryTo, TemplateIO.class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
     public void searchTechnos(String searchInput) {
@@ -66,7 +66,7 @@ public class TechnoClient {
     }
 
     public void getTechno(TechnoIO technoInput, String tryTo) {
-        getTechno(technoInput, VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()), tryTo);
+        getTechno(technoInput, VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()), tryTo);
     }
 
     public void getTechno(TechnoIO technoInput, String versionType, String tryTo) {
@@ -94,7 +94,7 @@ public class TechnoClient {
                 getResponseType(tryTo, ResponseEntity.class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
     public void copyTechno(TechnoIO existingTechnoInput, TechnoIO newTechnoInput, String tryTo) {
@@ -115,7 +115,7 @@ public class TechnoClient {
                 getResponseType(tryTo, ModelOutput.class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
     public void addTemplate(TemplateIO templateInput, TechnoIO technoInput) {
@@ -137,7 +137,7 @@ public class TechnoClient {
                 getResponseType(tryTo, TemplateIO.class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
     public List<PartialTemplateIO> getTemplates(TechnoIO technoInput) {
@@ -150,7 +150,7 @@ public class TechnoClient {
                 getResponseType(tryTo, PartialTemplateIO[].class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
     public void getTemplate(String templateName, TechnoIO technoInput, String tryTo) {
@@ -158,7 +158,7 @@ public class TechnoClient {
                 getResponseType(tryTo, TemplateIO.class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()),
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()),
                 templateName);
     }
 
@@ -167,7 +167,7 @@ public class TechnoClient {
                 getResponseType(tryTo, ResponseEntity.class),
                 technoInput.getName(),
                 technoInput.getVersion(),
-                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()),
+                VersionTypes.fromIsWorkingCopy(technoInput.getIsWorkingCopy()),
                 templateName);
     }
 

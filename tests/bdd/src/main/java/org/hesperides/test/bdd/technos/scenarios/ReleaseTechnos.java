@@ -5,7 +5,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -33,7 +33,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
     public void release(String tryTo) {
         technoClient.releaseTechno(technoBuilder.build(), tryTo);
         if (isEmpty(tryTo)) {
-            technoBuilder.withVersionType(VersionType.RELEASE);
+            technoBuilder.withVersionType(VersionTypes.RELEASE);
             technoBuilder.updateTemplatesNamespace();
             technoHistory.addTechnoBuilder(technoBuilder);
         }

@@ -33,7 +33,7 @@ public abstract class AbstractPropertyView {
 
     String name;
 
-    public abstract Stream<PropertyView> flattenProperties();
+    protected abstract Stream<PropertyView> flattenProperties();
 
     public static Stream<PropertyView> getFlatProperties(final List<AbstractPropertyView> abstractValuedProperties) {
         return abstractValuedProperties.stream()

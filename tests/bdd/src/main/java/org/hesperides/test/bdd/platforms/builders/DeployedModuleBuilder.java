@@ -24,13 +24,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -62,6 +63,10 @@ public class DeployedModuleBuilder implements Serializable {
 
     public DeployedModuleBuilder() {
         reset();
+    }
+
+    public Module.Key getModuleKey() {
+        return new Module.Key(name, version, VersionTypes.fromString(versionType));
     }
 
     public DeployedModuleBuilder reset() {
@@ -150,7 +155,7 @@ public class DeployedModuleBuilder implements Serializable {
                 propertiesVersionId,
                 name,
                 version,
-                VersionType.toIsWorkingCopy(versionType),
+                VersionTypes.toIsWorkingCopy(versionType),
                 modulePath,
                 propertiesPath,
                 InstanceBuilder.build(instanceBuilders));

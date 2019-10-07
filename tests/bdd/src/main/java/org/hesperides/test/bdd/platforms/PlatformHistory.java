@@ -23,6 +23,7 @@ package org.hesperides.test.bdd.platforms;
 import lombok.Data;
 import lombok.Value;
 import org.apache.commons.lang3.SerializationUtils;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
@@ -155,27 +156,25 @@ public class PlatformHistory {
         return getFirstPlatformTimestampedBuilder(applicationName, platformName).getTimestamp();
     }
 
-    public PlatformBuilder getFirstPlatformBuilder(String applicationName, String platformName, boolean withProperties) {
-        TimestampedBuilder localTimestampedBuilder;
-        if(withProperties) {
-            localTimestampedBuilder = platforms.stream()
-                    .filter(platform-> platform.getPlatformKey().getApplicationName().equals(applicationName) &&
-                            platform.getPlatformKey().getPlatformName().equals(platformName) && platform.getTimestampedBuilders()
-                            .stream().map(timestampedBuilder -> timestampedBuilder.getPlatformBuilder().getDeployedModuleBuilders())
-                            .flatMap(List::stream)
-                            .anyMatch(deployedModuleBuilder -> !deployedModuleBuilder.getValuedProperties().isEmpty()))
-                    .findFirst()
-                    .map(PlatformTimestampedBuilders::getTimestampedBuilders)
-                    .orElseThrow(() -> new RuntimeException("Can't find platform " + applicationName + "-" + platformName))
-                    .stream()
-                    .min(Comparator.comparing(TimestampedBuilder::getTimestamp))
-                    .orElseThrow(() -> new RuntimeException("Can't get first timestamped platform builder"));
+    public PlatformBuilder getFirstPlatformBuilder(String applicationName, String platformName, Module.Key withModuleKey) {
+        TimestampedBuilder localTimestampedBuilder = platforms.stream()
+                .filter(platform -> platform.getPlatformKey().getApplicationName().equals(applicationName) &&
+                        platform.getPlatformKey().getPlatformName().equals(platformName) && platform.getTimestampedBuilders()
+                        .stream().map(timestampedBuilder -> timestampedBuilder.getPlatformBuilder().getDeployedModuleBuilders())
+                        .flatMap(List::stream)
+                        .anyMatch(deployedModuleBuilder -> deployedModuleBuilder.getModuleKey().equals(withModuleKey)))
+                .findFirst()
+                .map(PlatformTimestampedBuilders::getTimestampedBuilders)
+                .orElseThrow(() -> new RuntimeException("Can't find platform " + applicationName + "-" + platformName))
+                .stream()
+                .min(Comparator.comparing(TimestampedBuilder::getTimestamp))
+                .orElseThrow(() -> new RuntimeException("Can't get first timestamped platform builder"));
 
-        }
-        else {
-            localTimestampedBuilder = getFirstPlatformTimestampedBuilder(applicationName, platformName);
-        }
         return localTimestampedBuilder.getPlatformBuilder();
+    }
+
+    public PlatformBuilder getFirstPlatformBuilder(String applicationName, String platformName) {
+        return getFirstPlatformTimestampedBuilder(applicationName, platformName).getPlatformBuilder();
     }
 
     private TimestampedBuilder getFirstPlatformTimestampedBuilder(String applicationName, String platformName) {

@@ -86,7 +86,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
         Then("^the( initial)? platform detail is successfully retrieved", (String initialPlatform) -> {
             createPlatforms.assertPlatformEquals(isNotEmpty(initialPlatform) ? platformHistory.getFirstPlatformBuilder(
-                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName(), false) : platformBuilder);
+                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName()) : platformBuilder);
         });
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {

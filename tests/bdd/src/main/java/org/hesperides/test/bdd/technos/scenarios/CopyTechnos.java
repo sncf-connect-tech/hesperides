@@ -9,7 +9,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,7 +37,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
             technoClient.copyTechno(existingTechno, technoBuilder.build(), tryTo);
             // Dans le cas d'une copie de release, la techno
             // créée devient automatiquement une working copy
-            technoBuilder.withVersionType(VersionType.WORKINGCOPY);
+            technoBuilder.withVersionType(VersionTypes.WORKINGCOPY);
             // Les templates sont identiques sauf pour le namespace
             technoBuilder.updateTemplatesNamespace();
             technoHistory.addTechnoBuilder(technoBuilder);
