@@ -269,6 +269,16 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             Assertions.assertThat(matchingProperty).isNotPresent();
         });
 
-    }
+        And("^the initial valued properties of version 1.0 recovered$", () -> {
 
+            /**
+             * le premier timestampBuilder correspond à la sauvegarde du module sans les valorisation
+             * le deuxieme timestampBuilder correspond à la valorisation des properties du module, pour verifier
+             * la restauration des properties du module à la version précédente on utilise donc le deuxieme timestampBuilder
+             */
+            PlatformBuilder recoveredPlatformBuilder = platformHistory.getSecondPlatformBuilder(platformBuilder.getApplicationName(),
+                    platformBuilder.getPlatformName());
+            saveProperties.assertValuedProperties(recoveredPlatformBuilder.getDeployedModuleBuilders().get(0));
+        });
+    }
 }

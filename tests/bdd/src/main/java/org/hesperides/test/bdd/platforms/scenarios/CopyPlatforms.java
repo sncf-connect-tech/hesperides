@@ -21,7 +21,6 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -31,7 +30,6 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 
@@ -122,16 +120,5 @@ public class CopyPlatforms extends HesperidesScenario implements En {
 
         Then("^the platform copy fails with a conflict error$", this::assertConflict);
 
-        Then("^the initial valued properties of version \"([^\"]*)\" are present$", (String moduleVersion) -> {
-            Module.Key targetModuleKey = platformBuilder.getDeployedModuleBuilders().get(0).getModuleKey();
-            assertEquals(targetModuleKey.getVersion(), moduleVersion);
-            assertEquals(CollectionUtils.lastElement(platformBuilder.getDeployedModuleBuilders()).getModuleKey().getVersion(), moduleVersion);
-
-            PlatformBuilder platformBuilderHistory = platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(),
-                    platformBuilder.getPlatformName(), targetModuleKey);
-            assertEquals(platformBuilderHistory.getDeployedModuleBuilders().get(0).getModuleKey().getVersion(), moduleVersion);
-            assertEquals(CollectionUtils.lastElement(platformBuilderHistory.getDeployedModuleBuilders()).getModuleKey().getVersion(), moduleVersion);
-
-        });
     }
 }

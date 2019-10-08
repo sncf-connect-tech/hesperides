@@ -20,22 +20,10 @@
  */
 package org.hesperides.test.bdd.templatecontainers;
 
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.VersionType;
-
-import java.security.InvalidParameterException;
-import java.util.stream.Stream;
-
 public class TestVersionType {
 
     public final static String WORKINGCOPY = "workingcopy";
     public final static String RELEASE = "release";
-
-    public static VersionType toDomainVersionType(String givenVersionType) {
-        return Stream.of(VersionType.values()).filter(versionType -> versionType.name().equals(givenVersionType))
-                .findFirst()
-                .orElseThrow(() -> new InvalidParameterException(String.format("No name form of VersionType found for %s", givenVersionType)));
-
-    }
 
     public static Boolean toIsWorkingCopy(String versionType) {
         Boolean isWorkingCopy;

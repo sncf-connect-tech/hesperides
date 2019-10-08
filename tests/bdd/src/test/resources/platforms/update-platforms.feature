@@ -127,12 +127,12 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-502
-  Scenario: possible backtracking of module update in a platform
+  Scenario: recover property values when rollbacking module version without requiring the copy of properties
     Given an existing module with properties
     And an existing platform with this module and valued properties
     And a copy of this module in version "2.0"
     And I update this platform, upgrading its module version to "2.0"
     When I update this platform, downgrading its module version to "1.0"
     Then the platform is successfully updated
-    And the initial valued properties of version "1.0" are present
+    And the initial valued properties of version 1.0 recovered
 
