@@ -277,5 +277,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                     platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
             saveProperties.assertValuedProperties(recoveredPlatformBuilder.getDeployedModuleBuilders().get(0));
         });
+
+        Then("^the platform update fails with a conflict error$", this::assertConflict);
     }
 }

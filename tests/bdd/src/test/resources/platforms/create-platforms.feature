@@ -44,10 +44,17 @@ Feature: Create platforms
     When I create this platform
     Then the platform is successfully created
 
-  Scenario: create a platform without setting isProductionPlatform
+  Scenario: create a platform without setting production flag
     Given a platform to create without setting production flag
     When I create this platform
     Then the platform is successfully created
+
+  Scenario: trying to create a production platform with a working copy module should fail
+    Given an existing module
+    And an authenticated prod user
+    And a production platform to create with this module
+    When I try to create this platform
+    Then the platform creation fails with a conflict error
 
   Scenario: trying to create a platform more than once at the same time should fail for one of them
     Given a platform to create

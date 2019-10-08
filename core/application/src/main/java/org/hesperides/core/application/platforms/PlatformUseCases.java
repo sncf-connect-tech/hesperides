@@ -80,6 +80,9 @@ public class PlatformUseCases {
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platform.getKey().getApplicationName())) {
             throw new ForbiddenOperationException("Creating a production platform is reserved to production role");
         }
+
+        platform.validateProductionPlatformDoesntHaveWorkingCopyModules();
+
         if (platformQueries.platformExists(platform.getKey())) {
             throw new DuplicatePlatformException(platform.getKey());
         }
@@ -154,6 +157,7 @@ public class PlatformUseCases {
                 throw new ForbiddenOperationException("Upgrading a platform to production is reserved to production role");
             }
         }
+        newPlatform.validateProductionPlatformDoesntHaveWorkingCopyModules();
         platformCommands.updatePlatform(existingPlatform.getId(), newPlatform, copyPropertiesForUpgradedModules, user);
     }
 

@@ -9,6 +9,7 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.exceptions.OutOfDateException;
 import org.hesperides.core.domain.modules.exceptions.ModuleHasWorkingcopyTechnoException;
 import org.hesperides.core.domain.modules.exceptions.ModuleUsedByPlatformsException;
+import org.hesperides.core.domain.platforms.exceptions.ProductionPlatformWithWorkincopyModulesException;
 import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,8 +42,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // 409: La requête ne peut être traitée en l’état actuel
-    @ExceptionHandler({DuplicateException.class, OutOfDateException.class, UndeletableTechnoInUseException.class,
-            ModuleUsedByPlatformsException.class, ModuleHasWorkingcopyTechnoException.class})
+    @ExceptionHandler({
+            DuplicateException.class,
+            OutOfDateException.class,
+            UndeletableTechnoInUseException.class,
+            ModuleUsedByPlatformsException.class,
+            ModuleHasWorkingcopyTechnoException.class,
+            ProductionPlatformWithWorkincopyModulesException.class})
     public ResponseEntity handleConflict(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }

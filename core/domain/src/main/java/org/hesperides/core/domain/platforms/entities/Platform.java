@@ -25,8 +25,11 @@ import org.axonframework.common.digest.Digester;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.exceptions.DuplicateDeployedModuleIdException;
+import org.hesperides.core.domain.platforms.exceptions.ProductionPlatformWithWorkincopyModulesException;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 public class Platform {
@@ -45,7 +48,8 @@ public class Platform {
         return GLOBAL_PROPERTIES_PATH.equals(propertiesPath);
     }
 
-    public Key getKey() { // Doit être explicite car employé dans Platform.kt
+    // Doit être explicite car employé dans `Platform.kt`
+    public Key getKey() {
         return key;
     }
 
@@ -115,13 +119,26 @@ public class Platform {
         );
     }
 
+    public void validateProductionPlatformDoesntHaveWorkingCopyModules() {
+        if (isProductionPlatform) {
+            List<DeployedModule> workingcopyModules = deployedModules.stream()
+                    .filter(deployedModule -> deployedModule.isWorkingCopy())
+                    .collect(Collectors.toList());
+
+            if (!CollectionUtils.isEmpty(workingcopyModules)) {
+                throw new ProductionPlatformWithWorkincopyModulesException(key, workingcopyModules);
+            }
+        }
+    }
+
     @Value
     public static class Key {
+
         String applicationName;
         String platformName;
 
         public String toString() {
-            return applicationName + "-" + platformName;
+            return String.format("%s-%s", applicationName, platformName);
         }
 
         public String generateHash() {

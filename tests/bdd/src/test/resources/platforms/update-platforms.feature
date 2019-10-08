@@ -136,3 +136,15 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the initial valued properties of version 1.0 recovered
 
+  Scenario: trying to set a platform as production while having a working copy module should fail
+    Given an existing module
+    And an existing platform with this module
+    And an authenticated prod user
+    When I try to update this platform to a prod one
+    Then the platform update fails with a conflict error
+
+  Scenario: trying to add a working copy module to a production platform should fail
+    Given an existing prod platform
+    And an existing module
+    When I try to update this platform, adding this module
+    Then the platform update fails with a conflict error

@@ -1,7 +1,7 @@
 Feature: Obfuscate passwords on prod platforms to non-prod users
 
   Scenario: restrict access to password properties on prod platforms when requesting valuated properties
-    Given an existing module with a template and properties and password properties
+    Given an existing released module with a template and properties and password properties
     And an existing prod platform with this module and valued properties
     And an authenticated lambda user
     When I get the platform properties for this module
@@ -9,7 +9,7 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
     And the non-password property values are not obfuscated
 
   Scenario: restrict access to password properties on prod platforms when requesting valuated files
-    Given an existing module with a template and password properties
+    Given an existing released module with a template and password properties
     And an existing prod platform with this module and valued properties
     And an authenticated lambda user
     When I get the module template file
@@ -26,6 +26,7 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
       {{password|@password}}
       """
     And I add this template to the module
+    And I release this module
     And an existing prod platform with this module
     And the platform has these valued properties
       | name     | value  |
@@ -35,7 +36,7 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
     Then there are obfuscated password properties in the initial file
 
   Scenario: restrict timestamp-based access to password properties on prod platforms
-    Given an existing module with a template and properties and password properties
+    Given an existing released module with a template and properties and password properties
     And an existing prod platform with this module and valued properties
     When as an authenticated lambda user
     And I get the platform properties for this module at a specific time in the past

@@ -75,7 +75,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
-            "( (?:and|with) (?:this|those) modules?)?" +
+            "( (?:and|with) this module)?" +
+            "( (?:and|with) those modules)?" +
             "(?: in logical group \"([^\"]*)\")?" +
             "( (?:and|with) an instance(?: named \"([^\"]*)\")?)?" +
             "( (?:and|with) valued properties)?" +
@@ -88,7 +89,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public void givenAnExistingPlatform(
             String prodPlatform,
             String platformName,
-            String withThoseModule,
+            String withThisModule,
+            String withThoseModules,
             String moduleLogicalGroup,
             String withAnInstance,
             String instanceName,
@@ -128,13 +130,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
         }
 
-        if (isNotEmpty(withThoseModule)) {
+        if (isNotEmpty(withThisModule)) {
+            addModuleToPlatform(moduleLogicalGroup, moduleBuilder);
+        }
+
+        if (isNotEmpty(withThoseModules)) {
             moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
-                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
-                if (isNotEmpty(moduleLogicalGroup)) {
-                    deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
-                }
-                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+                addModuleToPlatform(moduleLogicalGroup, moduleBuilder);
             });
         }
 
@@ -171,14 +173,23 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         }
     }
 
+    private void addModuleToPlatform(String moduleLogicalGroup, ModuleBuilder moduleBuilder) {
+        deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+        if (isNotEmpty(moduleLogicalGroup)) {
+            deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
+        }
+        platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+    }
+
     public CreatePlatforms() {
 
-        Given("^a platform to create" +
+        Given("^a( production)? platform to create" +
                 "(?: named \"([^\"]*)\")?" +
                 "(?: (?:and|with) version \"([^\"]*)\")?" +
                 "( (?:and|with) this module(?: with an empty path)?)?" +
                 "( (?:and|with) an instance(?: with properties))?" +
                 "( without setting production flag)?$", (
+                String isProductionPlatform,
                 String platformName,
                 String platformVersion,
                 String withThisModule,
@@ -187,17 +198,16 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
             platformBuilder.reset();
 
+            if (isNotEmpty(isProductionPlatform)) {
+                platformBuilder.withIsProductionPlatform(true);
+            }
+
             if (isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
             }
+
             if (isNotEmpty(platformVersion)) {
                 platformBuilder.withVersion(platformVersion);
-            }
-
-            if (isNotEmpty(withAnInstance)) {
-                instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
-                instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
-                deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
             }
 
             if (isNotEmpty(withThisModule)) {
@@ -205,6 +215,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     deployedModuleBuilder.withModulePath("");
                 }
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+
+                if (isNotEmpty(withAnInstance)) {
+                    instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                    instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
+                    deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
+                }
+
+                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             }
 
             if (isNotEmpty(withoutSettingProductionFlag)) {

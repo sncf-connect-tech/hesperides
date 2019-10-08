@@ -25,6 +25,7 @@ Feature: Restrict actions on prod platforms to prod users
       """
       {{ a-property }}
       """
+    And I release this module
     And an existing prod platform with this module
     And an authenticated lambda user
     When I try to save these properties
@@ -51,6 +52,7 @@ Feature: Restrict actions on prod platforms to prod users
       """
       {{ a-property }}
       """
+    And I release this module
     And an existing prod platform with this module
     And an authenticated lambda user
     When I try to save these properties
