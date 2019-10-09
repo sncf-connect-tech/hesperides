@@ -117,7 +117,7 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are also copied
 
-  Scenario: trying to copy properties from an empty deployed modules
+  Scenario: copy properties from an empty deployed modules
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
     And a copy of this module in version "2.0"
@@ -125,3 +125,14 @@ Feature: Update platforms
     When I update this platform, downgrading its module version to "1.0" and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
+
+  #issue-502
+  Scenario: recover property values when rollbacking module version without requiring the copy of properties
+    Given an existing module with properties
+    And an existing platform with this module and valued properties
+    And a copy of this module in version "2.0"
+    And I update this platform, upgrading its module version to "2.0"
+    When I update this platform, downgrading its module version to "1.0"
+    Then the platform is successfully updated
+    And the initial valued properties of version 1.0 recovered
+

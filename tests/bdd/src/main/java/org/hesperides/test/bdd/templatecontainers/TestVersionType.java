@@ -20,7 +20,7 @@
  */
 package org.hesperides.test.bdd.templatecontainers;
 
-public class VersionType {
+public class TestVersionType {
 
     public final static String WORKINGCOPY = "workingcopy";
     public final static String RELEASE = "release";

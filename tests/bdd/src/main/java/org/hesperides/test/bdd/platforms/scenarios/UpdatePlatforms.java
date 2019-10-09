@@ -37,7 +37,7 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -103,7 +103,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(upgradeModuleToRelease)) {
-            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(VersionType.RELEASE);
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(TestVersionType.RELEASE);
         }
 
         if (isNotEmpty(addThisModule)) {
@@ -269,5 +269,13 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             Assertions.assertThat(matchingProperty).isNotPresent();
         });
 
+        Then("^the initial valued properties of version 1.0 recovered$", () -> {
+            // le premier timestampBuilder correspond à la sauvegarde du module sans les valorisation
+            // le deuxieme timestampBuilder correspond à la valorisation des properties du module, pour verifier
+            // la restauration des properties du module à la version précédente on utilise donc le deuxieme timestampBuilder
+            PlatformBuilder recoveredPlatformBuilder = platformHistory.getSecondPlatformBuilder(
+                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+            saveProperties.assertValuedProperties(recoveredPlatformBuilder.getDeployedModuleBuilders().get(0));
+        });
     }
 }

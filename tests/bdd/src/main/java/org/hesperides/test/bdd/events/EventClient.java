@@ -23,7 +23,7 @@ package org.hesperides.test.bdd.events;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.events.EventOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -43,7 +43,7 @@ public class EventClient {
                 getResponseType(tryTo, EventOutput[].class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     void getPlatformEvents(PlatformIO platformInput, String tryTo) {

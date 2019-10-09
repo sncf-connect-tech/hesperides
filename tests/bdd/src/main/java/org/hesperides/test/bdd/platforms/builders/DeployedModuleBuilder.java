@@ -30,7 +30,7 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -150,7 +150,7 @@ public class DeployedModuleBuilder implements Serializable {
                 propertiesVersionId,
                 name,
                 version,
-                VersionType.toIsWorkingCopy(versionType),
+                TestVersionType.toIsWorkingCopy(versionType),
                 modulePath,
                 propertiesPath,
                 InstanceBuilder.build(instanceBuilders));

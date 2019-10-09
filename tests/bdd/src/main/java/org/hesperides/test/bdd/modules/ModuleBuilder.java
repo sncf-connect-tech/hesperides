@@ -28,7 +28,7 @@ import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateContainerBuilder;
 import org.springframework.stereotype.Component;
 
@@ -59,7 +59,7 @@ public class ModuleBuilder extends TemplateContainerBuilder {
 
     public ModuleIO buildWithName(String name) {
         List<TechnoIO> technos = technoBuilders.stream().map(TechnoBuilder::build).collect(Collectors.toList());
-        return new ModuleIO(name, version, VersionType.toIsWorkingCopy(versionType), technos, versionId);
+        return new ModuleIO(name, version, TestVersionType.toIsWorkingCopy(versionType), technos, versionId);
     }
 
     public String buildNamespace() {
@@ -93,6 +93,6 @@ public class ModuleBuilder extends TemplateContainerBuilder {
     }
 
     public ModuleKeyOutput buildModuleKeyOutput() {
-        return new ModuleKeyOutput(name, version, VersionType.toIsWorkingCopy(versionType));
+        return new ModuleKeyOutput(name, version, TestVersionType.toIsWorkingCopy(versionType));
     }
 }
