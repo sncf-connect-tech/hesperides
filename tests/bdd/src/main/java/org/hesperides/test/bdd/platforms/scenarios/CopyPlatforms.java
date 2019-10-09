@@ -119,6 +119,5 @@ public class CopyPlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with a not found error$", this::assertNotFound);
 
         Then("^the platform copy fails with a conflict error$", this::assertConflict);
-
     }
 }
