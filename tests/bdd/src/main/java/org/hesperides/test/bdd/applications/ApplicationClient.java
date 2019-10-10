@@ -59,7 +59,7 @@ public class ApplicationClient {
     }
 
     public void setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {
-        restTemplate.put("/applications/{application_name}/directory_groups",
+        restTemplate.putForEntity("/applications/{application_name}/directory_groups",
                 applicationDirectoryGroups,
                 String.class,
                 applicationName);
