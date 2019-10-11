@@ -70,7 +70,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
-                .registerTypeAdapter(PropertyOutput.class, new PlatformIO.Serializer()) // Exclusion de hasPasswords lorsqu'il est null
+                .registerTypeAdapter(PlatformIO.class, new PlatformIO.Serializer()) // Exclusion de hasPasswords lorsqu'il est null
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
                 .registerTypeAdapter(AbstractDifferingPropertyOutput.class, new AbstractDifferingPropertyOutput.Serializer()) // Classe abstraite
