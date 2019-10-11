@@ -32,8 +32,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView.getFlatProperties;
-
 @Value
 @NonFinal
 public abstract class AbstractValuedPropertyView {
@@ -66,7 +64,7 @@ public abstract class AbstractValuedPropertyView {
 
     public static List<AbstractValuedPropertyView> hidePasswordProperties(List<AbstractValuedPropertyView> valuedProperties, List<AbstractPropertyView> propertiesModel) {
         // Legacy reference implementation: https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/resources/PermissionAwareApplicationsProxy.java#L288
-        Set<String> passwordPropertyNames = getFlatProperties(propertiesModel)
+        Set<String> passwordPropertyNames = AbstractPropertyView.getAllSimpleProperties(propertiesModel)
                 .filter(PropertyView::isPassword)
                 .map(PropertyView::getName)
                 .collect(Collectors.toSet());

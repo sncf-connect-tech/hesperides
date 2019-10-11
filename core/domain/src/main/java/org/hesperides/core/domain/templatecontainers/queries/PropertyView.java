@@ -4,10 +4,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.platforms.exceptions.PropertyPatternNotMatchedException;
+import org.hesperides.core.domain.platforms.exceptions.RequiredPropertyNotValorisedException;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value
@@ -36,17 +39,29 @@ public class PropertyView extends AbstractPropertyView {
         return Stream.of(this);
     }
 
-    public boolean isRequiredAndNotValorised(List<ValuedProperty> matchingValuedProperties) {
-        return isRequired && (CollectionUtils.isEmpty(matchingValuedProperties) || notEveryPropertyHasValue(matchingValuedProperties));
+    public void validateRequiredAndPatternProperties(List<ValuedProperty> valuedProperties) {
+        List<ValuedProperty> matchingValuedProperties = valuedProperties.stream()
+                .filter(valuedPropery -> StringUtils.equals(valuedPropery.getName(), getName()))
+                .collect(Collectors.toList());
+
+        if (isRequiredAndNotValorised(matchingValuedProperties)) {
+            throw new RequiredPropertyNotValorisedException(getName());
+        } else if (hasValueThatDoesntMatchPattern(matchingValuedProperties)) {
+            throw new PropertyPatternNotMatchedException(getName(), pattern);
+        }
     }
 
-    private boolean notEveryPropertyHasValue(List<ValuedProperty> valuedProperties) {
-        return valuedProperties.stream()
+    private boolean isRequiredAndNotValorised(List<ValuedProperty> valuedProperties) {
+        return isRequired && hasNotAnyValue(valuedProperties);
+    }
+
+    private boolean hasNotAnyValue(List<ValuedProperty> valuedProperties) {
+        return CollectionUtils.isEmpty(valuedProperties) || valuedProperties.stream()
                 .map(ValuedProperty::getValue)
-                .anyMatch(StringUtils::isEmpty);
+                .allMatch(StringUtils::isEmpty);
     }
 
-    public boolean hasValueThatDoesntMatchPattern(List<ValuedProperty> matchingValuedProperties) {
+    private boolean hasValueThatDoesntMatchPattern(List<ValuedProperty> matchingValuedProperties) {
         return StringUtils.isNotEmpty(pattern) && anyFilledPropertyDoesntMatchPattern(matchingValuedProperties, pattern);
     }
 

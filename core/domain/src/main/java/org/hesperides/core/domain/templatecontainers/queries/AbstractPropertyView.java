@@ -35,8 +35,12 @@ public abstract class AbstractPropertyView {
 
     protected abstract Stream<PropertyView> flattenProperties();
 
-    public static Stream<PropertyView> getFlatProperties(final List<AbstractPropertyView> abstractValuedProperties) {
-        return abstractValuedProperties.stream()
+    /**
+     * Retourne un stream contenant toutes les propriétés simples,
+     * y compris celles des propriétés itérables.
+     */
+    public static Stream<PropertyView> getAllSimpleProperties(List<AbstractPropertyView> abstractProperties) {
+        return abstractProperties.stream()
                 .map(AbstractPropertyView::flattenProperties)
                 .flatMap(Function.identity());
     }

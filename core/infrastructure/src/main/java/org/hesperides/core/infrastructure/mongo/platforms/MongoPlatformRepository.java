@@ -44,7 +44,7 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{ 'key.applicationName' : { '$regex' : ?0, '$options' : 'i' }, 'key.platformName' : { '$regex' : ?1, '$options' : 'i' } }")
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
-    // Nous utilisons `$gt : 0` car `$ne : 0` ne retournait pas de résultat
+    // `$ne` et `$gt` ne sont pas pris en compte
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'id' : { $gt : 0 }, 'propertiesPath' : ?1 }}}")
     Optional<PlatformDocument> findModuleByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
 

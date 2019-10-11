@@ -100,7 +100,7 @@ public class GlobalPropertyUsageView {
     }
 
     private static boolean propertyNameIsInProperties(String propertyName, List<AbstractPropertyView> abstractProperties) {
-        return AbstractPropertyView.getFlatProperties(abstractProperties)
+        return AbstractPropertyView.getAllSimpleProperties(abstractProperties)
                 .anyMatch(property -> property.getName().equals(propertyName));
     }
 }
