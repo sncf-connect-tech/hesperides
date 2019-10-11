@@ -108,7 +108,7 @@ Feature: Save properties the old way
       | iterable-property | bloc-1 | simple-property |
     Then the request is rejected with a bad request error
 
-  Scenario: saving a required property without value when it's also defined as a global property should not return an error
+  Scenario: saving properties with a required property referencing a global property that is not defined at the module level should not fail
     Given an existing module with this template content
       """
       {{ property }}
@@ -123,10 +123,23 @@ Feature: Save properties the old way
       | property | value |
     Then the properties are successfully saved
 
+  #issue-784
+  Scenario: saving an empty required property that has the same name as a global property should not fail
+    Given an existing module with this template content
+      """
+      {{ global | @required }}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name   | value |
+      | global | value |
+    When I save these properties
+      | name   | value |
+      | global |       |
+    Then the properties are successfully saved
+
   Scenario: save properties of 2 modules of the same platform simultaneously should fail
     #Est-ce qu'il ne faudrait pas ne pas passer les properties_version_id pour tester la rétrocompatibilité ?
-
-  Scenario: save global properties
 
   Scenario: save a property declared twice with the same name but different values
     Given an existing module

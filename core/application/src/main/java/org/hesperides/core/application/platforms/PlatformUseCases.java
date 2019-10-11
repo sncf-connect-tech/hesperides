@@ -15,7 +15,9 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
-import org.hesperides.core.domain.platforms.exceptions.*;
+import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
+import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
+import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
@@ -29,6 +31,7 @@ import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -431,16 +434,9 @@ public class PlatformUseCases {
         List<ValuedPropertyView> globalProperties = platformQueries.getGlobalProperties(platformKey);
         allValuedProperties.addAll(ValuedPropertyView.toDomainValuedProperties(globalProperties));
 
-        AbstractPropertyView.getFlatProperties(moduleQueries.getPropertiesModel(moduleKey)).forEach(moduleProperty -> {
-            List<ValuedProperty> matchingValuedProperties = allValuedProperties.stream()
-                    .filter(valuedPropery -> StringUtils.equals(valuedPropery.getName(), moduleProperty.getName()))
-                    .collect(Collectors.toList());
-            if (moduleProperty.isRequiredAndNotValorised(matchingValuedProperties)) {
-                throw new RequiredPropertyNotValorisedException(moduleProperty.getName());
-            } else if (moduleProperty.hasValueThatDoesntMatchPattern(matchingValuedProperties)) {
-                throw new PropertyPatternNotMatchedException(moduleProperty.getName(), moduleProperty.getPattern());
-            }
-        });
+        List<AbstractPropertyView> moduleProperties = moduleQueries.getPropertiesModel(moduleKey);
+        Stream<PropertyView> allSimpleProperties = AbstractPropertyView.getAllSimpleProperties(moduleProperties);
+        allSimpleProperties.forEach(moduleProperty -> moduleProperty.validateRequiredAndPatternProperties(allValuedProperties));
     }
     
     public PlatformView restoreDeletedPlatform(final Platform.Key platformKey, final User user) {
