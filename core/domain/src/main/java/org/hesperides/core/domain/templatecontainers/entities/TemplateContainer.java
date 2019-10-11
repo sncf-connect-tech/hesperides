@@ -62,6 +62,10 @@ public abstract class TemplateContainer {
             return name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
+        public String toString() {
+            return getNamespaceWithoutPrefix();
+        }
+
         public boolean isWorkingCopy() {
             return versionType == VersionType.workingcopy;
         }

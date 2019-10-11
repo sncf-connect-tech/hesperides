@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.commons;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.util.Map;
 public class TestContext {
 
     private String authorizationRole = null;
+    @Getter
     @Setter
     private ResponseEntity responseEntity;
 

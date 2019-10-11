@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
+import org.axonframework.common.digest.Digester;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
@@ -17,7 +18,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
@@ -41,11 +41,12 @@ class ModuleAggregate implements Serializable {
         Module module = command.getModule()
                 .validateTemplates()
                 .initializeVersionId();
-        String newUuid = UUID.randomUUID().toString();
+
+        String id = Digester.md5Hex(command.getModule().getKey().toString());
         log.debug("ModuleAggregate constructor - moduleId: {} - key: {} - versionId: {} - user: {}",
-                newUuid, command.getModule().getKey().getNamespaceWithoutPrefix(), command.getModule().getVersionId(), command.getUser());
+                id, command.getModule().getKey().toString(), command.getModule().getVersionId(), command.getUser());
         logBeforeEventVersionId(command.getModule().getVersionId());
-        apply(new ModuleCreatedEvent(newUuid, module, command.getUser().getName()));
+        apply(new ModuleCreatedEvent(id, module, command.getUser().getName()));
     }
 
     @CommandHandler

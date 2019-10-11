@@ -118,5 +118,9 @@ public class Platform {
     public static class Key {
         String applicationName;
         String platformName;
+
+        public String toString() {
+            return applicationName + "-" + platformName;
+        }
     }
 }
