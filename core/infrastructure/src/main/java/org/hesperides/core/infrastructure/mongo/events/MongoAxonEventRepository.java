@@ -3,7 +3,6 @@ package org.hesperides.core.infrastructure.mongo.events;
 import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.events.CleanAggregateEventsQuery;
 import org.hesperides.core.domain.events.EventRepository;
 import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
 import org.hesperides.core.domain.events.queries.EventView;
@@ -40,11 +39,9 @@ public class MongoAxonEventRepository implements EventRepository {
                 .collect(Collectors.toList());
     }
 
-    @QueryHandler
     @Override
     @Timed
-    public Boolean onCleanAggregateEventsQuery(CleanAggregateEventsQuery query) {
-        mongoEventRepository.deleteAllByAggregateIdentifier(query.getAggregateIdentifier());
-        return true;
+    public void cleanAggregateEvents(String aggregateIdentifier) {
+        mongoEventRepository.deleteAllByAggregateIdentifier(aggregateIdentifier);
     }
 }

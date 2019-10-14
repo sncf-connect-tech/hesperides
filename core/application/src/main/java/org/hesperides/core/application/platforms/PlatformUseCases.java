@@ -2,7 +2,7 @@ package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
-import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -56,7 +56,7 @@ public class PlatformUseCases {
     private ModuleQueries moduleQueries;
     private TechnoQueries technoQueries;
     private ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
-    private EventQueries eventQueries;
+    private EventCommands eventCommands;
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands,
@@ -64,13 +64,13 @@ public class PlatformUseCases {
                             ModuleQueries moduleQueries,
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
-                            EventQueries eventQueries) {
+                            EventCommands eventCommands) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
-        this.eventQueries = eventQueries;
+        this.eventCommands = eventCommands;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -482,7 +482,7 @@ public class PlatformUseCases {
     }
 
     private String cleanCreatePlatform(Platform platform, User user) {
-        eventQueries.cleanAggregateEvents(platform.getKey().generateHash());
+        eventCommands.cleanAggregateEvents(platform.getKey().generateHash());
         return platformCommands.createPlatform(platform, user);
     }
 }

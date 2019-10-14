@@ -10,6 +10,5 @@ public interface EventRepository {
     @QueryHandler
     List<EventView> onGenericEventsByStreamQuery(GenericEventsByStreamQuery query);
 
-    @QueryHandler
-    Boolean onCleanAggregateEventsQuery(CleanAggregateEventsQuery query);
+    void cleanAggregateEvents(String aggregateIdentifier);
 }
