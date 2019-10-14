@@ -22,7 +22,9 @@ package org.hesperides.core.domain.events.commands;
 
 import org.hesperides.core.domain.events.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EventCommands {
 
     private final EventRepository eventRepository;

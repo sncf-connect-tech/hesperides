@@ -1,6 +1,6 @@
 package org.hesperides.core.application.technos;
 
-import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -35,17 +35,17 @@ public class TechnoUseCases {
     private final TechnoCommands technoCommands;
     private final TechnoQueries technoQueries;
     private final ModuleQueries moduleQueries;
-    private final EventQueries eventQueries;
+    private final EventCommands eventCommands;
 
     @Autowired
     public TechnoUseCases(TechnoCommands technoCommands,
                           TechnoQueries technoQueries,
                           ModuleQueries moduleQueries,
-                          EventQueries eventQueries) {
+                          EventCommands eventCommands) {
         this.technoCommands = technoCommands;
         this.technoQueries = technoQueries;
         this.moduleQueries = moduleQueries;
-        this.eventQueries = eventQueries;
+        this.eventCommands = eventCommands;
     }
 
     /**
@@ -174,7 +174,7 @@ public class TechnoUseCases {
     }
 
     private String cleanCreateTechno(Techno techno, User user) {
-        eventQueries.cleanAggregateEvents(techno.getKey().generateHash());
+        eventCommands.cleanAggregateEvents(techno.getKey().generateHash());
         return technoCommands.createTechno(techno, user);
     }
 }

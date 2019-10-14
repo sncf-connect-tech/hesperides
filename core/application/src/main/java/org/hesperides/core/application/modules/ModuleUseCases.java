@@ -1,7 +1,7 @@
 package org.hesperides.core.application.modules;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
@@ -48,19 +48,19 @@ public class ModuleUseCases {
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
     private final PlatformQueries platformQueries;
-    private final EventQueries eventQueries;
+    private final EventCommands eventCommands;
 
     @Autowired
     public ModuleUseCases(ModuleCommands moduleCommands,
                           ModuleQueries moduleQueries,
                           TechnoQueries technoQueries,
                           PlatformQueries platformQueries,
-                          EventQueries eventQueries) {
+                          EventCommands eventCommands) {
         this.moduleCommands = moduleCommands;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.platformQueries = platformQueries;
-        this.eventQueries = eventQueries;
+        this.eventCommands = eventCommands;
     }
 
     /**
@@ -281,7 +281,7 @@ public class ModuleUseCases {
     }
 
     private String cleanCreateModule(Module module, User user) {
-        eventQueries.cleanAggregateEvents(module.getKey().generateHash());
+        eventCommands.cleanAggregateEvents(module.getKey().generateHash());
         return moduleCommands.createModule(module, user);
     }
 }
