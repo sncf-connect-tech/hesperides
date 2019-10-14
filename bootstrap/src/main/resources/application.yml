@@ -11,6 +11,11 @@ spring:
   application.name: HESPERIDES
   boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
+  boot:
+    admin:
+      url: ${SPRING_BOOT_ADMIN_URL}
+      client:
+        enabled: true
 
 server:
   port: ${SERVER_PORT:8080}
@@ -69,6 +74,14 @@ logging:
                   # Display JSON serialization errors wrapped in HttpMessageNotWritableException:
                   ServletInvocableHandlerMethod: TRACE
 
+mongo:
+  uri: ${MONGO_URI:mongodb://localhost:27017/hesperides}
+
+axon:
+  snapshot:
+    # Nombre d'événements avant le déclenchement d'un snapshot
+    threshold: ${AXON_SNAPSHOT_THRESHOLD:1000}
+
 # Access it: http://localhost:8080/rest/manage
 # Includes but does not limit to:
 # - /manage/beans
@@ -104,3 +117,10 @@ management:
 swagger.host: ${SWAGGER_HOST:}
 
 sentry.ignored-exceptions: ${SENTRY_IGNORED_EXCEPTIONS:,}
+
+metrics:
+  graphite:
+    host: ${GRAPHITE_HOST:127.0.0.1}
+    period: ${GRAPHITE_PERIOD:60} # in seconds
+    port: ${GRAPHITE_PORT:2003}
+    prefix: ${GRAPHITE_PREFIX:hesperides}

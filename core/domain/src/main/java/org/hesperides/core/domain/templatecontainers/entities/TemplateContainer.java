@@ -2,6 +2,7 @@ package org.hesperides.core.domain.templatecontainers.entities;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.axonframework.common.digest.Digester;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -68,6 +69,10 @@ public abstract class TemplateContainer {
 
         public boolean isWorkingCopy() {
             return versionType == VersionType.workingcopy;
+        }
+
+        public String generateHash() {
+            return Digester.md5Hex(toString());
         }
     }
 

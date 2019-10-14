@@ -29,7 +29,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-import static org.hesperides.core.infrastructure.Collections.APPLICATION_DIRECTORY_GROUPS;
+import static org.hesperides.core.infrastructure.mongo.Collections.APPLICATION_DIRECTORY_GROUPS;
 
 @Data
 @Document(collection = APPLICATION_DIRECTORY_GROUPS)

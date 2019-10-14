@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.common.digest.Digester;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
@@ -59,7 +58,7 @@ public class PlatformAggregate implements Serializable {
                 .validateDeployedModulesDistinctIds()
                 .initializeVersionId()
                 .fillDeployedModulesMissingIds();
-        String id = Digester.md5Hex(command.getPlatform().getKey().toString());
+        String id = command.getPlatform().getKey().generateHash();
         log.debug("PlatformAggregate constructor - platformId: {} - key: {} - versionId: {} - user: {}",
                 id, command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
         logBeforeEventVersionId(command.getPlatform().getVersionId());

@@ -1,5 +1,4 @@
 package org.hesperides.core.domain.events
 
-// Query
-
-data class GenericEventsByStreamQuery(val aggregateId: String)
+data class GenericEventsByStreamQuery(val aggregateIdentifier: String)
+data class CleanAggregateEventsQuery(val aggregateIdentifier: String)

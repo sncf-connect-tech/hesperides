@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.core.infrastructure.mongo.eventstores;
+package org.hesperides.core.infrastructure.axon;
 
 import lombok.Setter;
 import org.axonframework.common.transaction.TransactionManager;
@@ -35,7 +35,7 @@ import java.util.concurrent.Executors;
 
 @Configuration
 @ConfigurationProperties("event-store")
-public class SnapshotConfiguration {
+public class AxonSnapshotConfiguration {
 
     @Setter
     private Integer eventsCountToTriggerSnapshot = 1000000;

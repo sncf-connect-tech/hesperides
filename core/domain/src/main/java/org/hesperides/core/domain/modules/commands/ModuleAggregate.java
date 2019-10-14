@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
-import org.axonframework.common.digest.Digester;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
@@ -42,7 +41,7 @@ class ModuleAggregate implements Serializable {
                 .validateTemplates()
                 .initializeVersionId();
 
-        String id = Digester.md5Hex(command.getModule().getKey().toString());
+        String id = command.getModule().getKey().generateHash();
         log.debug("ModuleAggregate constructor - moduleId: {} - key: {} - versionId: {} - user: {}",
                 id, command.getModule().getKey().toString(), command.getModule().getVersionId(), command.getUser());
         logBeforeEventVersionId(command.getModule().getVersionId());

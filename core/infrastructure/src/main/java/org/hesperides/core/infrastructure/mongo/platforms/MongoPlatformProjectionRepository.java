@@ -25,7 +25,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.hesperides.core.infrastructure.inmemory.platforms.InmemoryPlatformRepository;
-import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
+import org.hesperides.core.infrastructure.mongo.MongoConfiguration;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
@@ -48,7 +48,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.groupingBy;
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Collections.PLATFORM;
+import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
 
 @Slf4j
 @Profile({MONGO, FAKE_MONGO})
@@ -90,7 +90,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (springProfiles != null && springProfiles.isActive(MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, PLATFORM);
+            MongoConfiguration.ensureCaseInsensitivity(mongoTemplate, PLATFORM);
         }
     }
 

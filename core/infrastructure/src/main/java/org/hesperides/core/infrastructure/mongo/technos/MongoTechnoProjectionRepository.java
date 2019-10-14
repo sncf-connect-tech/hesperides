@@ -33,7 +33,7 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
-import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
+import org.hesperides.core.infrastructure.mongo.MongoConfiguration;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -56,7 +56,7 @@ import java.util.stream.StreamSupport;
 
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Collections.TECHNO;
+import static org.hesperides.core.infrastructure.mongo.Collections.TECHNO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -81,7 +81,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (springProfiles.isActive(MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO);
+            MongoConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO);
         }
     }
 

@@ -16,13 +16,9 @@
 
 package org.hesperides.core.infrastructure.mongo.monitoring;
 
-import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
-import org.hesperides.core.infrastructure.mongo.eventstores.AxonMongoEventStoreConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.health.CompositeHealthIndicatorConfiguration;
 import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -43,13 +39,7 @@ public class CustomMongoHealthIndicatorAutoConfiguration extends
     }
 
     @Bean
-    @ConditionalOnBean(name = AxonMongoEventStoreConfiguration.MONGO_TEMPLATE_BEAN_NAME)
-    public static MongoHealthProbe axonEventStoreRepositoryLatencyProbe(@Qualifier(AxonMongoEventStoreConfiguration.MONGO_TEMPLATE_BEAN_NAME) MongoTemplate mongoTemplate) {
-        return new MongoHealthProbe("axonEventStore", mongoTemplate);
-    }
-
-    @Bean
-    public static MongoHealthProbe mongoProjectionRepositoryLatencyProbe(@Qualifier(MongoProjectionRepositoryConfiguration.MONGO_TEMPLATE_BEAN_NAME) MongoTemplate mongoTemplate) {
-        return new MongoHealthProbe("mongoProjection", mongoTemplate);
+    public static MongoHealthProbe mongoLatencyProbe(MongoTemplate mongoTemplate) {
+        return new MongoHealthProbe("mongo", mongoTemplate);
     }
 }

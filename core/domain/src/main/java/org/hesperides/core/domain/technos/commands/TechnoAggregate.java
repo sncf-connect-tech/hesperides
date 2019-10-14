@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
-import org.axonframework.common.digest.Digester;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
@@ -38,7 +37,7 @@ class TechnoAggregate implements Serializable {
     public TechnoAggregate(CreateTechnoCommand command) {
         log.debug("Applying CreateTechnoCommand...");
         command.getTechno().validateTemplates();
-        String id = Digester.md5Hex(command.getTechno().getKey().toString());
+        String id = command.getTechno().getKey().generateHash();
         apply(new TechnoCreatedEvent(id, command.getTechno(), command.getUser().getName()));
     }
 

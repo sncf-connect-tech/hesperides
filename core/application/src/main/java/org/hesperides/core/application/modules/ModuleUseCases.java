@@ -1,6 +1,7 @@
 package org.hesperides.core.application.modules;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.events.queries.EventQueries;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
@@ -47,13 +48,19 @@ public class ModuleUseCases {
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
     private final PlatformQueries platformQueries;
+    private final EventQueries eventQueries;
 
     @Autowired
-    public ModuleUseCases(ModuleCommands moduleCommands, ModuleQueries moduleQueries, TechnoQueries technoQueries, PlatformQueries platformQueries) {
+    public ModuleUseCases(ModuleCommands moduleCommands,
+                          ModuleQueries moduleQueries,
+                          TechnoQueries technoQueries,
+                          PlatformQueries platformQueries,
+                          EventQueries eventQueries) {
         this.moduleCommands = moduleCommands;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.platformQueries = platformQueries;
+        this.eventQueries = eventQueries;
     }
 
     /**
@@ -71,7 +78,7 @@ public class ModuleUseCases {
             throw new DuplicateModuleException(module.getKey());
         }
         verifyTechnosExistence(module.getTechnos());
-        return moduleCommands.createModule(module, user);
+        return cleanCreateModule(module, user);
     }
 
     public String createWorkingCopyFrom(TemplateContainer.Key existingModuleKey, TemplateContainer.Key newModuleKey, User user) {
@@ -87,8 +94,7 @@ public class ModuleUseCases {
 
         Module existingModule = optionalModuleView.get().toDomainInstance();
         Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
-
-        return moduleCommands.createModule(newModule, user);
+        return cleanCreateModule(newModule, user);
     }
 
     public void updateModuleTechnos(Module module, User user) {
@@ -255,7 +261,7 @@ public class ModuleUseCases {
 
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
-        moduleCommands.createModule(moduleRelease, user);
+        cleanCreateModule(moduleRelease, user);
         return moduleQueries.getOptionalModule(newModuleKey).get();
     }
 
@@ -272,5 +278,10 @@ public class ModuleUseCases {
             throw new TechnoNotFoundException(technoKey);
         }
         return moduleQueries.getModulesUsingTechno(optTechnoId.get());
+    }
+
+    private String cleanCreateModule(Module module, User user) {
+        eventQueries.cleanAggregateEvents(module.getKey().generateHash());
+        return moduleCommands.createModule(module, user);
     }
 }

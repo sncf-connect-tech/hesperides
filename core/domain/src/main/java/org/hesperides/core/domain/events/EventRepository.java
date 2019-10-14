@@ -8,5 +8,8 @@ import java.util.List;
 public interface EventRepository {
 
     @QueryHandler
-    List<EventView> onGetEventsStream(GenericEventsByStreamQuery query);
+    List<EventView> onGenericEventsByStreamQuery(GenericEventsByStreamQuery query);
+
+    @QueryHandler
+    Boolean onCleanAggregateEventsQuery(CleanAggregateEventsQuery query);
 }

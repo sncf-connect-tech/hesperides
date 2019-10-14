@@ -2,6 +2,7 @@ package org.hesperides.core.domain.events.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
+import org.hesperides.core.domain.events.CleanAggregateEventsQuery;
 import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +13,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class EventQueries extends AxonQueries {
-
 
     protected EventQueries(QueryGateway queryGateway) {
         super(queryGateway);
@@ -29,4 +29,9 @@ public class EventQueries extends AxonQueries {
                 .limit(size)
                 .collect(Collectors.toList());
     }
+
+    public Boolean cleanAggregateEvents(String aggregateIdentifier) {
+        return querySync(new CleanAggregateEventsQuery(aggregateIdentifier), Boolean.class);
+    }
+
 }

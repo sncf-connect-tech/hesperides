@@ -1,4 +1,4 @@
-package org.hesperides.core.infrastructure.mongo.eventstores;
+package org.hesperides.core.infrastructure.axon;
 
 import org.axonframework.config.EventHandlingConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;

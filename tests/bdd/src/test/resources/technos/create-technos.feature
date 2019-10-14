@@ -21,6 +21,7 @@ Feature: Create technos
     When I try to create this techno
     Then the techno creation is rejected with a conflict error
 
+  @wip
   Scenario: create a techno after it has been deleted
     Given an existing techno
     When I delete this techno
