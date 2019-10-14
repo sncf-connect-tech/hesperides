@@ -25,6 +25,72 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- #783: Ne pas inclure pour les plateforme le champ "has_passwords" si "with_password_info" n'est pas fourni. [Thomas L'Hostis]
+
+
+
+## 2019-10-11
+### Fixed
+
+- Fix #784: Sauvegarder une propriété @required non valorisée ayant le même non qu'une propriété globale valorisée. [Thomas L'Hostis]
+
+
+
+## 2019-10-10
+### Fixed
+
+- #502: Valorisation conservées lors d'un rollback de version (#774) [Bhoye05]
+
+- #378: Un module ne peut être releasé s'il a au moins une techno non releasée (#773) [Thomas L'Hostis]
+
+- #530: Test fonctionnel de fichier avec propriété par défaut sans valorisation. [Thomas L'Hostis]
+
+- #651: Versions de modules sans duplicat. [Thomas L'Hostis]
+
+- #735: Tests fonctionnels du diff avec timestamp. [Thomas L'Hostis]
+
+- #66 : Global property usage in iterable properties. [Bhoye05]
+
+
+
+## 2019-09-30
+### Fixed
+
+- #767: Empêche l'accès aux fichiers d'instances présentes uniquement dans un module archivé (#768) [Thomas L'Hostis]
+
+
+
+## 2019-09-27
+### Added
+
+- Documentation des aspects *implicites* de la glue (#763) [Thomas L'Hostis]
+
+
+### Fixed
+
+- /applications/using_module/{module_name}/{module_version}/{version_type} does not return anymore platforms that used to contain the target module - close #765 (#766) [Lucas Cimon]
+
+
+
+## 2019-09-25
+### Added
+
+- Documentation des en-têtes de endpoints dépréciés (#761) [Thomas L'Hostis]
+
+- HTTP headers in responses for deprecated resources + fix FilesController.getFile resource path (#760) [Lucas Cimon]
+
+
+### Fixed
+
+- #648 cas de MAJ de propriété avec le même nom mais 2 valeurs différentes dans la playload revue. [Bhoye05]
+
+- 648: lever une exception lors de la sauvegarde d'un properties avec une clé dupliqué. [Bhoye05]
+
+
+
 ## 2019-09-24
 ### Deprecated
 
