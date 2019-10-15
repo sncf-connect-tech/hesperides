@@ -28,7 +28,7 @@ import org.hesperides.core.domain.security.ApplicationDirectoryGroupsUpdatedEven
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.GetApplicationDirectoryGroupsQuery;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
-import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
+import org.hesperides.core.infrastructure.mongo.MongoConfiguration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Collections.APPLICATION_DIRECTORY_GROUPS;
+import static org.hesperides.core.infrastructure.mongo.Collections.APPLICATION_DIRECTORY_GROUPS;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -61,7 +61,7 @@ public class MongoAuthorizationProjectionRepository implements AuthorizationProj
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (springProfiles.isActive(MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, APPLICATION_DIRECTORY_GROUPS);
+            MongoConfiguration.ensureCaseInsensitivity(mongoTemplate, APPLICATION_DIRECTORY_GROUPS);
         }
     }
 

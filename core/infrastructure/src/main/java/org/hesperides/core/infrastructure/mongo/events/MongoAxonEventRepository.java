@@ -1,4 +1,4 @@
-package org.hesperides.core.infrastructure.mongo.eventstores;
+package org.hesperides.core.infrastructure.mongo.events;
 
 import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
@@ -18,30 +18,30 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
-public class AxonEventRepository implements EventRepository {
+public class MongoAxonEventRepository implements EventRepository {
 
-    private EventStorageEngine eventStore;
+    private final EventStorageEngine eventStorageEngine;
+    private final MongoEventRepository mongoEventRepository;
 
     @Autowired
-    public AxonEventRepository(EventStorageEngine eventStore) {
-        this.eventStore = eventStore;
+    public MongoAxonEventRepository(EventStorageEngine eventStorageEngine, MongoEventRepository mongoEventRepository) {
+        this.eventStorageEngine = eventStorageEngine;
+        this.mongoEventRepository = mongoEventRepository;
     }
 
     @QueryHandler
     @Override
     @Timed
-    public List<EventView> onGetEventsStream(final GenericEventsByStreamQuery query) {
-        return getEventViews(query.getAggregateId());
-    }
-
-    private List<EventView> getEventViews(final String aggregateIdentifier) {
-        return eventStore.readEvents(aggregateIdentifier)
+    public List<EventView> onGenericEventsByStreamQuery(final GenericEventsByStreamQuery query) {
+        return eventStorageEngine.readEvents(query.getAggregateIdentifier())
                 .asStream()
                 .map(EventView::new)
                 .collect(Collectors.toList());
     }
 
-    public boolean hasOneEvent(final String aggregateIdentifier) {
-        return getEventViews(aggregateIdentifier).size() == 1;
+    @Override
+    @Timed
+    public void cleanAggregateEvents(String aggregateIdentifier) {
+        mongoEventRepository.deleteAllByAggregateIdentifier(aggregateIdentifier);
     }
 }

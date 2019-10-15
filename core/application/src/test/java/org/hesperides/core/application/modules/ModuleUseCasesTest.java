@@ -1,5 +1,6 @@
 package org.hesperides.core.application.modules;
 
+import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
@@ -40,6 +41,8 @@ public class ModuleUseCasesTest {
     TechnoQueries technoQueries;
     @MockBean
     PlatformQueries platformQueries;
+    @MockBean
+    EventCommands eventCommands;
 
     @Test(expected = DuplicateModuleException.class)
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {

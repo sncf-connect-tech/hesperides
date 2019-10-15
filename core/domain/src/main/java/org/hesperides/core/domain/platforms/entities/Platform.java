@@ -21,6 +21,7 @@
 package org.hesperides.core.domain.platforms.entities;
 
 import lombok.Value;
+import org.axonframework.common.digest.Digester;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.exceptions.DuplicateDeployedModuleIdException;
@@ -118,5 +119,13 @@ public class Platform {
     public static class Key {
         String applicationName;
         String platformName;
+
+        public String toString() {
+            return applicationName + "-" + platformName;
+        }
+
+        public String generateHash() {
+            return Digester.md5Hex(toString());
+        }
     }
 }

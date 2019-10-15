@@ -4,8 +4,10 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import lombok.Setter;
+import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
+import org.axonframework.mongo.DefaultMongoTemplate;
+import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
 import org.bson.Document;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,34 +32,33 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.core.infrastructure.mongo")
 @Validated
-@ConfigurationProperties("projection-repository")
-public class MongoProjectionRepositoryConfiguration {
-
-    // On expose les noms des méthodes sous formes de strings pour pouvoir les utiliser comme "bean qualifiers" dans datamigration
-    public final static String MONGO_CLIENT_URI_BEAN_NAME = "projectionMongoClientUri";
-    public final static String MONGO_CLIENT_BEAN_NAME = "projectionMongoClient";
-    public final static String MONGO_TEMPLATE_BEAN_NAME = "projectionMongoTemplate";
+@ConfigurationProperties("mongo")
+public class MongoConfiguration {
 
     @Setter
     @NotNull
     private String uri;
 
     @Bean
-    public MongoClientURI projectionMongoClientUri() {
+    public MongoClientURI mongoClientURI() {
         return new MongoClientURI(uri);
     }
 
     @Bean
-    @Primary
-    // mongoDbFactory in org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration require it in datamigration
-    public MongoClient projectionMongoClient(MongoClientURI projectionMongoClientUri) {
-        return new MongoClient(projectionMongoClientUri);
+    public MongoClient mongoClient(MongoClientURI mongoClientURI) {
+        return new MongoClient(mongoClientURI);
     }
 
-    @Bean({MONGO_TEMPLATE_BEAN_NAME, "mongoTemplate"})
-    // un Bean nommé mongoTemplate est requis pour les repos SpringData
-    public MongoTemplate projectionMongoTemplate(MongoClient projectionMongoClient, MongoClientURI projectionMongoClientUri) {
-        return new MongoTemplate(projectionMongoClient, projectionMongoClientUri.getDatabase());
+    @Bean
+    public MongoTemplate mongoTemplate(MongoClient mongoClient, MongoClientURI mongoClientURI) {
+        return new MongoTemplate(mongoClient, mongoClientURI.getDatabase());
+    }
+
+    @Bean
+    @Primary
+    public EventStorageEngine eventStorageEngine(MongoClient mongoClient, MongoClientURI mongoClientURI) {
+        DefaultMongoTemplate axonMongoTemplate = new DefaultMongoTemplate(mongoClient, mongoClientURI.getDatabase());
+        return new MongoEventStorageEngine(axonMongoTemplate);
     }
 
     public static void ensureCaseInsensitivity(MongoTemplate mongoTemplate, String collectionName) {
@@ -83,3 +85,4 @@ public class MongoProjectionRepositoryConfiguration {
         return (Integer) collation.get("strength");
     }
 }
+

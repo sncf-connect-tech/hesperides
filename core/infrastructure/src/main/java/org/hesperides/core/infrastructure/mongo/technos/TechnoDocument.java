@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.infrastructure.Collections.TECHNO;
+import static org.hesperides.core.infrastructure.mongo.Collections.TECHNO;
 
 @Data
 @Document(collection = TECHNO)

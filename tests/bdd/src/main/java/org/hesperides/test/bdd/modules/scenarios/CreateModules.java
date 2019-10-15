@@ -12,12 +12,18 @@ import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.hesperides.test.bdd.users.UserAuthorities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class CreateModules extends HesperidesScenario implements En {
@@ -38,6 +44,8 @@ public class CreateModules extends HesperidesScenario implements En {
     private ReleaseModules releaseModules;
     @Autowired
     private UserAuthorities userAuthorities;
+
+    private List<CompletableFuture<ResponseEntity>> concurrentCreations;
 
     @Given("^an existing( released)? module" +
             "(?: named \"([^\"]*)\")?" +
@@ -232,6 +240,29 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? create this module$", (String tryTo) -> createModule(tryTo));
+
+        When("^I try to create this module more than once at the same time$", () -> {
+            concurrentCreations = new ArrayList<>();
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> moduleClient.createModule(moduleBuilder.build(), "should-not-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> moduleClient.createModule(moduleBuilder.build(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> moduleClient.createModule(moduleBuilder.build(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> moduleClient.createModule(moduleBuilder.build(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> moduleClient.createModule(moduleBuilder.build(), "should-fail")));
+        });
+
+        Then("^only one module creation is successful$", () -> {
+            long nbFail = concurrentCreations.stream()
+                    .map(CompletableFuture::join) // join() récupère le résultat une fois que la requête a abouti
+                    .map(ResponseEntity::getStatusCode)
+                    .filter(HttpStatus::isError)
+                    .count();
+            assertThat(nbFail).isGreaterThan(0);
+        });
+
+        Then("^the module is actually created$", () -> {
+            moduleClient.getModule(moduleBuilder.build());
+            assertOK();
+        });
 
         Then("^the module is successfully created$", () -> {
             assertCreated();

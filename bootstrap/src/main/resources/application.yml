@@ -69,6 +69,14 @@ logging:
                   # Display JSON serialization errors wrapped in HttpMessageNotWritableException:
                   ServletInvocableHandlerMethod: TRACE
 
+mongo:
+  uri: ${MONGO_URI:mongodb://localhost:27017/hesperides}
+
+axon:
+  snapshot:
+    # Nombre d'événements avant le déclenchement d'un snapshot
+    threshold: ${AXON_SNAPSHOT_THRESHOLD:1000}
+
 # Access it: http://localhost:8080/rest/manage
 # Includes but does not limit to:
 # - /manage/beans

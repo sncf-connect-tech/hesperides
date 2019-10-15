@@ -1,5 +1,6 @@
 package org.hesperides.core.application.technos;
 
+import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -34,12 +35,17 @@ public class TechnoUseCases {
     private final TechnoCommands technoCommands;
     private final TechnoQueries technoQueries;
     private final ModuleQueries moduleQueries;
+    private final EventCommands eventCommands;
 
     @Autowired
-    public TechnoUseCases(TechnoCommands technoCommands, TechnoQueries technoQueries, ModuleQueries moduleQueries) {
+    public TechnoUseCases(TechnoCommands technoCommands,
+                          TechnoQueries technoQueries,
+                          ModuleQueries moduleQueries,
+                          EventCommands eventCommands) {
         this.technoCommands = technoCommands;
         this.technoQueries = technoQueries;
         this.moduleQueries = moduleQueries;
+        this.eventCommands = eventCommands;
     }
 
     /**
@@ -55,7 +61,7 @@ public class TechnoUseCases {
         String technoId = technoQueries.getOptionalTechnoId(technoKey)
                 .orElseGet(() -> {
                     Techno techno = new Techno(technoKey, Collections.emptyList());
-                    return technoCommands.createTechno(techno, user);
+                    return cleanCreateTechno(techno, user);
                 });
         technoCommands.addTemplate(technoId, template, user);
     }
@@ -117,7 +123,7 @@ public class TechnoUseCases {
         Techno existingTechno = optionalTechnoView.get().toDomainInstance();
         Techno technoRelease = new Techno(newTechnoKey, existingTechno.getTemplates());
 
-        technoCommands.createTechno(technoRelease, user);
+        cleanCreateTechno(technoRelease, user);
         return technoQueries.getOptionalTechno(newTechnoKey).get();
     }
 
@@ -155,7 +161,7 @@ public class TechnoUseCases {
         Techno existingTechno = optionalTechnoView.get().toDomainInstance();
         Techno newTechno = new Techno(newTechnoKey, existingTechno.getTemplates());
 
-        technoCommands.createTechno(newTechno, user);
+        cleanCreateTechno(newTechno, user);
         return technoQueries.getOptionalTechno(newTechnoKey).get();
     }
 
@@ -165,5 +171,10 @@ public class TechnoUseCases {
             properties = technoQueries.getProperties(technoKey);
         }
         return properties;
+    }
+
+    private String cleanCreateTechno(Techno techno, User user) {
+        eventCommands.cleanAggregateEvents(techno.getKey().generateHash());
+        return technoCommands.createTechno(techno, user);
     }
 }

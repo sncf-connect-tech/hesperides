@@ -48,3 +48,9 @@ Feature: Create platforms
     Given a platform to create without setting production flag
     When I create this platform
     Then the platform is successfully created
+
+  Scenario: trying to create a platform more than once at the same time should fail for one of them
+    Given a platform to create
+    When I try to create this platform more than once at the same time
+    Then only one platform creation is successful
+    But the platform is actually created

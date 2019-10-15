@@ -2,6 +2,7 @@ package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
+import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -55,15 +56,21 @@ public class PlatformUseCases {
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
-
+    private final EventCommands eventCommands;
 
     @Autowired
-    public PlatformUseCases(PlatformCommands platformCommands, PlatformQueries platformQueries, final ModuleQueries moduleQueries, TechnoQueries technoQueries, ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries) {
+    public PlatformUseCases(PlatformCommands platformCommands,
+                            PlatformQueries platformQueries,
+                            ModuleQueries moduleQueries,
+                            TechnoQueries technoQueries,
+                            ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
+                            EventCommands eventCommands) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
+        this.eventCommands = eventCommands;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -73,7 +80,7 @@ public class PlatformUseCases {
         if (platformQueries.platformExists(platform.getKey())) {
             throw new DuplicatePlatformException(platform.getKey());
         }
-        return platformCommands.createPlatform(platform, user);
+        return cleanCreatePlatform(platform, user);
     }
 
     public String copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, boolean copyInstancesAndProperties, User user) {
@@ -102,7 +109,7 @@ public class PlatformUseCases {
                 DeployedModule.INIT_PROPERTIES_VERSION_ID,
                 globalProperties
         );
-        return platformCommands.createPlatform(newFullPlatform, user);
+        return cleanCreatePlatform(newFullPlatform, user);
     }
 
     public PlatformView getPlatform(String platformId) {
@@ -438,7 +445,7 @@ public class PlatformUseCases {
         Stream<PropertyView> allSimpleProperties = AbstractPropertyView.getAllSimpleProperties(moduleProperties);
         allSimpleProperties.forEach(moduleProperty -> moduleProperty.validateRequiredAndPatternProperties(allValuedProperties));
     }
-    
+
     public PlatformView restoreDeletedPlatform(final Platform.Key platformKey, final User user) {
         if (platformQueries.platformExists(platformKey)) {
             throw new IllegalArgumentException("Cannot restore an existing platform");
@@ -472,5 +479,10 @@ public class PlatformUseCases {
         return !CollectionUtils.isEmpty(list) && !list.stream()
                 .map(AbstractValuedProperty::getName)
                 .allMatch(new HashSet<>()::add);
+    }
+
+    private String cleanCreatePlatform(Platform platform, User user) {
+        eventCommands.cleanAggregateEvents(platform.getKey().generateHash());
+        return platformCommands.createPlatform(platform, user);
     }
 }

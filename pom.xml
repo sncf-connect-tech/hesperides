@@ -52,7 +52,6 @@
         <mongo-java-server.version>1.9.8</mongo-java-server.version>
         <mustache.version>0.9.5</mustache.version>
         <postgresql.version>9.4-1206-jdbc42</postgresql.version>
-        <spring-boot-admin.version>2.1.1</spring-boot-admin.version>
         <spring-security-test.version>4.2.4.RELEASE</spring-security-test.version>
         <springfox.version>2.8.0</springfox.version><!-- Ne pas changer cette version (cf. swagger-customization.md) -->
         <swagger.version>1.5.18</swagger.version>
@@ -190,13 +189,6 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <version>${spring-security-test.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.codecentric</groupId>
-                <artifactId>spring-boot-admin-dependencies</artifactId>
-                <version>${spring-boot-admin.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
             <!-- Swagger -->

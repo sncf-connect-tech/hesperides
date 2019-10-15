@@ -26,3 +26,9 @@ Feature: Create technos
     When I delete this techno
     And I create this techno
     Then the techno is successfully created
+
+  Scenario: trying to create a techno more than once at the same time should fail for one of them
+    Given a techno to create
+    When I try to create this techno more than once at the same time
+    Then only one techno creation is successful
+    But the techno is actually created

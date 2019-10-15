@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.infrastructure.Collections.MODULE;
+import static org.hesperides.core.infrastructure.mongo.Collections.MODULE;
 
 @Data
 @Document(collection = MODULE)

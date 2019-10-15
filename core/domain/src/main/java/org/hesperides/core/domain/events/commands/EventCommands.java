@@ -18,27 +18,23 @@
  *
  *
  */
-package org.hesperides.commons;
+package org.hesperides.core.domain.events.commands;
 
+import org.hesperides.core.domain.events.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-
 @Component
-public class SpringProfiles {
+public class EventCommands {
 
-    public static final String MONGO = "mongo";
-    public static final String FAKE_MONGO = "fake_mongo";
-    public static final String LDAP = "ldap";
-    public static final String NOLDAP = "noldap";
-    public static final String TEST = "test";
+    private final EventRepository eventRepository;
 
     @Autowired
-    private Environment environment;
+    public EventCommands(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
 
-    public boolean isActive(String profile) {
-        return Arrays.asList(environment.getActiveProfiles()).contains(profile);
+    public void cleanAggregateEvents(String aggregateIdentifier) {
+        eventRepository.cleanAggregateEvents(aggregateIdentifier);
     }
 }

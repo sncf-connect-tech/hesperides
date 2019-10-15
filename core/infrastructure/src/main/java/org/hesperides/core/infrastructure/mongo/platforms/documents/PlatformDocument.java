@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.hesperides.core.infrastructure.Collections.PLATFORM;
+import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
 
 
 @Data

@@ -47,7 +47,7 @@ public class TechnoClient {
         this.testContext = testContext;
     }
 
-    public void createTechno(TemplateIO templateInput, TechnoIO technoInput, String tryTo) {
+    public ResponseEntity createTechno(TemplateIO templateInput, TechnoIO technoInput, String tryTo) {
         restTemplate.postForEntity(
                 "/templates/packages/{name}/{version}/{type}/templates",
                 templateInput,
@@ -55,6 +55,7 @@ public class TechnoClient {
                 technoInput.getName(),
                 technoInput.getVersion(),
                 TestVersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+        return testContext.getResponseEntity();
     }
 
     public void searchTechnos(String searchInput) {
@@ -63,6 +64,10 @@ public class TechnoClient {
 
     public void searchTechnos(String searchInput, Integer size) {
         restTemplate.getForEntity("/templates/packages/perform_search?terms=" + searchInput + "&size=" + size, TechnoIO[].class);
+    }
+
+    public void getTechno(TechnoIO technoInput) {
+        getTechno(technoInput, null);
     }
 
     public void getTechno(TechnoIO technoInput, String tryTo) {

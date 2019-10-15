@@ -35,7 +35,6 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.hesperides.core.domain.platforms.entities.DeployedModule.INIT_PROPERTIES_VERSION_ID;
@@ -59,11 +58,11 @@ public class PlatformAggregate implements Serializable {
                 .validateDeployedModulesDistinctIds()
                 .initializeVersionId()
                 .fillDeployedModulesMissingIds();
-        String newUuid = UUID.randomUUID().toString();
+        String id = command.getPlatform().getKey().generateHash();
         log.debug("PlatformAggregate constructor - platformId: {} - key: {} - versionId: {} - user: {}",
-                newUuid, command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
+                id, command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
         logBeforeEventVersionId(command.getPlatform().getVersionId());
-        apply(new PlatformCreatedEvent(newUuid, platform, command.getUser().getName()));
+        apply(new PlatformCreatedEvent(id, platform, command.getUser().getName()));
     }
 
 

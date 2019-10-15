@@ -38,3 +38,10 @@ Feature: Create modules
     Given a module to create without a version type
     When I try to create this module
     Then the module creation is rejected with a bad request error
+
+  #issue-779
+  Scenario: trying to create a module more than once at the same time should fail for one of them
+    Given a module to create
+    When I try to create this module more than once at the same time
+    Then only one module creation is successful
+    But the module is actually created

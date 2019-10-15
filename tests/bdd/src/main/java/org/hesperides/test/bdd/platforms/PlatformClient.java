@@ -56,11 +56,12 @@ public class PlatformClient {
         this.testContext = testContext;
     }
 
-    public void createPlatform(PlatformIO platformInput, String tryTo) {
+    public ResponseEntity createPlatform(PlatformIO platformInput, String tryTo) {
         restTemplate.postForEntity(
                 "/applications",
                 platformInput,
                 getResponseType(tryTo, PlatformIO.class));
+        return testContext.getResponseEntity();
     }
 
     public void copyPlatform(PlatformIO existingPlatform, PlatformIO newPlatform, boolean withoutInstancesOrProperties, String tryTo) {

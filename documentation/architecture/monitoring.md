@@ -11,12 +11,6 @@ et configurable via des variables d'environnement, comme par exemple :
     VERSION_ID_LOG_LEVEL=DEBUG
 
 
-## Graphite
-
-Si le profile Spring `graphite` est employé, Hesperides publiera des métriques en employant les variables d'environnement associées,
-_cf._ [application-graphite.yaml](https://github.com/voyages-sncf-technologies/hesperides/blob/master/bootstrap/src/main/resources/application-graphite.yaml).
-
-
 ## Prometheus
 
 Un endpoint `/rest/manage/prometheus` est fourni via [PrometheusConfiguration.java](https://github.com/voyages-sncf-technologies/hesperides/blob/master/core/infrastructure/src/main/java/org/hesperides/core/infrastructure/monitoring/PrometheusConfiguration.java).

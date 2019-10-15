@@ -9,6 +9,7 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer
 
 // Commands
 
+data class CleanTechnoEventsCommand(val technoId: String)
 data class CreateTechnoCommand(val techno: Techno, val user: User)
 data class DeleteTechnoCommand(@TargetAggregateIdentifier val technoId: String, val user: User)
 data class AddTemplateToTechnoCommand(@TargetAggregateIdentifier val technoId: String, val template: Template, val user: User)

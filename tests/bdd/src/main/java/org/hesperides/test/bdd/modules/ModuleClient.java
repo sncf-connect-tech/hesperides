@@ -56,8 +56,9 @@ public class ModuleClient {
         this.testContext = testContext;
     }
 
-    public void createModule(ModuleIO moduleInput, String tryTo) {
+    public ResponseEntity createModule(ModuleIO moduleInput, String tryTo) {
         restTemplate.postForEntity("/modules", moduleInput, getResponseType(tryTo, ModuleIO.class));
+        return testContext.getResponseEntity();
     }
 
     public void searchModules(String searchInput) {
@@ -70,6 +71,10 @@ public class ModuleClient {
 
     public void searchSingle(String searchInput) {
         restTemplate.getForEntity("/modules/search?terms=" + searchInput, ModuleIO.class);
+    }
+
+    public void getModule(ModuleIO moduleInput) {
+        getModule(moduleInput, TestVersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public void getModule(ModuleIO moduleInput, String tryTo) {
