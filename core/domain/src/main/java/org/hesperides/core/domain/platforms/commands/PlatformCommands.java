@@ -47,7 +47,7 @@ public class PlatformCommands {
 
     public void updatePlatform(String platformId, Platform platform, boolean copyPropertiesForUpgradedModules, User user) {
         // Debug note: .sendAndWait can raise AggregateNotFoundException("The aggregate was not found in the event store")
-        // It probably means your event_store & projection_repository are not in sync anymore
+        // It probably means the event store and the projection repository are disynchronized
         commandGateway.sendAndWait(new UpdatePlatformCommand(platformId, platform, copyPropertiesForUpgradedModules, user));
     }
 

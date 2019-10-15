@@ -8,8 +8,8 @@ Dans le cas d'Hesperides, nous recommendons l'utilisation d'un cluster de 2 noeu
 
 ## Configuration du client
 
-La configuration du client Mongo se fait via les variables d'environnement `EVENT_STORE_MONGO_URI` && `PROJECTION_REPOSITORY_MONGO_URI`
-qui contiennent la liste des noeuds du cluster à utiliser et les options de connexion à employer.
+La configuration du client Mongo se fait via la variable d'environnement `MONGO_URI` qui contiennent
+la liste des noeuds du cluster à utiliser et les options de connexion à employer.
 
 ## Consultation des options de connexion
 

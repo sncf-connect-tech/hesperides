@@ -41,7 +41,7 @@ jobs:
       script:
         - sleep 15  # waiting for MongoDB to start up
         # On crée les collections MongoDB avec leurs collations:
-        - mongo projection_repository mongo_create_collections.js
+        - mongo hesperides mongo_create_collections.js
         - mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
         - sleep 30  # waiting for the SpringBoot app to start up
         - mvn -pl tests/mongo-integration verify
