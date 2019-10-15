@@ -40,8 +40,8 @@ Feature: Create modules
     Then the module creation is rejected with a bad request error
 
   #issue-779
-  Scenario: trying to create a module twice at the same time should fail for one of them
+  Scenario: trying to create a module more than once at the same time should fail for one of them
     Given a module to create
-    When I try to create this module twice at the same time
-    Then one of the two module creation attempts fails
+    When I try to create this module more than once at the same time
+    Then only one module creation is successful
     But the module is actually created

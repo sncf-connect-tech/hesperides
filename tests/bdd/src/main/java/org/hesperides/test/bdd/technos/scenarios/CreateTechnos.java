@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class CreateTechnos extends HesperidesScenario implements En {
@@ -158,19 +159,22 @@ public class CreateTechnos extends HesperidesScenario implements En {
 
         When("^I( try to)? create this techno$", (String tryTo) -> createTechno(tryTo));
 
-        When("^I try to create this techno twice at the same time$", () -> {
+        When("^I try to create this techno more than once at the same time$", () -> {
             concurrentCreations = new ArrayList<>();
             concurrentCreations.add(CompletableFuture.supplyAsync(() -> technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), "should-not-fail")));
             concurrentCreations.add(CompletableFuture.supplyAsync(() -> technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), "should-fail")));
         });
 
-        Then("^one of the two techno creation attempts fails$", () -> {
+        Then("^only one techno creation is successful$", () -> {
             long nbFail = concurrentCreations.stream()
                     .map(CompletableFuture::join)
                     .map(ResponseEntity::getStatusCode)
                     .filter(HttpStatus::isError)
                     .count();
-            assertEquals(1, nbFail);
+            assertThat(nbFail).isGreaterThan(0);
         });
 
         Then("^the techno is actually created$", () -> {

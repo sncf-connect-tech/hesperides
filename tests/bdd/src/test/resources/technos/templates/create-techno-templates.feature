@@ -46,9 +46,3 @@ Feature: Create techno templates
     And a template with the same name as the existing one
     When I try to add this template to the techno
     Then the module template creation is rejected with a conflict error
-
-  Scenario: trying to create a techno twice at the same time should fail for one of them
-    Given a techno to create
-    When I try to create this techno twice at the same time
-    Then one of the two techno creation attempts fails
-    But the techno is actually created

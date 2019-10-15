@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
@@ -236,19 +237,22 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             createPlatform(tryTo);
         });
 
-        When("^I try to create this platform twice at the same time$", () -> {
+        When("^I try to create this platform more than once at the same time$", () -> {
             concurrentCreations = new ArrayList<>();
             concurrentCreations.add(CompletableFuture.supplyAsync(() -> platformClient.createPlatform(platformBuilder.buildInput(), "should-not-fail")));
             concurrentCreations.add(CompletableFuture.supplyAsync(() -> platformClient.createPlatform(platformBuilder.buildInput(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> platformClient.createPlatform(platformBuilder.buildInput(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> platformClient.createPlatform(platformBuilder.buildInput(), "should-fail")));
+            concurrentCreations.add(CompletableFuture.supplyAsync(() -> platformClient.createPlatform(platformBuilder.buildInput(), "should-fail")));
         });
 
-        Then("^one of the two platform creation attempts fails$", () -> {
+        Then("^only one platform creation is successful$", () -> {
             long nbFail = concurrentCreations.stream()
                     .map(CompletableFuture::join)
                     .map(ResponseEntity::getStatusCode)
                     .filter(HttpStatus::isError)
                     .count();
-            assertEquals(1, nbFail);
+            Assertions.assertThat(nbFail).isGreaterThan(0);
         });
 
         Then("^the platform is actually created$", () -> {

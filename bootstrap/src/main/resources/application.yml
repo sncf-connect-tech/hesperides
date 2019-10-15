@@ -11,11 +11,6 @@ spring:
   application.name: HESPERIDES
   boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
-  boot:
-    admin:
-      url: ${SPRING_BOOT_ADMIN_URL}
-      client:
-        enabled: true
 
 server:
   port: ${SERVER_PORT:8080}
@@ -117,10 +112,3 @@ management:
 swagger.host: ${SWAGGER_HOST:}
 
 sentry.ignored-exceptions: ${SENTRY_IGNORED_EXCEPTIONS:,}
-
-metrics:
-  graphite:
-    host: ${GRAPHITE_HOST:127.0.0.1}
-    period: ${GRAPHITE_PERIOD:60} # in seconds
-    port: ${GRAPHITE_PORT:2003}
-    prefix: ${GRAPHITE_PREFIX:hesperides}
