@@ -1,6 +1,5 @@
 mongo-integration.remote-base-url: http://localhost:8080/rest
-event-store.uri: mongodb://localhost:27017/event_store
-projection-repository.uri: mongodb://localhost:27017/projection_repository
+mongo.uri: mongodb://localhost:27017/hesperides
 
 logging.level:
   org:

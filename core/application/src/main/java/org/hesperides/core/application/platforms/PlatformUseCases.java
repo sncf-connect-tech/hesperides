@@ -51,12 +51,12 @@ import static org.hesperides.core.domain.platforms.entities.properties.PropertyT
 @Component
 public class PlatformUseCases {
 
-    private PlatformCommands platformCommands;
-    private PlatformQueries platformQueries;
-    private ModuleQueries moduleQueries;
-    private TechnoQueries technoQueries;
-    private ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
-    private EventCommands eventCommands;
+    private final PlatformCommands platformCommands;
+    private final PlatformQueries platformQueries;
+    private final ModuleQueries moduleQueries;
+    private final TechnoQueries technoQueries;
+    private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
+    private final EventCommands eventCommands;
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands,
