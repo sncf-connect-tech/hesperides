@@ -300,3 +300,58 @@ Feature: Get properties diffs
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the diff is empty
+
+  #issue-792
+  Scenario: get properties diffs with a property that references a global property
+    Given an existing module with this template content
+      """
+      {{property}}
+      """
+    And an existing platform named "P1" with this module
+    And the platform "P1" has these valued properties
+      | name     | value        |
+      | property | {{global-a}} |
+    And the platform "P1" has these global properties
+      | name         | value            |
+      | global-a     | {{global-final}} |
+      | global-final | global-value     |
+    And an existing platform named "P2" with this module
+    And the platform "P2" has these valued properties
+      | name     | value            |
+      | property | {{global-final}} |
+    And the platform "P2" has these global properties
+      | name         | value        |
+      | global-final | global-value |
+    When I get the properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common   | differing |
+      |           |            | property |           |
+
+  #issue-792
+  Scenario: get properties diffs with a property that references a global property with different values
+    Given an existing module with this template content
+      """
+      {{property}}
+      """
+    And an existing platform named "P1" with this module
+    And the platform "P1" has these valued properties
+      | name     | value      |
+      | property | {{global}} |
+    And the platform "P1" has these global properties
+      | name         | value            |
+      | global       | {{global-final}} |
+      | global-final | value-a          |
+    And an existing platform named "P2" with this module
+    And the platform "P2" has these valued properties
+      | name     | value      |
+      | property | {{global}} |
+    And the platform "P2" has these global properties
+      | name         | value            |
+      | global       | {{global-final}} |
+      | global-final | value-b          |
+    When I get the properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common | differing |
+      |           |            |        | property  |

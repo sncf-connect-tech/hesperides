@@ -113,6 +113,22 @@ Feature: Get file
       global-value
       """
 
+  Scenario: get file with global properties that references another global property
+    Given an existing module with this template content
+      """
+      {{ global-property-a }}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name              | value                 |
+      | global-property-a | {{global-property-b}} |
+      | global-property-b | global-value          |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      global-value
+      """
+
   Scenario: get file with instance properties
     Given an existing module with this template content
       """

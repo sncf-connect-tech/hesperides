@@ -40,17 +40,20 @@ public class PropertyVisitorsSequence {
     public static PropertyVisitorsSequence fromModelAndValuedProperties(List<AbstractPropertyView> propertiesModels,
                                                                         List<? extends AbstractValuedPropertyView> valuedProperties,
                                                                         boolean includePropertiesWithoutModel) {
+
         Map<String, List<AbstractPropertyView>> propertyModelsPerName = propertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
         List<PropertyVisitor> propertyVisitors = valuedProperties.stream().map(valuedProperty -> {
             PropertyVisitor propertyVisitor = null;
             // Si des valorisations existent sans modèle de propriété correspondant,
             // cette lambda retourne un Optional.empty() qui sera exclu de la liste finale
             if (valuedProperty instanceof ValuedPropertyView) {
+
                 if (propertyModelsPerName.containsKey(valuedProperty.getName())) {
                     propertyVisitor = SimplePropertyVisitor.fromAbstractPropertyViews(propertyModelsPerName.get(valuedProperty.getName()), (ValuedPropertyView) valuedProperty);
                 } else if (includePropertiesWithoutModel) {
                     propertyVisitor = new SimplePropertyVisitor((ValuedPropertyView) valuedProperty);
                 }
+
             } else if (valuedProperty instanceof IterableValuedPropertyView && propertyModelsPerName.containsKey(valuedProperty.getName())) {
                 // L'appel à `groupingBy` ci-dessus nous assure qu'il y a toujours au moins un élement dans la liste de modèles de propriétés.
                 // Dans le cas des itérables, comme ils ne sont jamais employés avec des annotations post-pipe,
@@ -59,6 +62,7 @@ public class PropertyVisitorsSequence {
                 propertyVisitor = new IterablePropertyVisitor(iterablePropertyModel, (IterableValuedPropertyView) valuedProperty);
             }
             return Optional.ofNullable(propertyVisitor);
+
         }).filter(Optional::isPresent).map(Optional::get)
                 .collect(Collectors.toList());
         // Maintenant on ajoute les propriétés pour lesquelles on a un modèle mais pas de valorisation
@@ -79,7 +83,7 @@ public class PropertyVisitorsSequence {
 
     // On concatène les propriétés parentes avec les propriété de l'item
     // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles
-    // cf. BDD Scenario: get file with an iterable-ception
+    // cf. BDD Scenario: get file with nested iterable properties
     public PropertyVisitorsSequence passOverPropertyValuesToChildItems() {
         return this.mapSequencesRecursive(propertyVisitors -> {
             List<SimplePropertyVisitor> simpleSimplePropertyVisitors = propertyVisitors.getSimplePropertyVisitors();
@@ -102,7 +106,10 @@ public class PropertyVisitorsSequence {
     public PropertyVisitorsSequence removeMustachesInPropertyValues() {
         return this.mapSimplesRecursive(propertyVisitor -> {
             if (propertyVisitor.isValued()) {
-                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValueOrDefault().get(), "\\{\\{[^}]*\\}\\}"), ERASED_DUE_TO_REMAINING_MUSTACHE);
+                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(
+                        propertyVisitor.getValueOrDefault().get(),
+                        "\\{\\{[^}]*\\}\\}"),
+                        ERASED_DUE_TO_REMAINING_MUSTACHE);
             }
             return propertyVisitor;
         });
@@ -207,6 +214,8 @@ public class PropertyVisitorsSequence {
 
     public boolean equals(PropertyVisitorsSequence otherSequence, boolean compareStoredValues) {
         Map<String, PropertyVisitor> propertyVisitorMap = properties.stream().collect(toMap(PropertyVisitor::getName, property -> property));
-        return (properties.size() == otherSequence.getProperties().size()) && otherSequence.properties.stream().allMatch(p -> p.equals(propertyVisitorMap.get(p.getName()), compareStoredValues));
+        return properties.size() == otherSequence.getProperties().size() &&
+                otherSequence.properties.stream().allMatch(propertyVisitor ->
+                        propertyVisitor.equals(propertyVisitorMap.get(propertyVisitor.getName()), compareStoredValues));
     }
 }
