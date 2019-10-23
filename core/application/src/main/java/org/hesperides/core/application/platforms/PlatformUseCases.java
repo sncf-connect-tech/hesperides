@@ -1,7 +1,9 @@
 package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
+import org.hesperides.core.application.platforms.properties.PropertyValuationContext;
 import org.hesperides.core.domain.events.commands.EventCommands;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
@@ -44,8 +46,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
+import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
-import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.WITHOUT_MODEL;
 
 
 @Component
@@ -311,18 +314,43 @@ public class PlatformUseCases {
             boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(fromPlatformKey.getApplicationName());
             boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(toPlatformKey.getApplicationName());
 
-            PropertyVisitorsSequence fromPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
+            PropertyVisitorsSequence fromPropertyVisitors = buildModulePropertyVisitorsSequence(
                     fromPlatform, fromModulePath, fromModuleKey,
                     fromModulePropertiesModels,
-                    fromInstanceName, fromShouldHidePasswordProperties, EnumSet.of(WITHOUT_MODEL));
-            PropertyVisitorsSequence toPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
+                    fromInstanceName, fromShouldHidePasswordProperties);
+            PropertyVisitorsSequence toPropertyVisitors = buildModulePropertyVisitorsSequence(
                     toPlatform, toModulePath, toModuleKey,
                     toModulePropertiesModels,
-                    toInstanceName, toShouldHidePasswordProperties, EnumSet.of(WITHOUT_MODEL));
+                    toInstanceName, toShouldHidePasswordProperties);
 
             propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
         }
         return propertiesDiff;
+    }
+
+    private static PropertyVisitorsSequence buildModulePropertyVisitorsSequence(PlatformView platform,
+                                                                                String modulePath,
+                                                                                Module.Key moduleKey,
+                                                                                List<AbstractPropertyView> modulePropertiesModels,
+                                                                                String instanceName,
+                                                                                boolean shouldHidePasswordProperties) {
+
+        EnumSet<PropertyType> propertiesToInclude = EnumSet.of(GLOBAL, WITHOUT_MODEL);
+        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey);
+
+        PropertyVisitorsSequence firstPropertyVisitorsSequence = PropertyValuationBuilder.buildFirstPropertyVisitorsSequence(
+                deployedModule, modulePropertiesModels, shouldHidePasswordProperties, propertiesToInclude);
+
+        PropertyValuationContext valuationContext = PropertyValuationBuilder.buildValuationContext(
+                firstPropertyVisitorsSequence, deployedModule, platform, instanceName);
+
+        PropertyVisitorsSequence finalPropertyVisitorsSequence = PropertyValuationBuilder.buildFinalPropertyVisitorsSequence(
+                valuationContext, firstPropertyVisitorsSequence, propertiesToInclude);
+
+        // Le diff a besoin des propriétés prédéfinies et globales pour comparer les valeurs *finales*
+        // des propriétés au niveau du module, en revanche on ne veut pas les inclure dans la comparaison
+        finalPropertyVisitorsSequence = valuationContext.removePredefinedProperties(finalPropertyVisitorsSequence);
+        return valuationContext.removeGlobalPropertiesThatAreNotInTheModel(finalPropertyVisitorsSequence, modulePropertiesModels);
     }
 
     private static String extractModulePathFromPropertiesPath(String propertiesPath) {

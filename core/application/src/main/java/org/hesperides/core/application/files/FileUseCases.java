@@ -20,7 +20,9 @@
  */
 package org.hesperides.core.application.files;
 
+import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
+import org.hesperides.core.application.platforms.properties.PropertyValuationContext;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -35,6 +37,7 @@ import org.hesperides.core.domain.platforms.entities.properties.visitors.SimpleP
 import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
+import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.queries.TechnoView;
@@ -48,8 +51,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.GLOBAL;
-import static org.hesperides.core.domain.platforms.entities.properties.PropertyType.PREDEFINED;
+import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 
 @Component
 public class FileUseCases {
@@ -68,6 +70,7 @@ public class FileUseCases {
      * et des propriétés itérables en map de ce type :
      * - nom-propriété-simple => valeur-propriété-simple
      * - nom-propriété-itérable => list (...)
+     *
      * @param propertyVisitorsSequence
      */
     public static Map<String, Object> propertiesToScopes(PropertyVisitorsSequence propertyVisitorsSequence) {
@@ -189,12 +192,32 @@ public class FileUseCases {
                                                                    String instanceName,
                                                                    boolean shouldHidePasswordProperties) {
 
-        PropertyVisitorsSequence preparedPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
-                    platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties, EnumSet.of(GLOBAL, PREDEFINED))
+        PropertyVisitorsSequence preparedPropertyVisitors = buildPropertyVisitorsSequence(
+                platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties)
                 .removeMustachesInPropertyValues()
                 .passOverPropertyValuesToChildItems();
         Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
         return PropertyValuationBuilder.replaceMustachePropertiesWithValues(input, scopes);
+    }
+
+    private static PropertyVisitorsSequence buildPropertyVisitorsSequence(PlatformView platform,
+                                                                          String modulePath,
+                                                                          Module.Key moduleKey,
+                                                                          List<AbstractPropertyView> modulePropertiesModels,
+                                                                          String instanceName,
+                                                                          boolean shouldHidePasswordProperties) {
+
+        EnumSet<PropertyType> propertiesToInclude = EnumSet.of(GLOBAL);
+        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey);
+
+        PropertyVisitorsSequence firstPropertyVisitorsSequence = PropertyValuationBuilder.buildFirstPropertyVisitorsSequence(
+                deployedModule, modulePropertiesModels, shouldHidePasswordProperties, propertiesToInclude);
+
+        PropertyValuationContext valuationContext = PropertyValuationBuilder.buildValuationContext(
+                firstPropertyVisitorsSequence, deployedModule, platform, instanceName);
+
+        return PropertyValuationBuilder.buildFinalPropertyVisitorsSequence(
+                valuationContext, firstPropertyVisitorsSequence, propertiesToInclude);
     }
 
     /**

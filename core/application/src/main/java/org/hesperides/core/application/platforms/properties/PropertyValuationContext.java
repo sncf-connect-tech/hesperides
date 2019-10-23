@@ -7,17 +7,21 @@ import org.hesperides.core.domain.platforms.queries.views.InstanceView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
+import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.*;
 
 @Value
-class PropertyValuationContext {
+public class PropertyValuationContext {
 
     private List<ValuedPropertyView> globalProperties;
     private List<ValuedPropertyView> instanceProperties;
@@ -40,14 +44,14 @@ class PropertyValuationContext {
 
     // Pas la plus belle signature du monde...
     // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
-    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean includeGlobalProperties, boolean includePropertiesWithoutModel) {
+    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, EnumSet<PropertyType> propertiesToInclude) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
         propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties, OVERRIDEN_BY_INSTANCE)
                 .addOverridingValuedProperties(predefinedProperties, OVERRIDEN_BY_PREDEFINED);
-        if (includeGlobalProperties) {
+        if (propertiesToInclude.contains(GLOBAL)) {
             propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties, OVERRIDEN_BY_GLOBAL);
         }
-        if (includePropertiesWithoutModel) {
+        if (propertiesToInclude.contains(WITHOUT_MODEL)) {
             propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(valuedPropertiesWithoutModel.stream()
                     .filter(ValuedPropertyView.class::isInstance)
                     .map(ValuedPropertyView.class::cast));
@@ -92,7 +96,15 @@ class PropertyValuationContext {
         return pathLogicalGroups;
     }
 
-    PropertyVisitorsSequence removePredefinedProperties(PropertyVisitorsSequence propertyVisitors) {
+    public PropertyVisitorsSequence removePredefinedProperties(PropertyVisitorsSequence propertyVisitors) {
         return propertyVisitors.removePropertiesByName(predefinedProperties.stream().map(ValuedPropertyView::getName).collect(Collectors.toSet()));
+    }
+
+    public PropertyVisitorsSequence removeGlobalPropertiesThatAreNotInTheModel(PropertyVisitorsSequence propertyVisitors, List<AbstractPropertyView> modulePropertiesModels) {
+        return new PropertyVisitorsSequence(propertyVisitors.stream().filter(propertyVisitor -> {
+            boolean isGlobal = globalProperties.stream().anyMatch(globalProperty -> globalProperty.getName().equals(propertyVisitor.getName()));
+            boolean isNotInTheModel = modulePropertiesModels.stream().noneMatch(moduleProperty -> moduleProperty.getName().equals(propertyVisitor.getName()));
+            return !(isGlobal && isNotInTheModel);
+        }).collect(Collectors.toList()));
     }
 }
