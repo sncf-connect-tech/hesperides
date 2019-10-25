@@ -66,8 +66,10 @@ logging:
             mvc:
               method:
                 annotation:
-                  # Display JSON serialization errors wrapped in HttpMessageNotWritableException:
-                  ServletInvocableHandlerMethod: TRACE
+                  # Setting this to TRACE displays JSON serialization errors wrapped in HttpMessageNotWritableException.
+                  # However it also generates very verbose multilines logs, including full template contents:
+                  # ... .w.s.m.m.a.ServletInvocableHandlerMethod : Arguments: [...TemplateIO(...content=...
+                  ServletInvocableHandlerMethod: ${SERVLET_HANDLER_LOG_LEVEL:INFO}
 
 mongo:
   uri: ${MONGO_URI:mongodb://localhost:27017/hesperides}

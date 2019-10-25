@@ -25,7 +25,26 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-10-23
+### Fixed
+
+- #792: Le diff tient désormais compte des propriétés globales dans la comparaison des valeurs finales. [Thomas L'Hostis]
+
+
+
+## 2019-10-15
+### Fixed
+
+- #779: Empêche la création de doublons à la réception d'une requête dupliquée (#789) [Thomas L'Hostis]
+
+
+
+## 2019-10-14
+### Changed
+
+- $SERVER_PORT configuration env var to simply $PORT (#790) [Lucas Cimon]
+
+
 ### Fixed
 
 - #783: Ne pas inclure pour les plateforme le champ "has_passwords" si "with_password_info" n'est pas fourni. [Thomas L'Hostis]
