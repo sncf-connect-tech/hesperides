@@ -15,4 +15,5 @@ public class PropertiesWithDetailsOutput {
     String storedValue; // Correspond à la valeur en base / renseignée dans l'IHM
     @NonNull
     ValuedPropertyTransformation[] transformations;
+
 }
