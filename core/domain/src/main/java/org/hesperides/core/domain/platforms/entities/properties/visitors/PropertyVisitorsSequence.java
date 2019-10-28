@@ -1,9 +1,11 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
+import com.fasterxml.jackson.core.PrettyPrinter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -18,8 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.ERASED_DUE_TO_REMAINING_MUSTACHE;
 import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.FROM_PARENT_ITERABLE;
 
@@ -217,5 +218,14 @@ public class PropertyVisitorsSequence {
         return properties.size() == otherSequence.getProperties().size() &&
                 otherSequence.properties.stream().allMatch(propertyVisitor ->
                         propertyVisitor.equals(propertyVisitorMap.get(propertyVisitor.getName()), compareStoredValues));
+    }
+
+    public List<PropertyWithDetails> getPropertiesWithDetails(List<PropertyVisitor> properties) {
+
+        return properties.stream()
+                .map(propertyVisitor -> propertyVisitor.getPropertiesWithDetails())
+                .collect(Collectors.toList()).stream().flatMap(List::stream)
+                .collect(Collectors.toList());
+
     }
 }

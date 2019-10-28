@@ -1,5 +1,8 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -16,6 +19,8 @@ public interface PropertyVisitor {
     PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper);
 
     PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper);
+
+    List<PropertyWithDetails>  getPropertiesWithDetails();
 
     boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue);
 

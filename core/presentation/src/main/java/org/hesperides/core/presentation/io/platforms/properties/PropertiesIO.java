@@ -22,12 +22,13 @@ package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -35,12 +36,16 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Value
+@Getter
+@FieldDefaults(makeFinal=false, level=AccessLevel.PROTECTED)
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
-public class PropertiesIO {
+public class PropertiesIO <T> {
 
 
     // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
@@ -53,7 +58,7 @@ public class PropertiesIO {
     @SerializedName("key_value_properties")
     @JsonProperty("key_value_properties")
     @Valid
-    Set<ValuedPropertyIO> valuedProperties;
+    Set<T> valuedProperties;
 
     @NotNull
     @SerializedName("iterable_properties")
@@ -61,23 +66,9 @@ public class PropertiesIO {
     @Valid
     Set<IterableValuedPropertyIO> iterableValuedProperties;
 
-    public List<AbstractValuedProperty> toDomainInstances() {
-        final List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
-        final List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
-        final List<AbstractValuedProperty> properties = new ArrayList<>();
-        properties.addAll(valuedProperties);
-        properties.addAll(iterableValuedProperties);
-        return properties;
-    }
-
-    public PropertiesIO(Long propertiesVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+    public PropertiesIO(Long propertiesVersionId, List<T> valuedProperties) {
         this.propertiesVersionId = propertiesVersionId;
-
-        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
-        valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
-
-        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
-        iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+        this.valuedProperties =  new HashSet<>(valuedProperties);
     }
 
     // On initialise le propertiesVersionId dans le cas ou il n'est pas fourni (le temps de repassé l'attribut en @NotNull)

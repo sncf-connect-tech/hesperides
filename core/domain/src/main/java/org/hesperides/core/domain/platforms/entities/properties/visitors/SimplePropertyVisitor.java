@@ -3,6 +3,7 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -104,6 +105,22 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     }
 
     @Override
+    public List<PropertyWithDetails> getPropertiesWithDetails() {
+
+        if(propertyValue != null) {
+            return propertyModels.stream()
+                    .map(property -> new PropertyWithDetails(getName(), initialValue, propertyValue.getValue(), property.getDefaultValue(), transformations))
+                    .collect(Collectors.toList());
+        }
+        else {
+            return propertyModels.stream()
+                    .map(property -> new PropertyWithDetails(getName(), initialValue, null,  property.getDefaultValue(), transformations))
+                    .collect(Collectors.toList());
+        }
+
+    }
+
+    @Override
     public boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue) {
         boolean isEqual = false;
         if (getName().equals(propertyVisitor.getName()) && propertyVisitor instanceof SimplePropertyVisitor) {
@@ -151,4 +168,6 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     public int hashCode() {
         return Objects.hash(propertyModels, propertyValue);
     }
+
+
 }

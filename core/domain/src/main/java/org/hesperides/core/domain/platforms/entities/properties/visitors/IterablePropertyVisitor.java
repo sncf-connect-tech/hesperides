@@ -1,6 +1,7 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
@@ -67,6 +68,11 @@ public class IterablePropertyVisitor implements PropertyVisitor {
         return new IterablePropertyVisitor(name, items.stream()
                 .map(item -> item.mapSequencesRecursive(mapper))
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<PropertyWithDetails> getPropertiesWithDetails() {
+        return null;
     }
 
     @Override

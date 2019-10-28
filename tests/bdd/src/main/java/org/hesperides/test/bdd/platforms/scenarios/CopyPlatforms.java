@@ -24,6 +24,7 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -94,8 +95,8 @@ public class CopyPlatforms extends HesperidesScenario implements En {
 
         Then("^the platform property values are not copied$", () -> {
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                PropertiesIO expectedModuleProperties = new PropertiesIO(1L, Collections.emptySet(), Collections.emptySet());
-                PropertiesIO actualModuleProperties = platformClient.getProperties(
+                PropertiesIO<ValuedPropertyIO> expectedModuleProperties = new PropertiesIO(1L, Collections.emptySet(), Collections.emptySet());
+                PropertiesIO<ValuedPropertyIO> actualModuleProperties = platformClient.getProperties(
                         platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
                 assertEquals(expectedModuleProperties, actualModuleProperties);
             });
@@ -108,10 +109,10 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             DeployedModuleIO deployedModule = copiedPlatform.getDeployedModules().get(0);
             assertThat(deployedModule.getInstances(), hasSize(0));
 
-            PropertiesIO globalProperties = platformClient.getProperties(copiedPlatform, "#");
+            PropertiesIO<ValuedPropertyIO> globalProperties = platformClient.getProperties(copiedPlatform, "#");
             assertThat(globalProperties.getValuedProperties(), hasSize(0));
 
-            PropertiesIO moduleProperties = platformClient.getProperties(copiedPlatform, deployedModule.getPropertiesPath());
+            PropertiesIO<ValuedPropertyIO> moduleProperties = platformClient.getProperties(copiedPlatform, deployedModule.getPropertiesPath());
             assertThat(moduleProperties.getValuedProperties(), hasSize(0));
             assertThat(moduleProperties.getIterableValuedProperties(), hasSize(0));
         });

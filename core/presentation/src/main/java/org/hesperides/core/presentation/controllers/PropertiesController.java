@@ -8,12 +8,15 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
+import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIo;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,11 +50,19 @@ public class PropertiesController extends AbstractController {
                                                             @PathVariable("platform_name") final String platformName,
                                                             @RequestParam("path") final String propertiesPath,
                                                             @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
-                                                            @RequestParam(value = "timestamp", required = false) final Long timestamp) {
+                                                            @RequestParam(value = "timestamp", required = false) final Long timestamp,
+                                                            @RequestParam(value = "with_details", required = false) final boolean withDetails) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
-        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));
+        ResponseEntity responseEntity = null;
+        if (withDetails) {
+            List<PropertyWithDetails> propertyWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, new User(authentication));
+            responseEntity = ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), propertyWithDetails));
+        } else {
+            List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
+            responseEntity = ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));
+        }
+        return responseEntity;
     }
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
@@ -91,7 +102,8 @@ public class PropertiesController extends AbstractController {
                                                          @PathVariable("platform_name") final String platformName,
                                                          @RequestParam("path") final String propertiesPath,
                                                          @RequestParam("platform_vid") final Long platformVersionId,
-                                                         @Valid @RequestBody final PropertiesIO properties) {
+                                                         @Valid @RequestBody final BasicPropertiesIo properties) {
+
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 

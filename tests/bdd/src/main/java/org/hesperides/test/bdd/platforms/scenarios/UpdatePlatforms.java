@@ -257,14 +257,14 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
-            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+            PropertiesIO<ValuedPropertyIO> actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             Assertions.assertThat(matchingProperty).isPresent();
             assertEquals(expectedValue, matchingProperty.get().getValue());
         });
 
         Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
-            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+            PropertiesIO<ValuedPropertyIO> actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             Assertions.assertThat(matchingProperty).isNotPresent();
         });

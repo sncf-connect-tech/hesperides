@@ -24,6 +24,7 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -102,7 +103,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform has (\\d+) global properties?$", (String expectedNumberOfGlobalProperties) -> {
-            PropertiesIO globalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
+            PropertiesIO<ValuedPropertyIO> globalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
             Assert.assertThat(globalProperties.getValuedProperties(), hasSize(Integer.parseInt(expectedNumberOfGlobalProperties)));
         });
 
