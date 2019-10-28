@@ -35,6 +35,7 @@ import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -374,10 +375,10 @@ public class PlatformUseCases {
                 List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
                 boolean fromShouldHidePasswordProperties = extractedPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName());
 
-                propertyVisitorsSequence = PropertyValuationBuilder.buildPropertyVisitorsSequence(
+                propertyVisitorsSequence = buildModulePropertyVisitorsSequence(
                         extractedPlatform, extractedModule, moduleKey,
                         modulePropertiesModel,
-                        null, fromShouldHidePasswordProperties, true, true);
+                        null, fromShouldHidePasswordProperties);
 
 
         }

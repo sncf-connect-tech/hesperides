@@ -86,7 +86,7 @@ public class PropertiesController extends AbstractController {
                                                        @PathVariable("platform_name") final String platformName,
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @Valid @RequestBody final PropertiesIO properties) {
+                                                       @Valid @RequestBody final BasicPropertiesIo properties) {
         return ResponseEntity.ok()
                 .header("Deprecation", "version=\"2019-08-02\"")
                 .header("Sunset", "Sat Aug  3 00:00:00 CEST 2020")
