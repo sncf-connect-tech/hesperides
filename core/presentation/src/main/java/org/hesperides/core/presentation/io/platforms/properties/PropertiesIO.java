@@ -69,6 +69,8 @@ public class PropertiesIO <T> {
     public PropertiesIO(Long propertiesVersionId, List<T> valuedProperties) {
         this.propertiesVersionId = propertiesVersionId;
         this.valuedProperties =  new HashSet<>(valuedProperties);
+       this.iterableValuedProperties = new HashSet<>();
+
     }
 
     // On initialise le propertiesVersionId dans le cas ou il n'est pas fourni (le temps de repassé l'attribut en @NotNull)
