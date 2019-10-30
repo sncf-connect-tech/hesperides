@@ -16,7 +16,7 @@ import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIo;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,8 +57,8 @@ public class PropertiesController extends AbstractController {
 
         ResponseEntity responseEntity = null;
         if (withDetails) {
-            List<PropertyWithDetails> propertyWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, new User(authentication));
-            responseEntity = ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), propertyWithDetails));
+            List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, new User(authentication));
+            responseEntity = ResponseEntity.ok(new PropertiesWithDetailsIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), new HashSet<>(propertiesWithDetails), null));
         } else {
             List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
             responseEntity = ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));

@@ -209,14 +209,17 @@ public class PlatformClient {
     }
 
     public PropertiesIO getProperties(PlatformIO platform, String propertiesPath) {
-        getProperties(platform, propertiesPath, null, null);
+        getProperties(platform, propertiesPath, null, false, null);
         return testContext.getResponseBody();
     }
 
-    public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, String tryTo) {
+    public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, boolean withDetails, String tryTo) {
         String url = "/applications/{application_name}/platforms/{platform_name}/properties?path={properties_path}";
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
+        }
+        if (withDetails) {
+            url += "&withDetails=" + withDetails;
         }
         restTemplate.getForEntity(
                 url,
@@ -224,6 +227,11 @@ public class PlatformClient {
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);
+    }
+
+    public PropertiesIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath) {
+        getProperties(platform, propertiesPath, null, true, null);
+        return testContext.getResponseBody();
     }
 
     public void getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, String fromInstance, PlatformIO toPlatform, String toPropertiesPath, String toInstance, boolean compareStoredValues, Long timestamp) {

@@ -10,4 +10,5 @@ public class PropertiesWithDetailsIO extends PropertiesIO<PropertyWithDetails> {
     public PropertiesWithDetailsIO(@Valid Long propertiesVersionId, @NotNull @Valid Set<PropertyWithDetails> valuedProperties, @NotNull @Valid Set<IterableValuedPropertyIO> iterableValuedProperties) {
         super(propertiesVersionId, valuedProperties, iterableValuedProperties);
     }
+
 }

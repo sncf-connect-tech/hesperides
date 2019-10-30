@@ -22,21 +22,18 @@ package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
-import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +42,6 @@ import java.util.Set;
 @ToString
 @EqualsAndHashCode
 public class PropertiesIO <T> {
-
 
     // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
@@ -67,9 +63,9 @@ public class PropertiesIO <T> {
 
     public PropertiesIO(Long propertiesVersionId,  List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         this.propertiesVersionId = propertiesVersionId;
+
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-        this.valuedProperties=new HashSet<>();
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedProperties = (Set<T>) ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
