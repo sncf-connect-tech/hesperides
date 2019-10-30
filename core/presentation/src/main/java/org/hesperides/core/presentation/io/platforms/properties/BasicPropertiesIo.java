@@ -6,6 +6,7 @@ import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -22,9 +23,15 @@ public class BasicPropertiesIo extends  PropertiesIO<ValuedPropertyIO> {
 
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+        if(CollectionUtils.isEmpty( this.iterableValuedProperties)) {
+           this.iterableValuedProperties = iterableValuedProperties;
+        }
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+        if(CollectionUtils.isEmpty(this.valuedProperties)) {
+            this.valuedProperties = valuedProperties;
+        }
     }
 
     public List<AbstractValuedProperty> toDomainInstances() {

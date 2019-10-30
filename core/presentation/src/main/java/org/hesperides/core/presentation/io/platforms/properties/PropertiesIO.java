@@ -69,7 +69,7 @@ public class PropertiesIO <T> {
     public PropertiesIO(Long propertiesVersionId, List<T> valuedProperties) {
         this.propertiesVersionId = propertiesVersionId;
         this.valuedProperties =  new HashSet<>(valuedProperties);
-       this.iterableValuedProperties = new HashSet<>();
+        this.iterableValuedProperties = new HashSet<>();
 
     }
 
