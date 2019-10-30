@@ -17,21 +17,12 @@ import java.util.Set;
 public class BasicPropertiesIo extends  PropertiesIO<ValuedPropertyIO> {
 
 
-    public BasicPropertiesIo(@Valid Long propertiesVersionId, @NotNull @Valid Set<ValuedPropertyIO> valuedProperties,
-                             @NotNull @Valid Set<IterableValuedPropertyIO> iterableValuedProperties, @NotNull @Valid List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
-        super(propertiesVersionId, valuedProperties, iterableValuedProperties);
-
+    public BasicPropertiesIo(@Valid Long propertiesVersionId, @Valid List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+        super(propertiesVersionId, abstractValuedPropertyViews);
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-        if(CollectionUtils.isEmpty( this.iterableValuedProperties)) {
-           this.iterableValuedProperties = iterableValuedProperties;
-        }
-
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
-        if(CollectionUtils.isEmpty(this.valuedProperties)) {
-            this.valuedProperties = valuedProperties;
-        }
     }
 
     public List<AbstractValuedProperty> toDomainInstances() {

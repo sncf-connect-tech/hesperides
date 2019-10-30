@@ -163,15 +163,9 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     public PropertiesIO buildProperties(Long propertiesVersionId) {
-        if(!CollectionUtils.isEmpty(iterableProperties)) {
-            return buildIterablesProperties(propertiesVersionId);
-        }
         return new PropertiesIO(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableProperties));
     }
 
-    public PropertiesIO buildIterablesProperties(Long propertiesVersionId) {
-        return new BasicPropertiesIo(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableProperties), null);
-    }
 
     public String buildPropertiesPath() {
         return modulePath + "#" + name + "#" + version + "#" + versionType.toUpperCase();

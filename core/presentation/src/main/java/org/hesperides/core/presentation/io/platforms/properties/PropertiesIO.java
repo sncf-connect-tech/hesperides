@@ -44,7 +44,6 @@ import java.util.Set;
 @FieldDefaults(makeFinal=false, level=AccessLevel.PROTECTED)
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 public class PropertiesIO <T> {
 
 
@@ -66,11 +65,20 @@ public class PropertiesIO <T> {
     @Valid
     Set<IterableValuedPropertyIO> iterableValuedProperties;
 
-    public PropertiesIO(Long propertiesVersionId, List<T> valuedProperties) {
+    public PropertiesIO(Long propertiesVersionId,  List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         this.propertiesVersionId = propertiesVersionId;
-        this.valuedProperties =  new HashSet<>(valuedProperties);
-        this.iterableValuedProperties = new HashSet<>();
+        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
+        this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+        this.valuedProperties=new HashSet<>();
 
+        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
+        this.valuedProperties = (Set<T>) ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+    }
+
+    public PropertiesIO(Long propertiesVersionId, Set<T> valuedProperties, Set<IterableValuedPropertyIO> iterableValuedProperties) {
+        this.propertiesVersionId = propertiesVersionId;
+        this.valuedProperties =valuedProperties;
+        this.iterableValuedProperties = iterableValuedProperties;
     }
 
     // On initialise le propertiesVersionId dans le cas ou il n'est pas fourni (le temps de repassé l'attribut en @NotNull)

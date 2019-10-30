@@ -109,7 +109,7 @@ public class PropertiesController extends AbstractController {
 
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         final Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
-        return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
+        return ResponseEntity.ok(new PropertiesIO(propertiesVersionId,propertyViews));
     }
 
     @ApiOperation("Get properties diff with the given paths in given platforms")
