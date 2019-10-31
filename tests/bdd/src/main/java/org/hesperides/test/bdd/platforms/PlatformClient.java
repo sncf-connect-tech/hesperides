@@ -29,6 +29,7 @@ import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIo;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.commons.TestContext;
@@ -209,8 +210,12 @@ public class PlatformClient {
     }
 
     public PropertiesIO getProperties(PlatformIO platform, String propertiesPath) {
-        getProperties(platform, propertiesPath, null, false, null);
+        getProperties(platform, propertiesPath, null, null);
         return testContext.getResponseBody();
+    }
+
+    public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, String tryTo) {
+        getProperties(platform, propertiesPath, timestamp, false, tryTo);
     }
 
     public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, boolean withDetails, String tryTo) {
@@ -218,12 +223,14 @@ public class PlatformClient {
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }
+        Class responseType = BasicPropertiesIo.class;
         if (withDetails) {
-            url += "&withDetails=" + withDetails;
+            url += "&with_details=" + withDetails;
+            responseType = PropertiesWithDetailsIO.class;
         }
         restTemplate.getForEntity(
                 url,
-                getResponseType(tryTo, BasicPropertiesIo.class),
+                getResponseType(tryTo, responseType),
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);

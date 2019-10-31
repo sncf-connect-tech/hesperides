@@ -72,7 +72,7 @@ public class GetProperties extends HesperidesScenario implements En {
             Long timestamp = isEmpty(withTimestamp) ? null : platformHistory.getPlatformFirstTimestamp(
                     platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
 
-            platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp, false, tryTo);
+            platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp, tryTo);
         });
 
         When("^I get the global properties of this platform$", () -> {
