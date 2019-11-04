@@ -25,7 +25,7 @@ import org.axonframework.common.digest.Digester;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.exceptions.DuplicateDeployedModuleIdException;
-import org.hesperides.core.domain.platforms.exceptions.ProductionPlatformWithWorkincopyModulesException;
+import org.hesperides.core.domain.platforms.exceptions.ProductionPlatformWithNewWorkincopyModulesException;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -119,14 +119,14 @@ public class Platform {
         );
     }
 
-    public void validateProductionPlatformDoesntHaveWorkingCopyModules() {
+    public void validateProductionPlatformDoesntHaveNewWorkingCopyModules() {
         if (isProductionPlatform) {
-            List<DeployedModule> workingcopyModules = deployedModules.stream()
-                    .filter(deployedModule -> deployedModule.isWorkingCopy())
+            List<DeployedModule> newWorkingcopyModules = deployedModules.stream()
+                    .filter(deployedModule -> deployedModule.isNewModule() && deployedModule.isWorkingCopy())
                     .collect(Collectors.toList());
 
-            if (!CollectionUtils.isEmpty(workingcopyModules)) {
-                throw new ProductionPlatformWithWorkincopyModulesException(key, workingcopyModules);
+            if (!CollectionUtils.isEmpty(newWorkingcopyModules)) {
+                throw new ProductionPlatformWithNewWorkincopyModulesException(key, newWorkingcopyModules);
             }
         }
     }

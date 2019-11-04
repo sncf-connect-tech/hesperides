@@ -118,8 +118,8 @@ public class DeployedModule {
 
             long sequence = maxId(deployedModules);
             for (DeployedModule deployedModule : deployedModules) {
-                final DeployedModule identifiedModule;
-                if (deployedModule.getId() == null || deployedModule.getId() < 1) {
+                DeployedModule identifiedModule;
+                if (deployedModule.isNewModule()) {
                     // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
                     identifiedModule = new DeployedModule(++sequence, deployedModule);
                 } else {
@@ -202,7 +202,18 @@ public class DeployedModule {
                 instancesModel);
     }
 
+    /**
+     * On distingue les modules actifs des modules archivés par leur identifiant.
+     * Les modules actifs ont un identifiant supérieur à 0.
+     */
     boolean isActiveModule() {
         return id != null && id > 0;
+    }
+
+    /**
+     * Lorsqu'un module est ajouté à une plateforme, l'identifiant n'est pas fourni
+     */
+    public boolean isNewModule() {
+        return id == null || id < 1;
     }
 }

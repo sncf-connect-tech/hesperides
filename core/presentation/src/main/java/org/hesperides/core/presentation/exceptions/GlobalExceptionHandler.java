@@ -9,7 +9,7 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.exceptions.OutOfDateException;
 import org.hesperides.core.domain.modules.exceptions.ModuleHasWorkingcopyTechnoException;
 import org.hesperides.core.domain.modules.exceptions.ModuleUsedByPlatformsException;
-import org.hesperides.core.domain.platforms.exceptions.ProductionPlatformWithWorkincopyModulesException;
+import org.hesperides.core.domain.platforms.exceptions.ProductionPlatformWithNewWorkincopyModulesException;
 import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             UndeletableTechnoInUseException.class,
             ModuleUsedByPlatformsException.class,
             ModuleHasWorkingcopyTechnoException.class,
-            ProductionPlatformWithWorkincopyModulesException.class})
+            ProductionPlatformWithNewWorkincopyModulesException.class})
     public ResponseEntity handleConflict(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }

@@ -26,9 +26,9 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ProductionPlatformWithWorkincopyModulesException extends RuntimeException {
+public class ProductionPlatformWithNewWorkincopyModulesException extends RuntimeException {
 
-    public ProductionPlatformWithWorkincopyModulesException(Platform.Key platformKey, List<DeployedModule> modules) {
+    public ProductionPlatformWithNewWorkincopyModulesException(Platform.Key platformKey, List<DeployedModule> modules) {
         super("Can't create or update platform " + platformKey.toString() +
                 " with production flag and working copy modules: " + modules.stream()
                 .map(DeployedModule::getPropertiesPath)
