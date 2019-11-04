@@ -38,10 +38,10 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-@FieldDefaults(makeFinal=false, level=AccessLevel.PROTECTED)
+@FieldDefaults(makeFinal = false, level = AccessLevel.PROTECTED)
 @ToString
 @EqualsAndHashCode
-public class PropertiesIO <T> {
+public class PropertiesIO<T> {
 
     // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
@@ -61,19 +61,17 @@ public class PropertiesIO <T> {
     @Valid
     Set<IterableValuedPropertyIO> iterableValuedProperties;
 
-    public PropertiesIO(Long propertiesVersionId,  List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+    public PropertiesIO(Long propertiesVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         this.propertiesVersionId = propertiesVersionId;
-
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedProperties = (Set<T>) ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
     }
 
     public PropertiesIO(Long propertiesVersionId, Set<T> valuedProperties, Set<IterableValuedPropertyIO> iterableValuedProperties) {
         this.propertiesVersionId = propertiesVersionId;
-        this.valuedProperties =valuedProperties;
+        this.valuedProperties = valuedProperties;
         this.iterableValuedProperties = iterableValuedProperties;
     }
 

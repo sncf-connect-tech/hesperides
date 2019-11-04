@@ -363,27 +363,24 @@ public class PlatformUseCases {
         return String.join("#", parts);
     }
 
-    public List<PropertyWithDetails> getPropertiesWithDetails(final Platform.Key platformKey, final String propertiesPath, final User user) {
+    public List<PropertyWithDetails> getPropertiesWithDetails(Platform.Key platformKey, String propertiesPath, User user) {
 
         PropertyVisitorsSequence propertyVisitorsSequence = null;
         PlatformView extractedPlatform = getPlatform(platformKey);
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             propertyVisitorsSequence = buildPropertyVisitorsSequenceForGlobals(extractedPlatform);
-        }else{
-                String extractedModule = extractModulePathFromPropertiesPath(propertiesPath);
-                final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
-                List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
-                boolean fromShouldHidePasswordProperties = extractedPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName());
+        } else {
+            String extractedModule = extractModulePathFromPropertiesPath(propertiesPath);
+            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+            List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
+            boolean fromShouldHidePasswordProperties = extractedPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName());
 
-                propertyVisitorsSequence = buildModulePropertyVisitorsSequence(
-                        extractedPlatform, extractedModule, moduleKey,
-                        modulePropertiesModel,
-                        null, fromShouldHidePasswordProperties);
-
-
+            propertyVisitorsSequence = buildModulePropertyVisitorsSequence(
+                    extractedPlatform, extractedModule, moduleKey,
+                    modulePropertiesModel,
+                    null, fromShouldHidePasswordProperties);
         }
-
-        return propertyVisitorsSequence.getPropertiesWithDetails(propertyVisitorsSequence.getProperties());
+        return propertyVisitorsSequence.getPropertiesWithDetails();
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {

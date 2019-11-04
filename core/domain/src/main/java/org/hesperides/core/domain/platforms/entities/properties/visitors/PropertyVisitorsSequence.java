@@ -1,6 +1,5 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
-import com.fasterxml.jackson.core.PrettyPrinter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.ERASED_DUE_TO_REMAINING_MUSTACHE;
 import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.FROM_PARENT_ITERABLE;
 
@@ -220,12 +220,11 @@ public class PropertyVisitorsSequence {
                         propertyVisitor.equals(propertyVisitorMap.get(propertyVisitor.getName()), compareStoredValues));
     }
 
-    public List<PropertyWithDetails> getPropertiesWithDetails(List<PropertyVisitor> properties) {
+    public List<PropertyWithDetails> getPropertiesWithDetails() {
 
         return properties.stream()
                 .map(propertyVisitor -> propertyVisitor.getPropertiesWithDetails())
                 .collect(Collectors.toList()).stream().flatMap(List::stream)
                 .collect(Collectors.toList());
-
     }
 }

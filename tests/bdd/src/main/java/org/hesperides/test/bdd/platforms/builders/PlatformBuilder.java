@@ -162,8 +162,6 @@ public class PlatformBuilder implements Serializable {
         return buildPropertiesWithDetails(new HashSet<>());
     }
 
-
-
     public void setDeployedModuleIds() {
         DeployedModuleBuilder.setIds(deployedModuleBuilders);
     }

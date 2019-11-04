@@ -106,18 +106,17 @@ public class SimplePropertyVisitor implements PropertyVisitor {
 
     @Override
     public List<PropertyWithDetails> getPropertiesWithDetails() {
-
-        if(propertyValue != null) {
-            return propertyModels.stream()
+        List<PropertyWithDetails> propertyWithDetails;
+        if (propertyValue != null) {
+            propertyWithDetails = propertyModels.stream()
                     .map(property -> new PropertyWithDetails(getName(), initialValue, propertyValue.getValue(), property.getDefaultValue(), transformations))
                     .collect(Collectors.toList());
-        }
-        else {
-            return propertyModels.stream()
-                    .map(property -> new PropertyWithDetails(getName(), initialValue, null,  property.getDefaultValue(), transformations))
+        } else {
+            propertyWithDetails = propertyModels.stream()
+                    .map(property -> new PropertyWithDetails(getName(), initialValue, null, property.getDefaultValue(), transformations))
                     .collect(Collectors.toList());
         }
-
+        return propertyWithDetails;
     }
 
     @Override
@@ -168,6 +167,5 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     public int hashCode() {
         return Objects.hash(propertyModels, propertyValue);
     }
-
 
 }

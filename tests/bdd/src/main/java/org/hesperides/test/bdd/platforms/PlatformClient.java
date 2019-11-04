@@ -26,7 +26,7 @@ import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIo;
+import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
@@ -223,7 +223,7 @@ public class PlatformClient {
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }
-        Class responseType = BasicPropertiesIo.class;
+        Class responseType = BasicPropertiesIO.class;
         if (withDetails) {
             url += "&with_details=" + withDetails;
             responseType = PropertiesWithDetailsIO.class;

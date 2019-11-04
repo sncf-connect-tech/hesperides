@@ -9,7 +9,6 @@ Feature: Get properties with details
     When I get the properties with details of this platforms
     Then the properties with theirs details are successfully retrieved
 
-
   Scenario: get properties details of platform with valued properties
     Given an existing module with this template content
       """
@@ -25,4 +24,3 @@ Feature: Get properties with details
       | simple-property        |             |            |              |                 |
       | set-default-property   |             |            | 42           |                 |
       | unset-default-property |             |            | 42           |                 |
-

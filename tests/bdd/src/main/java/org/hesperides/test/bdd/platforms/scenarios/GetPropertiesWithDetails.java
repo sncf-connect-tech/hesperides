@@ -45,12 +45,15 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
             assertEquals(expectedModuleProperties, actualModuleProperties);
         });
+
         When("^I get the platform properties with details for this module$", () -> {
             platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
         });
+
         Then("^the properties with details and its contain are successfully retrieved$", () -> {
             assertOK();
         });
+
         Then("^the properties details match these values$", (DataTable data) -> {
             List<PropertyWithDetailsIO> providedProperties = new ArrayList<>(data.asList(PropertyWithDetailsIO.class));
             // the true boolean parameter to indicate that : we want forced the blank properties values to null
@@ -60,5 +63,4 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
             assertEquals(expectedModuleProperties, new ArrayList<>(actualModuleProperties.getValuedProperties()));
         });
     }
-
 }

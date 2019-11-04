@@ -72,7 +72,10 @@ public class IterablePropertyVisitor implements PropertyVisitor {
 
     @Override
     public List<PropertyWithDetails> getPropertiesWithDetails() {
-        return null;
+
+        return items.stream()
+                .map(PropertyVisitorsSequence::getPropertiesWithDetails)
+                .flatMap(List::stream).collect(Collectors.toList());
     }
 
     @Override

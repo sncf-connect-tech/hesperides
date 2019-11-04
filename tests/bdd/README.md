@@ -45,5 +45,3 @@ Exemple :
     private SaveProperties saveProperties;
     ...
     saveProperties.saveValuedProperties();
-
-    

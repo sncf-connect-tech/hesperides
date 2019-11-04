@@ -24,23 +24,24 @@ public class PropertyWithDetailsIO {
     ValuedPropertyTransformation[] transformations;
 
     PropertyWithDetails toDomainInstance() {
-        return new PropertyWithDetails(this.name, this.storedValue, this.finalValue, this.defaultValue, this.transformations);
+        return new PropertyWithDetails(name, storedValue, finalValue, defaultValue, transformations);
     }
 
-    PropertyWithDetails toDomainInstanceWithBlankPropertiesToNull() {
-        return new PropertyWithDetails(setTBlankPropertyTooNull(this.name), setTBlankPropertyTooNull(this.storedValue), setTBlankPropertyTooNull(this.finalValue), this.defaultValue, this.transformations);
+    // Only way i found to manage the null property values of cucumber Datatable
+    PropertyWithDetails replaceBlankPropertiesWithNull() {
+        return new PropertyWithDetails(replaceBlankPropertiesWithNull(name), replaceBlankPropertiesWithNull(storedValue), replaceBlankPropertiesWithNull(finalValue), defaultValue, transformations);
     }
 
-    String setTBlankPropertyTooNull(String property) {
+    String replaceBlankPropertiesWithNull(String property) {
         return StringUtils.isBlank(property) ? null : property;
     }
 
-    public static List<PropertyWithDetails> toDomainInstance(List<PropertyWithDetailsIO> propertiesWithDetailsProvided, boolean withNullProperties) {
+    public static List<PropertyWithDetails> toDomainInstance(List<PropertyWithDetailsIO> propertiesWithDetailsProvided, boolean withNullAttributesProperties) {
 
-        List<PropertyWithDetails> propertyWithDetails = null;
-        if (withNullProperties) {
+        List<PropertyWithDetails> propertyWithDetails;
+        if (withNullAttributesProperties) {
             propertyWithDetails = propertiesWithDetailsProvided.stream().sorted(Comparator.comparing(PropertyWithDetailsIO::getName))
-                    .map(propertyWithDetailsIO -> propertyWithDetailsIO.toDomainInstanceWithBlankPropertiesToNull())
+                    .map(propertyWithDetailsIO -> propertyWithDetailsIO.replaceBlankPropertiesWithNull())
                     .collect(Collectors.toList());
         } else {
             propertyWithDetails = propertiesWithDetailsProvided.stream().sorted(Comparator.comparing(PropertyWithDetailsIO::getName))
@@ -49,5 +50,4 @@ public class PropertyWithDetailsIO {
         }
         return propertyWithDetails;
     }
-
 }

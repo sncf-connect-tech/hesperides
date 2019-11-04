@@ -13,7 +13,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.AbstractVal
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
-import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIo;
+import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
@@ -55,13 +55,15 @@ public class PropertiesController extends AbstractController {
                                                             @RequestParam(value = "with_details", required = false) final boolean withDetails) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        ResponseEntity responseEntity = null;
+        ResponseEntity responseEntity;
+        Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
         if (withDetails) {
             List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, new User(authentication));
-            responseEntity = ResponseEntity.ok(new PropertiesWithDetailsIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), new HashSet<>(propertiesWithDetails), null));
+            PropertiesIO propertiesIO = new PropertiesWithDetailsIO(propertiesVersionId, new HashSet<>(propertiesWithDetails), null);
+            responseEntity = ResponseEntity.ok(propertiesIO);
         } else {
             List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
-            responseEntity = ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));
+            responseEntity = ResponseEntity.ok(new PropertiesIO(propertiesVersionId, abstractValuedPropertyViews));
         }
         return responseEntity;
     }
@@ -87,14 +89,13 @@ public class PropertiesController extends AbstractController {
                                                        @PathVariable("platform_name") final String platformName,
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @Valid @RequestBody final BasicPropertiesIo properties) {
+                                                       @Valid @RequestBody final BasicPropertiesIO properties) {
         return ResponseEntity.ok()
                 .header("Deprecation", "version=\"2019-08-02\"")
                 .header("Sunset", "Sat Aug  3 00:00:00 CEST 2020")
                 .header("Link", String.format("/applications/%s/platforms/%s/properties", applicationName, platformName))
                 .body(updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties).getBody());
     }
-
 
     @ApiOperation("Update deployed modules or global properties")
     @PutMapping("/{application_name}/platforms/{platform_name}/properties")
@@ -103,14 +104,14 @@ public class PropertiesController extends AbstractController {
                                                          @PathVariable("platform_name") final String platformName,
                                                          @RequestParam("path") final String propertiesPath,
                                                          @RequestParam("platform_vid") final Long platformVersionId,
-                                                         @Valid @RequestBody final BasicPropertiesIo properties) {
+                                                         @Valid @RequestBody final BasicPropertiesIO properties) {
 
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         final Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
-        return ResponseEntity.ok(new PropertiesIO(propertiesVersionId,propertyViews));
+        return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }
 
     @ApiOperation("Get properties diff with the given paths in given platforms")

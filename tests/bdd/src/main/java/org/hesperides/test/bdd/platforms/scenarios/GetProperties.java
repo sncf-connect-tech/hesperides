@@ -71,7 +71,6 @@ public class GetProperties extends HesperidesScenario implements En {
 
             Long timestamp = isEmpty(withTimestamp) ? null : platformHistory.getPlatformFirstTimestamp(
                     platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
-
             platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp, tryTo);
         });
 
@@ -83,13 +82,10 @@ public class GetProperties extends HesperidesScenario implements En {
                 String initialProperties, String globalProperties) -> {
 
             assertOK();
-
             DeployedModuleBuilder deployedModuleBuilder = isEmpty(initialProperties) ? this.deployedModuleBuilder :
                     platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(), platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
-
             PropertiesIO expectedModuleProperties = isNotEmpty(globalProperties)
                     ? platformBuilder.buildProperties() : deployedModuleBuilder.buildProperties();
-
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
             assertEquals(expectedModuleProperties, actualModuleProperties);
         });
@@ -134,6 +130,5 @@ public class GetProperties extends HesperidesScenario implements En {
                 }
             });
         });
-
     }
 }
