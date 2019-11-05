@@ -15,6 +15,7 @@ import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -56,10 +57,12 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
 
         Then("^the properties details match these values$", (DataTable data) -> {
             List<PropertyWithDetailsIO> providedProperties = new ArrayList<>(data.asList(PropertyWithDetailsIO.class));
-            // the true boolean parameter to indicate that : we want forced the blank properties values to null
             List<PropertyWithDetailsIO> expectedModuleProperties = PropertyWithDetailsIO.replaceBlankPropertiesWithNull(providedProperties);
+            expectedModuleProperties.sort(Comparator.comparing(PropertyWithDetailsIO::getName));
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
-            assertEquals(expectedModuleProperties, actualModuleProperties.getValuedProperties());
+            List<PropertyWithDetailsIO> actualProperties = new ArrayList<>(actualModuleProperties.getValuedProperties());
+            actualProperties.sort(Comparator.comparing(PropertyWithDetailsIO::getName));
+            assertEquals(expectedModuleProperties, actualProperties);
         });
     }
 }

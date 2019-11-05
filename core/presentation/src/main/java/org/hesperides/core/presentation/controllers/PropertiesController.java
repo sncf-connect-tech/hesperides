@@ -60,7 +60,6 @@ public class PropertiesController extends AbstractController {
         User authenticatedUser = new User(authentication);
         if (withDetails) {
             List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, authenticatedUser);
-
             propertiesIO = new PropertiesWithDetailsIO(propertiesVersionId, new HashSet(propertiesWithDetails), abstractValuedPropertyViews);
         } else {
             abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);

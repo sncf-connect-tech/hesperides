@@ -41,7 +41,7 @@ import java.util.Set;
 @FieldDefaults(makeFinal = false, level = AccessLevel.PROTECTED)
 @ToString
 @EqualsAndHashCode
-public class PropertiesIO<T extends AbstractValuedPropertyIO> {
+public class PropertiesIO<T> {
 
     // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
@@ -60,6 +60,12 @@ public class PropertiesIO<T extends AbstractValuedPropertyIO> {
     @JsonProperty("iterable_properties")
     @Valid
     Set<IterableValuedPropertyIO> iterableValuedProperties;
+
+    protected PropertiesIO(Class<T> clazz) {
+        if (clazz != ValuedPropertyIO.class && clazz != PropertyWithDetailsIO.class) {
+            throw new IllegalArgumentException("Argument of this class should be " + ValuedPropertyIO.class + "or " + PropertyWithDetailsIO.class);
+        }
+    }
 
     public PropertiesIO(Long propertiesVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         this.propertiesVersionId = propertiesVersionId;

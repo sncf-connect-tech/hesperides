@@ -224,7 +224,8 @@ public class PropertyVisitorsSequence {
 
         return properties.stream()
                 .map(propertyVisitor -> propertyVisitor.getPropertiesWithDetails())
-                .collect(Collectors.toList()).stream().flatMap(List::stream)
+                .collect(Collectors.toList()).stream()
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 }
