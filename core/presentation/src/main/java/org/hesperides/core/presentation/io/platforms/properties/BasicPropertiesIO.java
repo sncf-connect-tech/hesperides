@@ -10,6 +10,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class BasicPropertiesIO extends PropertiesIO<ValuedPropertyIO> {
 
@@ -19,6 +20,11 @@ public class BasicPropertiesIO extends PropertiesIO<ValuedPropertyIO> {
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+    }
+
+    public BasicPropertiesIO(@Valid Long propertiesVersionId, @Valid  Set<ValuedPropertyIO> valuedProperties, @Valid Set<IterableValuedPropertyIO> iterableValuedProperties) {
+        super(propertiesVersionId, iterableValuedProperties);
+        this.valuedProperties = valuedProperties;
     }
 
     public List<AbstractValuedProperty> toDomainInstances() {

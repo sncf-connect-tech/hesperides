@@ -28,9 +28,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
-import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -41,7 +41,7 @@ import java.util.Set;
 @FieldDefaults(makeFinal = false, level = AccessLevel.PROTECTED)
 @ToString
 @EqualsAndHashCode
-public class PropertiesIO<T> {
+public class PropertiesIO<T extends AbstractValuedPropertyIO> {
 
     // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
@@ -65,13 +65,10 @@ public class PropertiesIO<T> {
         this.propertiesVersionId = propertiesVersionId;
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
-        this.valuedProperties = (Set<T>) ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
     }
 
-    public PropertiesIO(Long propertiesVersionId, Set<T> valuedProperties, Set<IterableValuedPropertyIO> iterableValuedProperties) {
+    public PropertiesIO(Long propertiesVersionId, Set<IterableValuedPropertyIO> iterableValuedProperties) {
         this.propertiesVersionId = propertiesVersionId;
-        this.valuedProperties = valuedProperties;
         this.iterableValuedProperties = iterableValuedProperties;
     }
 

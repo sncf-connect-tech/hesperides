@@ -1,7 +1,7 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import lombok.Value;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;

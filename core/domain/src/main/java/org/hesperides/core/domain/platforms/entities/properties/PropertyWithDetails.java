@@ -1,7 +1,6 @@
-package org.hesperides.core.domain.platforms.entities.properties.diff;
+package org.hesperides.core.domain.platforms.entities.properties;
 
 import lombok.Value;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 
 @Value
 public class PropertyWithDetails {
@@ -9,6 +8,5 @@ public class PropertyWithDetails {
     String storedValue;
     String finalValue;
     String defaultValue;
-
     ValuedPropertyTransformation[] transformations;
 }

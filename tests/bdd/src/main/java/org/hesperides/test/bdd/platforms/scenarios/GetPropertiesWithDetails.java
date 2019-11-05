@@ -2,7 +2,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertyWithDetailsIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -57,10 +57,9 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
         Then("^the properties details match these values$", (DataTable data) -> {
             List<PropertyWithDetailsIO> providedProperties = new ArrayList<>(data.asList(PropertyWithDetailsIO.class));
             // the true boolean parameter to indicate that : we want forced the blank properties values to null
-            List<PropertyWithDetails> expectedModuleProperties = PropertyWithDetailsIO.toDomainInstance(providedProperties, true);
-
+            List<PropertyWithDetailsIO> expectedModuleProperties = PropertyWithDetailsIO.replaceBlankPropertiesWithNull(providedProperties);
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
-            assertEquals(expectedModuleProperties, new ArrayList<>(actualModuleProperties.getValuedProperties()));
+            assertEquals(expectedModuleProperties, actualModuleProperties.getValuedProperties());
         });
     }
 }

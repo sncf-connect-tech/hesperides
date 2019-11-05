@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.domain.platforms.entities.Platform;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
@@ -151,14 +151,14 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PropertiesIO buildProperties(Long globalPropertiesVersionId) {
-        return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(globalProperties), Collections.emptySet());
+        return new BasicPropertiesIO(globalPropertiesVersionId, new HashSet<>(globalProperties), Collections.emptySet());
     }
 
-    public PropertiesWithDetailsIO buildPropertiesWithDetails(Set<PropertyWithDetails> propertiesWithDetail) {
-        return new PropertiesWithDetailsIO(globalPropertiesVersionId, propertiesWithDetail, null);
+    public PropertiesWithDetailsIO buildPropertiesWithDetails(Set<PropertyWithDetailsIO> propertiesWithDetail) {
+        return new PropertiesWithDetailsIO(globalPropertiesVersionId, propertiesWithDetail, Collections.emptyList());
     }
 
-    public PropertiesWithDetailsIO buildPropertiesWithDetails() {
+    public PropertiesIO buildPropertiesWithDetails() {
         return buildPropertiesWithDetails(new HashSet<>());
     }
 

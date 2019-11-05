@@ -1,6 +1,6 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 
 import java.util.List;
 import java.util.function.Consumer;

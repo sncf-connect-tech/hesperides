@@ -8,7 +8,7 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 @Slf4j
 @Api(tags = "05. Properties", description = " ")
@@ -55,17 +54,18 @@ public class PropertiesController extends AbstractController {
                                                             @RequestParam(value = "with_details", required = false) final boolean withDetails) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        ResponseEntity responseEntity;
         Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
+        PropertiesIO propertiesIO;
         if (withDetails) {
             List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, new User(authentication));
-            PropertiesIO propertiesIO = new PropertiesWithDetailsIO(propertiesVersionId, new HashSet<>(propertiesWithDetails), null);
-            responseEntity = ResponseEntity.ok(propertiesIO);
+
+            propertiesIO = new PropertiesWithDetailsIO(propertiesVersionId, new HashSet(propertiesWithDetails), abstractValuedPropertyViews);
         } else {
-            List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
-            responseEntity = ResponseEntity.ok(new PropertiesIO(propertiesVersionId, abstractValuedPropertyViews));
+            abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
+            propertiesIO = new BasicPropertiesIO(propertiesVersionId, abstractValuedPropertyViews);
         }
-        return responseEntity;
+        return ResponseEntity.ok(propertiesIO);
     }
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
@@ -75,7 +75,6 @@ public class PropertiesController extends AbstractController {
                                                                   @RequestParam("path") final String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
-
         List<String> instancesModelView = platformUseCases.getInstancesModel(platformKey, propertiesPath);
         InstancesModelOutput instancesModelOutput = InstancesModelOutput.fromInstancesModelView(instancesModelView);
         return ResponseEntity.ok(instancesModelOutput);
@@ -111,7 +110,7 @@ public class PropertiesController extends AbstractController {
 
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         final Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
-        return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
+        return ResponseEntity.ok(new BasicPropertiesIO(propertiesVersionId, propertyViews));
     }
 
     @ApiOperation("Get properties diff with the given paths in given platforms")

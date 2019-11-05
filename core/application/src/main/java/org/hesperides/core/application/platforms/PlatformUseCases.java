@@ -17,7 +17,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
@@ -365,7 +365,7 @@ public class PlatformUseCases {
 
     public List<PropertyWithDetails> getPropertiesWithDetails(Platform.Key platformKey, String propertiesPath, User user) {
 
-        PropertyVisitorsSequence propertyVisitorsSequence = null;
+        PropertyVisitorsSequence propertyVisitorsSequence;
         PlatformView extractedPlatform = getPlatform(platformKey);
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             propertyVisitorsSequence = buildPropertyVisitorsSequenceForGlobals(extractedPlatform);
