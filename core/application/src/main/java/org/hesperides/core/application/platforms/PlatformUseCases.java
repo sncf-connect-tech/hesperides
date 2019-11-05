@@ -371,7 +371,7 @@ public class PlatformUseCases {
             propertyVisitorsSequence = buildPropertyVisitorsSequenceForGlobals(extractedPlatform);
         } else {
             String extractedModule = extractModulePathFromPropertiesPath(propertiesPath);
-            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+            Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
             boolean fromShouldHidePasswordProperties = extractedPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName());
 

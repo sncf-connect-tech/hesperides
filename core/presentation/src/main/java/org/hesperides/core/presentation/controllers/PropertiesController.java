@@ -57,12 +57,13 @@ public class PropertiesController extends AbstractController {
         Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
         List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
         PropertiesIO propertiesIO;
+        User authenticatedUser = new User(authentication);
         if (withDetails) {
-            List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, new User(authentication));
+            List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, authenticatedUser);
 
             propertiesIO = new PropertiesWithDetailsIO(propertiesVersionId, new HashSet(propertiesWithDetails), abstractValuedPropertyViews);
         } else {
-            abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
+            abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);
             propertiesIO = new BasicPropertiesIO(propertiesVersionId, abstractValuedPropertyViews);
         }
         return ResponseEntity.ok(propertiesIO);

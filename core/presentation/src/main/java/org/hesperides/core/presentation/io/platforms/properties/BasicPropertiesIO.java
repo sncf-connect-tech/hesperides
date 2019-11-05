@@ -16,9 +16,9 @@ public class BasicPropertiesIO extends PropertiesIO<ValuedPropertyIO> {
 
     public BasicPropertiesIO(@Valid Long propertiesVersionId, @Valid List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         super(propertiesVersionId, abstractValuedPropertyViews);
-        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
+        List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
+        List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
     }
 
@@ -28,9 +28,9 @@ public class BasicPropertiesIO extends PropertiesIO<ValuedPropertyIO> {
     }
 
     public List<AbstractValuedProperty> toDomainInstances() {
-        final List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
-        final List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
-        final List<AbstractValuedProperty> properties = new ArrayList<>();
+        List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
+        List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
+        List<AbstractValuedProperty> properties = new ArrayList<>();
         properties.addAll(valuedProperties);
         properties.addAll(iterableValuedProperties);
         return properties;

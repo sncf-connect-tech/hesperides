@@ -11,7 +11,7 @@ public class PropertiesWithDetailsIO extends PropertiesIO<PropertyWithDetailsIO>
 
     public PropertiesWithDetailsIO(@Valid Long propertiesVersionId, @Valid Set<PropertyWithDetailsIO> valuedProperties, @Valid List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         super(propertiesVersionId, abstractValuedPropertyViews);
-        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
+        List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
         this.valuedProperties = valuedProperties;
     }
