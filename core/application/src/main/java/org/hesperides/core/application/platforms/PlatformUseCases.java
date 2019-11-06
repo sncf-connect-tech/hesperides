@@ -15,9 +15,9 @@ import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
-import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
@@ -50,7 +50,6 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
-
 
 @Component
 public class PlatformUseCases {

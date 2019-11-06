@@ -3,8 +3,8 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -80,7 +80,6 @@ public class PropertyVisitorsSequence {
         });
         return new PropertyVisitorsSequence(propertyVisitors);
     }
-
 
     // On concatène les propriétés parentes avec les propriété de l'item
     // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles

@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.domain.platforms.entities.Platform;
-import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;

@@ -2,8 +2,8 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -167,5 +167,4 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     public int hashCode() {
         return Objects.hash(propertyModels, propertyValue);
     }
-
 }
