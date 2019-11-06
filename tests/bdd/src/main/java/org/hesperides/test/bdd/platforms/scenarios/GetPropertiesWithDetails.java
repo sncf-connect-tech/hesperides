@@ -7,6 +7,7 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertyWithDetailsIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
 
     public GetPropertiesWithDetails() {
 
@@ -33,22 +36,28 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
             platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
         });
 
-        Then("^the properties with theirs details are successfully retrieved$", () -> {
-            assertOK();
-            PropertiesIO expectedModuleProperties = platformBuilder.buildPropertiesWithDetails();
-            PropertiesIO actualModuleProperties = testContext.getResponseBody();
-            assertEquals(expectedModuleProperties, actualModuleProperties);
-        });
-
         When("^I get the platform properties with details for this module$", () -> {
             platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
         });
 
+        Then("^the properties with theirs details are successfully retrieved$", () -> {
+
+            assertOK();
+            Long timestamp = platformHistory.getPlatformFirstTimestamp(platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+            DeployedModuleBuilder deployedModuleBuilder = platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(),
+                    platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
+            PropertiesIO expectedModuleProperties = platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp);
+            PropertiesIO actualModuleProperties = testContext.getResponseBody();
+            assertEquals(expectedModuleProperties, actualModuleProperties);
+        });
+
         Then("^the properties with details and its contain are successfully retrieved$", () -> {
             assertOK();
+            platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
         });
 
         Then("^the properties details match these values$", (DataTable data) -> {
+
             List<PropertyWithDetailsIO> providedProperties = new ArrayList<>(data.asList(PropertyWithDetailsIO.class));
             List<PropertyWithDetailsIO> expectedModuleProperties = replaceBlankPropertiesWithNull(providedProperties);
             expectedModuleProperties.sort(Comparator.comparing(PropertyWithDetailsIO::getName));

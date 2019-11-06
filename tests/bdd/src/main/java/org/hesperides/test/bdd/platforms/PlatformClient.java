@@ -236,6 +236,11 @@ public class PlatformClient {
                 propertiesPath);
     }
 
+    public PropertiesIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath, Long timestamp) {
+        getProperties(platform, propertiesPath, timestamp, true, null);
+        return testContext.getResponseBody();
+    }
+
     public PropertiesIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath) {
         getProperties(platform, propertiesPath, null, true, null);
         return testContext.getResponseBody();
