@@ -35,7 +35,7 @@ Feature: Get properties with details
      """
     And an existing platform with this module
     And the platform has these iterable properties
-      | iterable            | bloc   | name          | value    |
+      | iterable          | bloc   | name          | value      |
       | iterable_property   | bloc-1 | some-property | iterable_1 |
     When I get the platform properties with details for this module
     Then the properties with details and its contain are successfully retrieved
