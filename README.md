@@ -1,6 +1,6 @@
 # Hesperides backend
 
-[![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
+[![](https://api.travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=master)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
 
 [![](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)
 [![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
@@ -14,6 +14,8 @@ and the properties it stores per environment.
 
 The frontend lives in this repo: https://github.com/voyages-sncf-technologies/hesperides-gui
 
+**Development status**: this project is currently maintained & actively developped by [e-Voyageurs SNCF](https://www.sncf.com/fr/groupe/newsroom/e-voyageurs-sncf).
+The list of features planned is available in [ROADMAP.md](https://github.com/voyages-sncf-technologies/hesperides/blob/master/ROADMAP.md).
 
 ## To test the app quickly
 
