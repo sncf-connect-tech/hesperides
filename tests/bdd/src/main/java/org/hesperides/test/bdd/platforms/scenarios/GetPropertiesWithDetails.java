@@ -2,7 +2,9 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
+import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertyWithDetailsIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -12,12 +14,19 @@ import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+
+enum AttributeDetailsType {
+    NAME,
+    STORED_VALUE,
+    FINAL_VALUE,
+    DEFAULT_VALUE
+}
 
 public class GetPropertiesWithDetails extends HesperidesScenario implements En {
 
@@ -43,6 +52,7 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
         Then("^the properties with theirs details are successfully retrieved$", () -> {
 
             assertOK();
+
             Long timestamp = platformHistory.getPlatformFirstTimestamp(platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
             DeployedModuleBuilder deployedModuleBuilder = platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(),
                     platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
@@ -58,31 +68,85 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
 
         Then("^the properties details match these values$", (DataTable data) -> {
 
-            List<PropertyWithDetailsIO> providedProperties = new ArrayList<>(data.asList(PropertyWithDetailsIO.class));
-            List<PropertyWithDetailsIO> expectedModuleProperties = replaceBlankPropertiesWithNull(providedProperties);
-            expectedModuleProperties.sort(Comparator.comparing(PropertyWithDetailsIO::getName));
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
-            List<PropertyWithDetailsIO> actualProperties = new ArrayList<>(actualModuleProperties.getValuedProperties());
-            actualProperties.sort(Comparator.comparing(PropertyWithDetailsIO::getName));
-            assertEquals(expectedModuleProperties, actualProperties);
+            Set<PropertyWithDetailsIO> actualProperties = actualModuleProperties.getValuedProperties();
+            Set<Details> providedProperties = new HashSet<>(data.asList(Details.class));
+
+            Set<String> expectedNames = Details.getNames(providedProperties);
+            Set<String> actualNames = getPropertiesType(actualProperties, AttributeDetailsType.NAME);
+            assertEquals("names", expectedNames, actualNames);
+
+            Set<String> expectedStoredValues = Details.getStoredValues(providedProperties);
+            Set<String> actualStoredValues = getPropertiesType(actualProperties, AttributeDetailsType.STORED_VALUE);
+            assertEquals("stored_values", expectedStoredValues, actualStoredValues);
+
+            Set<String> expectedFinalValues = Details.getFinalValues(providedProperties);
+            Set<String> actualFinalsValues = getPropertiesType(actualProperties, AttributeDetailsType.FINAL_VALUE);
+            assertEquals("final_values", expectedFinalValues, actualFinalsValues);
+
+            Set<String> expectedDefaultValues = Details.getDefaultValues(providedProperties);
+            Set<String> actualDefaultValues = getPropertiesType(actualProperties, AttributeDetailsType.DEFAULT_VALUE);
+            assertEquals("default_values", expectedDefaultValues, actualDefaultValues);
         });
     }
 
-    private static List<PropertyWithDetailsIO> replaceBlankPropertiesWithNull(List<PropertyWithDetailsIO> providedPropertyWithDetails) {
-        return providedPropertyWithDetails.stream()
-                .map(propertyWithDetailsIO -> replaceBlankPropertiesWithNull(propertyWithDetailsIO))
-                .collect(Collectors.toList());
+    private Set<String> getPropertiesType(Set<PropertyWithDetailsIO> propertyWithDetails, AttributeDetailsType detailsType) {
+
+        Set<String> propertiesType;
+        switch (detailsType) {
+            case NAME:
+                propertiesType = propertyWithDetails.stream().map(PropertyWithDetailsIO::getName).collect(Collectors.toSet());
+                break;
+            case DEFAULT_VALUE:
+                propertiesType = propertyWithDetails.stream()
+                        .filter(propertyWithDetailsIO -> StringUtils.isNotBlank(propertyWithDetailsIO.getDefaultValue()))
+                        .map(PropertyWithDetailsIO::getDefaultValue)
+                        .collect(Collectors.toSet());
+                break;
+            case FINAL_VALUE:
+                propertiesType = propertyWithDetails
+                        .stream()
+                        .filter(propertyWithDetailsIO -> StringUtils.isNotBlank(propertyWithDetailsIO.getFinalValue()))
+                        .map(PropertyWithDetailsIO::getFinalValue)
+                        .collect(Collectors.toSet());
+                break;
+            default:
+                propertiesType = propertyWithDetails.stream()
+                        .filter(propertyWithDetailsIO -> StringUtils.isNotBlank(propertyWithDetailsIO.getStoredValue()))
+                        .map(PropertyWithDetailsIO::getStoredValue)
+                        .collect(Collectors.toSet());
+                break;
+        }
+        return propertiesType;
     }
 
-    private static String replaceBlankPropertiesWithNull(String property) {
-        return StringUtils.isBlank(property) ? null : property;
-    }
+    @Value
+    private static class Details {
 
-    // Only way i found to manage the null property values of cucumber Datatable
-    private static PropertyWithDetailsIO replaceBlankPropertiesWithNull(PropertyWithDetailsIO propertyWithDetailsIO) {
-        return new PropertyWithDetailsIO(replaceBlankPropertiesWithNull(propertyWithDetailsIO.getName()),
-                replaceBlankPropertiesWithNull(propertyWithDetailsIO.getStoredValue()),
-                replaceBlankPropertiesWithNull(propertyWithDetailsIO.getFinalValue()),
-                propertyWithDetailsIO.getDefaultValue(), propertyWithDetailsIO.getTransformations());
+        String name;
+        String storedValue;
+        String finalValue;
+        String defaultValue;
+        ValuedPropertyTransformation[] transformations;
+
+        private static Set<String> getNames(Set<Details> details) {
+            return getTypeOfDetails(details, Details::getName);
+        }
+
+        private static Set<String> getStoredValues(Set<Details> details) {
+            return getTypeOfDetails(details, Details::getStoredValue);
+        }
+
+        private static Set<String> getFinalValues(Set<Details> details) {
+            return getTypeOfDetails(details, Details::getFinalValue);
+        }
+
+        private static Set<String> getDefaultValues(Set<Details> details) {
+            return getTypeOfDetails(details, Details::getDefaultValue);
+        }
+
+        private static Set<String> getTypeOfDetails(Set<Details> details, Function<Details, String> mapper) {
+            return details.stream().map(mapper).filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
+        }
     }
 }

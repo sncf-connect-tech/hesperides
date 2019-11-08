@@ -75,4 +75,65 @@ Feature: Get properties with details
       | unset-default-property | 19           | 19           | 17           |                 |
       | some-property          | global_value | global_value |              |                 |
 
-  Scenario: get properties details of
+  Scenario: get properties details of global property referenced another global property
+    Given an existing module with this template content
+    """
+     {{ simple-property }}
+     {{ set-default-property | @default 11 }}
+     {{ unset-default-property | @default 23 }}
+     {{ another-global-property | @default 17 }}
+     """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name                    | value               |
+      | global-property         | global_value        |
+      | unset-default-property  | 19                  |
+      | another-global-property | {{global-property}} |
+    When I get the platform properties with details for this module
+    Then the properties with details and its contain are successfully retrieved
+    And the properties details match these values
+      | name                    | storedValue         | finalValue   | defaultValue | transformations |
+      | simple-property         |                     |              |              |                 |
+      | set-default-property    |                     |              | 11           |                 |
+      | unset-default-property  | 19                  | 19           | 23           |                 |
+      | another-global-property | {{global-property}} | global_value | 17           |                 |
+
+  Scenario: get properties details with global properties used in instance property values
+    Given an existing module with this template content
+      """
+      {{ module-property }}
+      {{ some-property }}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name            | value        |
+      | global-property | global-value |
+    And the platform has these valued properties
+      | name          | value                   |
+      | some-property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value                 |
+      | instance-property | {{ global-property }} |
+    When I get the platform properties with details for this module
+    Then the properties with details and its contain are successfully retrieved
+    And the properties details match these values
+      | name            | storedValue             | finalValue | defaultValue | transformations |
+      | module-property |                         |            |              |                 |
+      | some-property   | {{ instance-property }} |            |              |                 |
+
+  Scenario: get properties details of module valued by another valued property
+    Given an existing module with this template content
+      """
+      {{ some-property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name            | value                 |
+      | some-property   | {{ some-property-a }} |
+      | some-property-a | {{ some-property-b }} |
+      | some-property-b | property-value        |
+    When I get the platform properties with details for this module
+    Then the properties with details and its contain are successfully retrieved
+    And the properties details match these values
+      | name          | storedValue           | finalValue     | defaultValue | transformations |
+      | some-property | {{ some-property-a }} | property-value |              |                 |
