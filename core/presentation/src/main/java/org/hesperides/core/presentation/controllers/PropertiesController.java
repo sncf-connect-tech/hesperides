@@ -7,13 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.entities.properties.PropertyWithDetails;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
-import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
@@ -24,7 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,15 +55,19 @@ public class PropertiesController extends AbstractController {
         Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
         List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
         PropertiesIO propertiesIO;
+        PropertiesWithDetailsIO propertiesWithDetailsIO;
         User authenticatedUser = new User(authentication);
+        ResponseEntity responseEntity;
         if (withDetails) {
             List<PropertyWithDetails> propertiesWithDetails = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, authenticatedUser);
-            propertiesIO = new PropertiesWithDetailsIO(propertiesVersionId, new HashSet(propertiesWithDetails), abstractValuedPropertyViews);
+            propertiesWithDetailsIO = new PropertiesWithDetailsIO(propertiesVersionId, PropertiesWithDetailsIO.toPropertiesWithDetailIsO(propertiesWithDetails), abstractValuedPropertyViews);
+            responseEntity = ResponseEntity.ok(propertiesWithDetailsIO);
         } else {
             abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);
-            propertiesIO = new BasicPropertiesIO(propertiesVersionId, abstractValuedPropertyViews);
+            propertiesIO = new PropertiesIO(propertiesVersionId, abstractValuedPropertyViews);
+            responseEntity = ResponseEntity.ok(propertiesIO);
         }
-        return ResponseEntity.ok(propertiesIO);
+        return responseEntity;
     }
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
@@ -88,7 +90,7 @@ public class PropertiesController extends AbstractController {
                                                        @PathVariable("platform_name") final String platformName,
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @Valid @RequestBody final BasicPropertiesIO properties) {
+                                                       @Valid @RequestBody final PropertiesIO properties) {
         return ResponseEntity.ok()
                 .header("Deprecation", "version=\"2019-08-02\"")
                 .header("Sunset", "Sat Aug  3 00:00:00 CEST 2020")
@@ -103,14 +105,14 @@ public class PropertiesController extends AbstractController {
                                                          @PathVariable("platform_name") final String platformName,
                                                          @RequestParam("path") final String propertiesPath,
                                                          @RequestParam("platform_vid") final Long platformVersionId,
-                                                         @Valid @RequestBody final BasicPropertiesIO properties) {
+                                                         @Valid @RequestBody final PropertiesIO properties) {
 
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         final Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
-        return ResponseEntity.ok(new BasicPropertiesIO(propertiesVersionId, propertyViews));
+        return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }
 
     @ApiOperation("Get properties diff with the given paths in given platforms")

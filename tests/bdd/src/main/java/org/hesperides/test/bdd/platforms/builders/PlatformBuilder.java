@@ -150,14 +150,14 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PropertiesIO buildProperties(Long globalPropertiesVersionId) {
-        return new BasicPropertiesIO(globalPropertiesVersionId, new HashSet<>(globalProperties), Collections.emptySet());
+        return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(globalProperties), Collections.emptySet());
     }
 
     public PropertiesWithDetailsIO buildPropertiesWithDetails(Set<PropertyWithDetailsIO> propertiesWithDetail) {
         return new PropertiesWithDetailsIO(globalPropertiesVersionId, propertiesWithDetail, Collections.emptyList());
     }
 
-    public PropertiesIO buildPropertiesWithDetails() {
+    public PropertiesWithDetailsIO buildPropertiesWithDetails() {
         return buildPropertiesWithDetails(new HashSet<>());
     }
 

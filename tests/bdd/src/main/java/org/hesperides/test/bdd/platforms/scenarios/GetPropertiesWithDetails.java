@@ -5,7 +5,7 @@ import cucumber.api.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertyWithDetailsIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -56,8 +56,8 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
             Long timestamp = platformHistory.getPlatformFirstTimestamp(platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
             DeployedModuleBuilder deployedModuleBuilder = platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(),
                     platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
-            PropertiesIO expectedModuleProperties = platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp);
-            PropertiesIO actualModuleProperties = testContext.getResponseBody();
+            PropertiesWithDetailsIO expectedModuleProperties = platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp);
+            PropertiesWithDetailsIO actualModuleProperties = testContext.getResponseBody();
             assertEquals(expectedModuleProperties, actualModuleProperties);
         });
 
@@ -68,7 +68,7 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
 
         Then("^the properties details match these values$", (DataTable data) -> {
 
-            PropertiesIO actualModuleProperties = testContext.getResponseBody();
+            PropertiesWithDetailsIO actualModuleProperties = testContext.getResponseBody();
             Set<PropertyWithDetailsIO> actualProperties = actualModuleProperties.getValuedProperties();
             Set<Details> providedProperties = new HashSet<>(data.asList(Details.class));
 

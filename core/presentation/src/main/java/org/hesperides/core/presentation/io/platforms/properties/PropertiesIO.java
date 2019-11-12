@@ -22,25 +22,25 @@ package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Getter
-@FieldDefaults(makeFinal = false, level = AccessLevel.PROTECTED)
-@ToString
-@EqualsAndHashCode
-public class PropertiesIO<T> {
+@Value
+@AllArgsConstructor
+public class PropertiesIO {
 
     // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
@@ -52,7 +52,7 @@ public class PropertiesIO<T> {
     @SerializedName("key_value_properties")
     @JsonProperty("key_value_properties")
     @Valid
-    Set<T> valuedProperties;
+    Set<ValuedPropertyIO> valuedProperties;
 
     @NotNull
     @SerializedName("iterable_properties")
@@ -60,21 +60,23 @@ public class PropertiesIO<T> {
     @Valid
     Set<IterableValuedPropertyIO> iterableValuedProperties;
 
-    protected PropertiesIO(Class<T> clazz) {
-        if (clazz != ValuedPropertyIO.class && clazz != PropertyWithDetailsIO.class) {
-            throw new IllegalArgumentException("Argument of this class should be " + ValuedPropertyIO.class + "or " + PropertyWithDetailsIO.class);
-        }
+    public List<AbstractValuedProperty> toDomainInstances() {
+        final List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
+        final List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
+        final List<AbstractValuedProperty> properties = new ArrayList<>();
+        properties.addAll(valuedProperties);
+        properties.addAll(iterableValuedProperties);
+        return properties;
     }
 
     public PropertiesIO(Long propertiesVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         this.propertiesVersionId = propertiesVersionId;
-        List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
-        this.iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-    }
 
-    public PropertiesIO(Long propertiesVersionId, Set<IterableValuedPropertyIO> iterableValuedProperties) {
-        this.propertiesVersionId = propertiesVersionId;
-        this.iterableValuedProperties = iterableValuedProperties;
+        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
+        valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+
+        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
+        iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
     }
 
     // On initialise le propertiesVersionId dans le cas ou il n'est pas fourni (le temps de repassé l'attribut en @NotNull)

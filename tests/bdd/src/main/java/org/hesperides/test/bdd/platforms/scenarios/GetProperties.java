@@ -23,7 +23,6 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
@@ -103,7 +102,7 @@ public class GetProperties extends HesperidesScenario implements En {
 
         Then("^the password property values are obfuscated$", () -> {
             assertOK();
-            PropertiesIO<ValuedPropertyIO> actualProperties = testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
                     assertEquals("********", valuedProperty.getValue());
@@ -113,7 +112,7 @@ public class GetProperties extends HesperidesScenario implements En {
 
         Then("^the non-password property values are not obfuscated$", () -> {
             assertOK();
-            PropertiesIO<ValuedPropertyIO> actualProperties = testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (!moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
                     assertThat(valuedProperty.getValue()).doesNotContain("********");
@@ -123,7 +122,7 @@ public class GetProperties extends HesperidesScenario implements En {
 
         Then("^the password property values are not obfuscated$", () -> {
             assertOK();
-            PropertiesIO<ValuedPropertyIO> actualProperties = testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
                     assertThat(valuedProperty.getValue()).doesNotContain("********");

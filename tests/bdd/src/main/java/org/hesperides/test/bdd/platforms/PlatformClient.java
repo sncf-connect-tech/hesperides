@@ -26,7 +26,6 @@ import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.core.presentation.io.platforms.properties.BasicPropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsIO;
@@ -223,7 +222,7 @@ public class PlatformClient {
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }
-        Class responseType = BasicPropertiesIO.class;
+        Class responseType = PropertiesIO.class;
         if (withDetails) {
             url += "&with_details=" + withDetails;
             responseType = PropertiesWithDetailsIO.class;
@@ -236,12 +235,12 @@ public class PlatformClient {
                 propertiesPath);
     }
 
-    public PropertiesIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath, Long timestamp) {
+    public PropertiesWithDetailsIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath, Long timestamp) {
         getProperties(platform, propertiesPath, timestamp, true, null);
         return testContext.getResponseBody();
     }
 
-    public PropertiesIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath) {
+    public PropertiesWithDetailsIO getPropertiesWithDetails(PlatformIO platform, String propertiesPath) {
         getProperties(platform, propertiesPath, null, true, null);
         return testContext.getResponseBody();
     }

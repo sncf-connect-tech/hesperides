@@ -101,14 +101,14 @@ public class SaveProperties extends HesperidesScenario implements En {
     }
 
     void assertValuedProperties(DeployedModuleBuilder deployedModuleBuilder) {
-        PropertiesIO<ValuedPropertyIO> expectedProperties = deployedModuleBuilder.buildProperties();
-        PropertiesIO<ValuedPropertyIO> actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+        PropertiesIO expectedProperties = deployedModuleBuilder.buildProperties();
+        PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
         assertEquals(expectedProperties, actualProperties);
     }
 
     void assertGlobalProperties() {
-        PropertiesIO<ValuedPropertyIO> expectedProperties = platformBuilder.buildProperties();
-        PropertiesIO<ValuedPropertyIO> actualProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
+        PropertiesIO expectedProperties = platformBuilder.buildProperties();
+        PropertiesIO actualProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
         assertEquals(expectedProperties, actualProperties);
     }
 
