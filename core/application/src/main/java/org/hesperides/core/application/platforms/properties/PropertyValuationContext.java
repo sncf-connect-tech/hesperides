@@ -46,10 +46,10 @@ public class PropertyValuationContext {
     // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
     PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, EnumSet<PropertyType> propertiesToInclude) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
-        propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties, OVERRIDEN_BY_INSTANCE)
-                .addOverridingValuedProperties(predefinedProperties, OVERRIDEN_BY_PREDEFINED);
+        propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties, OVERRIDDEN_BY_INSTANCE)
+                .addOverridingValuedProperties(predefinedProperties, OVERRIDDEN_BY_PREDEFINED);
         if (propertiesToInclude.contains(GLOBAL)) {
-            propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties, OVERRIDEN_BY_GLOBAL);
+            propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties, OVERRIDDEN_BY_GLOBAL);
         }
         if (propertiesToInclude.contains(WITHOUT_MODEL)) {
             propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(valuedPropertiesWithoutModel.stream()

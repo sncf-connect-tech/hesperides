@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
@@ -79,7 +80,6 @@ public class PropertyVisitorsSequence {
         });
         return new PropertyVisitorsSequence(propertyVisitors);
     }
-
 
     // On concatène les propriétés parentes avec les propriété de l'item
     // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles
@@ -217,5 +217,14 @@ public class PropertyVisitorsSequence {
         return properties.size() == otherSequence.getProperties().size() &&
                 otherSequence.properties.stream().allMatch(propertyVisitor ->
                         propertyVisitor.equals(propertyVisitorMap.get(propertyVisitor.getName()), compareStoredValues));
+    }
+
+    public List<PropertyWithDetailsView> getPropertiesWithDetails() {
+        return properties.stream()
+                // On ne gère pour l'instant que les propriétés simples
+                .filter(SimplePropertyVisitor.class::isInstance)
+                .map(SimplePropertyVisitor.class::cast)
+                .map(SimplePropertyVisitor::getPropertyWithDetails)
+                .collect(Collectors.toList());
     }
 }

@@ -3,6 +3,7 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -101,6 +102,12 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     @Override
     public PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper) {
         return this;
+    }
+
+    public PropertyWithDetailsView getPropertyWithDetails() {
+        String finalValue = getValueOrDefault().orElse(null);
+        String defaultValue = getDefaultValue().orElse("");
+        return new PropertyWithDetailsView(getName(), initialValue, finalValue, defaultValue, transformations);
     }
 
     @Override

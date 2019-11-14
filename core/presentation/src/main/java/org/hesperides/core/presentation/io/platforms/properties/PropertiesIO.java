@@ -42,8 +42,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class PropertiesIO {
 
-
-    // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
+    // Annotation @NotNull à remettre en place lorsque le support d'un payload
+    // json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
     @JsonProperty("properties_version_id")
     @Valid
@@ -62,9 +62,9 @@ public class PropertiesIO {
     Set<IterableValuedPropertyIO> iterableValuedProperties;
 
     public List<AbstractValuedProperty> toDomainInstances() {
-        final List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
-        final List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
-        final List<AbstractValuedProperty> properties = new ArrayList<>();
+        List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
+        List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
+        List<AbstractValuedProperty> properties = new ArrayList<>();
         properties.addAll(valuedProperties);
         properties.addAll(iterableValuedProperties);
         return properties;
@@ -72,11 +72,9 @@ public class PropertiesIO {
 
     public PropertiesIO(Long propertiesVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
         this.propertiesVersionId = propertiesVersionId;
-
-        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
+        List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
-
-        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
+        List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
     }
 

@@ -26,8 +26,8 @@ Feature: Get properties diffs
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common          | differing          |
-      | only-p1   | only-p2    | common-property | differing-property |
+      | onlyLeft | onlyRight | common          | differing          |
+      | only-p1  | only-p2   | common-property | differing-property |
 
   Scenario: get properties diff on final values between two platforms
     Given an existing module with this template content
@@ -47,9 +47,9 @@ Feature: Get properties diffs
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing  |
-      |           |            |        | property-a |
-      |           |            |        | property-b |
+      | onlyLeft | onlyRight | common | differing  |
+      |          |           |        | property-a |
+      |          |           |        | property-b |
 
   Scenario: get properties diff on stored values between two platforms
     Given an existing module with this template content
@@ -69,8 +69,8 @@ Feature: Get properties diffs
     When I get the properties diff on stored values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common     | differing  |
-      |           |            | property-a | property-b |
+      | onlyLeft | onlyRight | common     | differing  |
+      |          |           | property-a | property-b |
 
   Scenario: get properties diff on final values between two platforms with default valued properties
     Given an existing module with this template content
@@ -88,8 +88,8 @@ Feature: Get properties diffs
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common          | differing |
-      |           |            | simple-property |           |
+      | onlyLeft | onlyRight | common          | differing |
+      |          |           | simple-property |           |
 
   Scenario: get properties diff on stored values between two platforms with default valued properties
     Given an existing module with this template content
@@ -107,8 +107,8 @@ Feature: Get properties diffs
     When I get the properties diff on stored values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right      | common | differing |
-      |           | simple-property |        |           |
+      | onlyLeft | onlyRight       | common | differing |
+      |          | simple-property |        |           |
 
   Scenario: get global properties diffs between two platforms
     Given an existing platform named "P1"
@@ -126,8 +126,8 @@ Feature: Get properties diffs
     When I get the global properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common          | differing          |
-      | only-p1   | only-p2    | common-property | differing-property |
+      | onlyLeft | onlyRight | common          | differing          |
+      | only-p1  | only-p2   | common-property | differing-property |
 
   Scenario: get global properties diff on final values between two platforms
     Given an existing platform named "P1"
@@ -143,9 +143,9 @@ Feature: Get properties diffs
     When I get the global properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing  |
-      |           |            |        | property-a |
-      |           |            |        | property-b |
+      | onlyLeft | onlyRight | common | differing  |
+      |          |           |        | property-a |
+      |          |           |        | property-b |
 
   Scenario: get global properties diff on stored values between two platforms
     Given an existing platform named "P1"
@@ -161,8 +161,8 @@ Feature: Get properties diffs
     When I get the global properties diff on stored values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common     | differing  |
-      |           |            | property-a | property-b |
+      | onlyLeft | onlyRight | common     | differing  |
+      |          |           | property-a | property-b |
 
   Scenario: get instance properties diffs on final values between two platforms
     Given an existing module with this template content
@@ -186,9 +186,9 @@ Feature: Get properties diffs
     When I get the instance properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing         |
-      |           |            |        | a-property        |
-      |           |            |        | instance-property |
+      | onlyLeft | onlyRight | common | differing         |
+      |          |           |        | a-property        |
+      |          |           |        | instance-property |
 
   Scenario: get instance properties diffs on stored values between two platforms
     Given an existing module with this template content
@@ -212,8 +212,8 @@ Feature: Get properties diffs
     When I get the instance properties diff on stored values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common     | differing         |
-      |           |            | a-property | instance-property |
+      | onlyLeft | onlyRight | common     | differing         |
+      |          |           | a-property | instance-property |
 
   Scenario: get iterable properties diff on final values between two platforms
 
@@ -241,8 +241,8 @@ Feature: Get properties diffs
     When I get the properties diff on final values between the first and second version of the platform values
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common          | differing          |
-      | only-p2   | only-p1    | common-property | differing-property |
+      | onlyLeft | onlyRight | common          | differing          |
+      | only-p2  | only-p1   | common-property | differing-property |
 
   Scenario: get global properties diff on the same platform at a different timestamp
     Given an existing platform
@@ -259,8 +259,8 @@ Feature: Get properties diffs
     When I get the global properties diff on final values between the first and second version of the platform values
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common          | differing          |
-      | only-p2   | only-p1    | common-property | differing-property |
+      | onlyLeft | onlyRight | common          | differing          |
+      | only-p2  | only-p1   | common-property | differing-property |
 
   Scenario: get iterable properties diff on the same platform at a different timestamp
 
@@ -273,8 +273,8 @@ Feature: Get properties diffs
     When I get the global properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing |
-      |           |            | common |           |
+      | onlyLeft | onlyRight | common | differing |
+      |          |           | common |           |
 
 
   Scenario: get global properties diffs with a property that is empty in the right and not provided in the left
@@ -286,8 +286,8 @@ Feature: Get properties diffs
     When I get the global properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing |
-      |           |            | common |           |
+      | onlyLeft | onlyRight | common | differing |
+      |          |           | common |           |
 
   #issue-752
   Scenario: a diff between modules does not contain global properties
@@ -325,8 +325,8 @@ Feature: Get properties diffs
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common   | differing |
-      |           |            | property |           |
+      | onlyLeft | onlyRight | common   | differing |
+      |          |           | property |           |
 
   #issue-792
   Scenario: get properties diffs with a property that references a global property with different values
@@ -353,5 +353,5 @@ Feature: Get properties diffs
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing |
-      |           |            |        | property  |
+      | onlyLeft | onlyRight | common | differing |
+      |          |           |        | property  |
