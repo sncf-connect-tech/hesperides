@@ -123,17 +123,17 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
 
     @Value
     private static class Diff {
-        String only_left;
-        String only_right;
+        String onlyLeft;
+        String onlyRight;
         String common;
         String differing;
 
         private static Set<String> getOnlyLeft(Set<Diff> diffs) {
-            return getTypeOfDiff(diffs, Diff::getOnly_left);
+            return getTypeOfDiff(diffs, Diff::getOnlyLeft);
         }
 
         private static Set<String> getOnlyRight(Set<Diff> diffs) {
-            return getTypeOfDiff(diffs, Diff::getOnly_right);
+            return getTypeOfDiff(diffs, Diff::getOnlyRight);
         }
 
         private static Set<String> getCommon(Set<Diff> diffs) {

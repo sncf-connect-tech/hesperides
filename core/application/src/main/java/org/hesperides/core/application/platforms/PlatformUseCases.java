@@ -25,6 +25,7 @@ import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.ApplicationDirectoryGroupsQueries;
@@ -49,7 +50,6 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
-
 
 @Component
 public class PlatformUseCases {
@@ -360,6 +360,26 @@ public class PlatformUseCases {
         }
         parts = Arrays.copyOfRange(parts, 0, parts.length - 3);
         return String.join("#", parts);
+    }
+
+    public List<PropertyWithDetailsView> getPropertiesWithDetails(Platform.Key platformKey, String propertiesPath, User user) {
+
+        PropertyVisitorsSequence propertyVisitorsSequence;
+        PlatformView extractedPlatform = getPlatform(platformKey);
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
+            propertyVisitorsSequence = buildPropertyVisitorsSequenceForGlobals(extractedPlatform);
+        } else {
+            String extractedModule = extractModulePathFromPropertiesPath(propertiesPath);
+            Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+            List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
+            boolean fromShouldHidePasswordProperties = extractedPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName());
+
+            propertyVisitorsSequence = buildModulePropertyVisitorsSequence(
+                    extractedPlatform, extractedModule, moduleKey,
+                    modulePropertiesModel,
+                    null, fromShouldHidePasswordProperties);
+        }
+        return propertyVisitorsSequence.getPropertiesWithDetails();
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
