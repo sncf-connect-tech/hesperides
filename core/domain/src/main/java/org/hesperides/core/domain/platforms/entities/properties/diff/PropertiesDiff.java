@@ -64,10 +64,10 @@ public class PropertiesDiff {
         propertiesRight.getProperties().stream()
                 .filter(rightProperty -> !visitedLeftPropertyNames.contains(rightProperty.getName()))
                 .forEach(rightProperty -> {
-                    if (rightProperty.isValued()) {
+                    if (hasValue(rightProperty, compareStoredValues)) {
                         onlyRight.add(rightProperty);
                     } else {
-                        // Cas où la propriété n'a pas de model, n'est pas renseignée à gauche et vide à droite
+                        // Cas où la propriété n'a pas de modèle, n'est pas renseignée à gauche et vide à droite
                         common.add(buildDifferingPropertyRecursive(null, rightProperty, compareStoredValues));
                     }
                 });

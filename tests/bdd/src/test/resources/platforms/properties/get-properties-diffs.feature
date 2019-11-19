@@ -24,8 +24,7 @@ Feature: Get properties diffs
       | common-property    | value    |
       | differing-property | p2-value |
     When I get the properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common          | differing          |
       | only-p1  | only-p2   | common-property | differing-property |
 
@@ -45,8 +44,7 @@ Feature: Get properties diffs
       | property-a | {{property-b}} |
       | property-b | p2             |
     When I get the properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing  |
       |          |           |        | property-a |
       |          |           |        | property-b |
@@ -67,8 +65,7 @@ Feature: Get properties diffs
       | property-a | {{property-b}} |
       | property-b | p2             |
     When I get the properties diff on stored values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common     | differing  |
       |          |           | property-a | property-b |
 
@@ -86,8 +83,7 @@ Feature: Get properties diffs
       | name            | value |
       | simple-property | 42    |
     When I get the properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common          | differing |
       |          |           | simple-property |           |
 
@@ -105,8 +101,7 @@ Feature: Get properties diffs
       | name            | value |
       | simple-property | 42    |
     When I get the properties diff on stored values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight       | common | differing |
       |          | simple-property |        |           |
 
@@ -124,8 +119,7 @@ Feature: Get properties diffs
       | common-property    | value    |
       | differing-property | p2-value |
     When I get the global properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common          | differing          |
       | only-p1  | only-p2   | common-property | differing-property |
 
@@ -141,8 +135,7 @@ Feature: Get properties diffs
       | property-a | {{property-b}} |
       | property-b | p2             |
     When I get the global properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing  |
       |          |           |        | property-a |
       |          |           |        | property-b |
@@ -159,8 +152,7 @@ Feature: Get properties diffs
       | property-a | {{property-b}} |
       | property-b | p2             |
     When I get the global properties diff on stored values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common     | differing  |
       |          |           | property-a | property-b |
 
@@ -184,8 +176,7 @@ Feature: Get properties diffs
       | name              | value           |
       | instance-property | instance-value2 |
     When I get the instance properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing         |
       |          |           |        | a-property        |
       |          |           |        | instance-property |
@@ -210,8 +201,7 @@ Feature: Get properties diffs
       | name              | value           |
       | instance-property | instance-value2 |
     When I get the instance properties diff on stored values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common     | differing         |
       |          |           | a-property | instance-property |
 
@@ -239,8 +229,7 @@ Feature: Get properties diffs
       | common-property    | value    |
       | differing-property | p2-value |
     When I get the properties diff on final values between the first and second version of the platform values
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common          | differing          |
       | only-p2  | only-p1   | common-property | differing-property |
 
@@ -257,8 +246,7 @@ Feature: Get properties diffs
       | common-property    | value    |
       | differing-property | p2-value |
     When I get the global properties diff on final values between the first and second version of the platform values
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common          | differing          |
       | only-p2  | only-p1   | common-property | differing-property |
 
@@ -271,8 +259,7 @@ Feature: Get properties diffs
       | common |       |
     And an existing platform named "P2"
     When I get the global properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing |
       |          |           | common |           |
 
@@ -284,8 +271,7 @@ Feature: Get properties diffs
       | name   | value |
       | common |       |
     When I get the global properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing |
       |          |           | common |           |
 
@@ -298,8 +284,7 @@ Feature: Get properties diffs
       | name            | value        |
       | global-property | GLOBAL_VALUE |
     When I get the properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the diff is empty
+    Then the diff is empty
 
   #issue-792
   Scenario: get properties diffs with a property that references a global property
@@ -323,8 +308,7 @@ Feature: Get properties diffs
       | name         | value        |
       | global-final | global-value |
     When I get the properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common   | differing |
       |          |           | property |           |
 
@@ -351,7 +335,19 @@ Feature: Get properties diffs
       | global       | {{global-final}} |
       | global-final | value-b          |
     When I get the properties diff on final values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
+    Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing |
       |          |           |        | property  |
+
+  #issue-810
+  Scenario: compare an undefined property to a property with default value
+    Given an existing module with version "1"
+    And an existing module with version "2" with this template content
+      """
+      {{ property | @default false }}
+      """
+    And an existing platform with those modules
+    When I get the properties diff on final values of this platform between module versions "1" and "2"
+    Then the resulting diff matches
+      | onlyLeft | onlyRight | common | differing |
+      |          | property  |        |           |

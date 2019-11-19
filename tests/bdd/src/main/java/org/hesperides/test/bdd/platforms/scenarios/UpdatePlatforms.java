@@ -112,7 +112,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             } else {
                 deployedModuleBuilder.setPropertiesVersionId(0L);
             }
-            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            deployedModuleBuilder.fromModuleBuilder(moduleBuilder);
             if (isNotEmpty(moduleLogicalGroup)) {
                 deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
             }

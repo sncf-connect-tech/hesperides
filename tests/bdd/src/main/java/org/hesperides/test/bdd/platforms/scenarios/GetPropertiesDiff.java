@@ -77,9 +77,28 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
                     timestamp);
         });
 
-        Then("the diff is successfully retrieved", this::assertOK);
+        When("^I get the properties diff on final values of this platform between module versions \"([^\"]+)\" and \"([^\"]+)\"$", (
+                String fromModuleVersion, String toModuleVersion) -> {
+
+            String fromPropertiesPath = platformBuilder.findDeployedModuleBuilderByVersion(fromModuleVersion).buildPropertiesPath();
+            String toPropertiesPath = platformBuilder.findDeployedModuleBuilderByVersion(toModuleVersion).buildPropertiesPath();
+
+            PlatformIO platform = platformBuilder.buildInput();
+            String instanceName = null;
+
+            platformClient.getPropertiesDiff(
+                    platform,
+                    fromPropertiesPath,
+                    instanceName,
+                    platform,
+                    toPropertiesPath,
+                    instanceName,
+                    false,
+                    null);
+        });
 
         Then("the diff is empty", () -> {
+            assertOK();
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
             assertThat(actualPropertiesDiff.getCommon(), is(empty()));
             assertThat(actualPropertiesDiff.getDiffering(), is(empty()));
@@ -87,7 +106,8 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
             assertThat(actualPropertiesDiff.getOnlyRight(), is(empty()));
         });
 
-        Then("the resulting diff match these values", (DataTable data) -> {
+        Then("the resulting diff matches", (DataTable data) -> {
+            assertOK();
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
             Set<Diff> expectedPropertiesDiff = new HashSet<>(data.asList(Diff.class));
 

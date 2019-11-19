@@ -47,6 +47,7 @@ public class DeployedModuleBuilder implements Serializable {
     @Setter
     private Long propertiesVersionId;
     private String name;
+    @Getter
     private String version;
     private String versionType;
     @Getter
@@ -112,7 +113,7 @@ public class DeployedModuleBuilder implements Serializable {
         this.propertiesVersionId = propertiesVersionId;
     }
 
-    public void fromModuleBuider(ModuleBuilder moduleBuilder) {
+    public void fromModuleBuilder(ModuleBuilder moduleBuilder) {
         name = moduleBuilder.getName();
         version = moduleBuilder.getVersion();
         versionType = moduleBuilder.getVersionType();
