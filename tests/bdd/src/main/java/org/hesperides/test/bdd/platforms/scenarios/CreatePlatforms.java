@@ -130,7 +130,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(withThoseModule)) {
             moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
-                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                deployedModuleBuilder.fromModuleBuilder(moduleBuilder);
                 if (isNotEmpty(moduleLogicalGroup)) {
                     deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
                 }
@@ -204,7 +204,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (withThisModule.contains("with an empty path")) {
                     deployedModuleBuilder.withModulePath("");
                 }
-                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                deployedModuleBuilder.fromModuleBuilder(moduleBuilder);
             }
 
             if (isNotEmpty(withoutSettingProductionFlag)) {
@@ -220,7 +220,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 String moduleVersion, String propertyName) -> {
 
             moduleBuilder.withVersion(moduleVersion);
-            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            deployedModuleBuilder.fromModuleBuilder(moduleBuilder);
             platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             createPlatform();
 

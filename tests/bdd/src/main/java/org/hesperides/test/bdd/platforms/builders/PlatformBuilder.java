@@ -286,4 +286,11 @@ public class PlatformBuilder implements Serializable {
     public Platform.Key buildPlatformKey() {
         return new Platform.Key(applicationName, platformName);
     }
+
+    public DeployedModuleBuilder findDeployedModuleBuilderByVersion(String moduleVersion) {
+        return deployedModuleBuilders.stream()
+                .filter(deployedModuleBuilder -> moduleVersion.equals(deployedModuleBuilder.getVersion()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Can't find deployed module with version \"" + moduleVersion + "\""));
+    }
 }

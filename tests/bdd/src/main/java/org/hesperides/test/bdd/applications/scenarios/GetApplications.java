@@ -65,7 +65,7 @@ public class GetApplications extends HesperidesScenario implements En {
     public GetApplications() {
 
         Given("^a list of applications with platforms and this module$", () -> {
-            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            deployedModuleBuilder.fromModuleBuilder(moduleBuilder);
             platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             Arrays.asList("ABC", "DEF", "GHI").forEach(applicationName -> {
                 platformBuilder.withVersionId(0);

@@ -59,7 +59,7 @@ public class DeployedModuleIO {
     String propertiesPath;  // en tant qu'input : facultatif, inutile et toujours ignoré
     List<InstanceIO> instances;
 
-    public DeployedModuleIO(DeployedModuleView deployedModuleView) {
+    private DeployedModuleIO(DeployedModuleView deployedModuleView) {
         id = deployedModuleView.getId();
         propertiesVersionId = deployedModuleView.getPropertiesVersionId();
         name = deployedModuleView.getName();

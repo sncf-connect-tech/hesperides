@@ -136,10 +136,13 @@ public class CreateModules extends HesperidesScenario implements En {
 
     public CreateModules() {
 
-        Given("^an existing module with this template content$", (String templateContent) -> {
+        Given("^an existing module(?: with version \"([^\"]*)\")? with this template content$", (String moduleVersion, String templateContent) -> {
             // Cette étape est la fusion de `Given a template with the following content` et de
             // `Given a module with this template`, il y a 59 tests qui dépendent de cette étape.
             moduleBuilder.reset();
+            if (isNotEmpty(moduleVersion)) {
+                moduleBuilder.withVersion(moduleVersion);
+            }
             createModule();
             templateBuilder.setContent(templateContent);
             addTemplatePropertiesToModuleBuilder(templateBuilder);
