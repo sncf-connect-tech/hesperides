@@ -3,6 +3,7 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
@@ -104,18 +105,18 @@ public class SimplePropertyVisitor implements PropertyVisitor {
         return this;
     }
 
-    public PropertyWithDetailsView getPropertyWithDetails() {
+    PropertyWithDetailsView getPropertyWithDetails() {
         String finalValue = getValueOrDefault().orElse(null);
         String defaultValue = getDefaultValue().orElse("");
         return new PropertyWithDetailsView(getName(), initialValue, finalValue, defaultValue, transformations);
     }
 
     @Override
-    public boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue) {
+    public boolean equals(PropertyVisitor propertyVisitor, ComparisonMode comparisonMode) {
         boolean isEqual = false;
         if (getName().equals(propertyVisitor.getName()) && propertyVisitor instanceof SimplePropertyVisitor) {
             SimplePropertyVisitor visitor = (SimplePropertyVisitor) propertyVisitor;
-            if (compareStoredValue) {
+            if (ComparisonMode.STORED.equals(comparisonMode)) {
                 isEqual = Objects.equals(getInitialValue(), visitor.getInitialValue());
             } else {
                 isEqual = Objects.equals(getValueOrDefault(), visitor.getValueOrDefault());

@@ -4,6 +4,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
@@ -212,11 +213,11 @@ public class PropertyVisitorsSequence {
         return properties.stream();
     }
 
-    public boolean equals(PropertyVisitorsSequence otherSequence, boolean compareStoredValues) {
+    public boolean equals(PropertyVisitorsSequence otherSequence, PropertiesDiff.ComparisonMode comparisonMode) {
         Map<String, PropertyVisitor> propertyVisitorMap = properties.stream().collect(toMap(PropertyVisitor::getName, property -> property));
         return properties.size() == otherSequence.getProperties().size() &&
                 otherSequence.properties.stream().allMatch(propertyVisitor ->
-                        propertyVisitor.equals(propertyVisitorMap.get(propertyVisitor.getName()), compareStoredValues));
+                        propertyVisitor.equals(propertyVisitorMap.get(propertyVisitor.getName()), comparisonMode));
     }
 
     public List<PropertyWithDetailsView> getPropertiesWithDetails() {

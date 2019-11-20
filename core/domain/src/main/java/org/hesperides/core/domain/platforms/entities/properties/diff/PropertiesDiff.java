@@ -19,12 +19,16 @@ import static java.util.stream.Collectors.toMap;
 @Value
 public class PropertiesDiff {
 
+    public enum ComparisonMode {
+        STORED, FINAL
+    }
+
     Set<PropertyVisitor> onlyLeft;
     Set<PropertyVisitor> onlyRight;
     Set<AbstractDifferingProperty> common;
     Set<AbstractDifferingProperty> differingProperties;
 
-    public PropertiesDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, boolean compareStoredValues) {
+    public PropertiesDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, ComparisonMode comparisonMode) {
         // On procède au diff :
         //  - onlyLeft : la propriété n'est pas présente dans la liste de droite.
         //  - onlyRight : la propriété n'est pas présente dans la liste de gauche.
@@ -42,17 +46,17 @@ public class PropertiesDiff {
 
         for (PropertyVisitor leftProperty : propertiesLeft.getProperties()) {
             PropertyVisitor rightProperty = propertyVisitorsRightPerName.get(leftProperty.getName());
-            if (!hasValue(rightProperty, compareStoredValues)) {
-                if (hasValue(leftProperty, compareStoredValues)) {
+            if (!hasValue(rightProperty, comparisonMode)) {
+                if (hasValue(leftProperty, comparisonMode)) {
                     onlyLeft.add(leftProperty);
                 } else {
-                    common.add(buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues));
+                    common.add(buildDifferingPropertyRecursive(leftProperty, rightProperty, comparisonMode));
                 }
-            } else if (!hasValue(leftProperty, compareStoredValues)) {
+            } else if (!hasValue(leftProperty, comparisonMode)) {
                 onlyRight.add(rightProperty);
             } else {
-                AbstractDifferingProperty differingProperty = buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues);
-                if (leftProperty.equals(rightProperty, compareStoredValues)) {
+                AbstractDifferingProperty differingProperty = buildDifferingPropertyRecursive(leftProperty, rightProperty, comparisonMode);
+                if (leftProperty.equals(rightProperty, comparisonMode)) {
                     common.add(differingProperty);
                 } else {
                     differingProperties.add(differingProperty);
@@ -64,11 +68,11 @@ public class PropertiesDiff {
         propertiesRight.getProperties().stream()
                 .filter(rightProperty -> !visitedLeftPropertyNames.contains(rightProperty.getName()))
                 .forEach(rightProperty -> {
-                    if (hasValue(rightProperty, compareStoredValues)) {
+                    if (hasValue(rightProperty, comparisonMode)) {
                         onlyRight.add(rightProperty);
                     } else {
                         // Cas où la propriété n'a pas de modèle, n'est pas renseignée à gauche et vide à droite
-                        common.add(buildDifferingPropertyRecursive(null, rightProperty, compareStoredValues));
+                        common.add(buildDifferingPropertyRecursive(null, rightProperty, comparisonMode));
                     }
                 });
 
@@ -78,7 +82,7 @@ public class PropertiesDiff {
         this.differingProperties = differingProperties;
     }
 
-    private static boolean hasValue(PropertyVisitor propertyVisitor, boolean compareStoredValues) {
+    private static boolean hasValue(PropertyVisitor propertyVisitor, ComparisonMode comparisonMode) {
         boolean hasValue = false;
 
         if (propertyVisitor != null) {
@@ -87,7 +91,7 @@ public class PropertiesDiff {
                 hasValue = iterablePropertyVisitor.getItems().size() > 0;
             } else {
                 SimplePropertyVisitor simplePropertyVisitor = (SimplePropertyVisitor) propertyVisitor;
-                if (compareStoredValues) {
+                if (ComparisonMode.STORED.equals(comparisonMode)) {
                     hasValue = simplePropertyVisitor.isValued();
                 } else {
                     // Permet de tenir compte de la valeur par défaut si elle est fournie
@@ -100,7 +104,7 @@ public class PropertiesDiff {
         return hasValue;
     }
 
-    private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, boolean compareStoredValues) {
+    private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, ComparisonMode comparisonMode) {
         AbstractDifferingProperty differingProperty;
         if (leftProperty == null) {
             // Cas où la propriété n'a pas de model, n'est pas renseignée à gauche et vide à droite
@@ -114,7 +118,7 @@ public class PropertiesDiff {
             List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
                 PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? PropertyVisitorsSequence.empty() : iterablePropertyLeftItems.get(index);
                 PropertyVisitorsSequence nestedPropertiesRight = (index >= iterablePropertyRightItems.size()) ? PropertyVisitorsSequence.empty() : iterablePropertyRightItems.get(index);
-                return new PropertiesDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
+                return new PropertiesDiff(nestedPropertiesLeft, nestedPropertiesRight, comparisonMode);
             }).collect(Collectors.toList());
             differingProperty = new IterableDifferingProperty(leftProperty.getName(), propertiesDiffList);
         }

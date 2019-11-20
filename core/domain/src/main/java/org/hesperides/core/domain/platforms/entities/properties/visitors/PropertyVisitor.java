@@ -1,5 +1,7 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -17,7 +19,7 @@ public interface PropertyVisitor {
 
     PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper);
 
-    boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue);
+    boolean equals(PropertyVisitor propertyVisitor, PropertiesDiff.ComparisonMode comparisonMode);
 
     boolean isValued();
 }

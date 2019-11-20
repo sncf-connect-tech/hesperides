@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
+import static org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 import static org.junit.Assert.assertEquals;
 
 public class PropertiesDiffTest {
@@ -33,7 +34,7 @@ public class PropertiesDiffTest {
         PropertiesDiff pdiff = new PropertiesDiff(
                 new PropertyVisitorsSequence(Arrays.asList(p1pty1, p1pty2, p1pty3)),
                 new PropertyVisitorsSequence(Arrays.asList(p2pty1, p2pty2, p2pty3)),
-                false);
+                ComparisonMode.FINAL);
         assertEquals(1, pdiff.getOnlyLeft().size());
         assertEquals(1, pdiff.getOnlyRight().size());
         assertEquals(1, pdiff.getCommon().size());
@@ -74,7 +75,7 @@ public class PropertiesDiffTest {
         PropertiesDiff pdiff = new PropertiesDiff(
                 new PropertyVisitorsSequence(singletonList(platformOneIterablePpty)),
                 new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)),
-                false);
+                ComparisonMode.FINAL);
         assertEquals(1, pdiff.getCommon().size());
     }
 
@@ -103,7 +104,7 @@ public class PropertiesDiffTest {
         PropertiesDiff pdiff = new PropertiesDiff(
                 new PropertyVisitorsSequence(singletonList(platformOneIterablePpty)),
                 new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)),
-                false);
+                ComparisonMode.FINAL);
         assertEquals(1, pdiff.getDifferingProperties().size());
 
     }

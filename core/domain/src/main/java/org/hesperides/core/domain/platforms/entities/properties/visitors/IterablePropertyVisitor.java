@@ -1,6 +1,7 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
@@ -70,7 +71,7 @@ public class IterablePropertyVisitor implements PropertyVisitor {
     }
 
     @Override
-    public boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue) {
+    public boolean equals(PropertyVisitor propertyVisitor, ComparisonMode comparisonMode) {
         boolean isEqual = false;
         if (getName().equals(propertyVisitor.getName()) && propertyVisitor instanceof IterablePropertyVisitor) {
             IterablePropertyVisitor iterablePropertyVisitor = (IterablePropertyVisitor) propertyVisitor;

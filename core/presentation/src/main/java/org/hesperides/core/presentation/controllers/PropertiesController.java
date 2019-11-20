@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
+
 @Slf4j
 @Api(tags = "05. Properties", description = " ")
 @RequestMapping("/applications")
@@ -134,7 +136,7 @@ public class PropertiesController extends AbstractController {
         PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(
                 fromPlatformKey, fromPropertiesPath, fromInstanceName,
                 toPlatformKey, toPropertiesPath, toInstanceName,
-                timestamp, compareStoredValues,
+                timestamp, compareStoredValues ? ComparisonMode.STORED : ComparisonMode.FINAL,
                 new User(authentication));
         return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
     }
