@@ -17,6 +17,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
@@ -284,7 +285,7 @@ public class PlatformUseCases {
                                             final String toPropertiesPath,
                                             final String toInstanceName,
                                             final Long timestamp,
-                                            final boolean compareStoredValues,
+                                            final ComparisonMode comparisonMode,
                                             final User user) {
 
         PlatformView fromPlatform = getPlatform(fromPlatformKey);
@@ -294,7 +295,7 @@ public class PlatformUseCases {
         if (Platform.isGlobalPropertiesPath(fromPropertiesPath) && Platform.isGlobalPropertiesPath(toPropertiesPath)) {
             PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequenceForGlobals(fromPlatform);
             PropertyVisitorsSequence toPropertyVisitors = buildPropertyVisitorsSequenceForGlobals(toPlatform);
-            propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
+            propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, comparisonMode);
 
         } else {
 
@@ -323,7 +324,7 @@ public class PlatformUseCases {
                     toModulePropertiesModels,
                     toInstanceName, toShouldHidePasswordProperties);
 
-            propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
+            propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, comparisonMode);
         }
         return propertiesDiff;
     }
