@@ -22,6 +22,7 @@ package org.hesperides.core.presentation.controllers;
 
 import org.hesperides.core.application.events.EventUseCases;
 import org.hesperides.core.application.files.FileUseCases;
+import org.hesperides.core.application.keyvalues.KeyValueUseCases;
 import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.application.security.ApplicationDirectoryGroupsUseCases;
@@ -34,6 +35,8 @@ import org.springframework.test.web.servlet.MockMvc;
 public abstract class AbstractControllerTest {
     @Autowired
     protected MockMvc mvc;
+    @MockBean
+    protected KeyValueUseCases keyValueUseCases;
     @MockBean
     protected ModuleUseCases moduleUseCases;
     @MockBean

@@ -5,16 +5,14 @@ import com.google.gson.JsonSyntaxException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplateHandler;
@@ -149,6 +147,15 @@ public class CustomRestTemplate extends RestTemplate {
     @Override
     public <T> ResponseEntity<T> postForEntity(URI url, @Nullable Object request, Class<T> responseType) throws RestClientException {
         return wrapForEntity(super.postForEntity(url, request, String.class), responseType);
+    }
+
+    @Override
+    public URI postForLocation(String url, @Nullable Object request, Object... uriVariables)
+            throws RestClientException {
+
+        RequestCallback requestCallback = httpEntityCallback(request);
+        HttpHeaders headers = execute(url, HttpMethod.POST, requestCallback, headersExtractor(), uriVariables);
+        return (headers != null ? headers.getLocation() : null);
     }
 
     @Override

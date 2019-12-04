@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -69,5 +70,9 @@ public class TestContext {
 
     HttpStatus getResponseStatusCode() {
         return responseEntity.getStatusCode();
+    }
+
+    public URI getLocation() {
+        return responseEntity.getHeaders().getLocation();
     }
 }
