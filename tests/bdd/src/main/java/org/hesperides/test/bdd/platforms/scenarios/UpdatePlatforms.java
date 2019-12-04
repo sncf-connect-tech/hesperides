@@ -167,15 +167,19 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
-        Given("^the platform(?: \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
-                String platformName, String valuedGlobalInstanceOrIterableProperties, DataTable data) -> {
+        Given("^(?:the module \"([^\"]+)\" of )?the platform(?: \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
+                String moduleName, String platformName, String propertiesNature, DataTable data) -> {
 
             if (isNotEmpty(platformName)) {
                 // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
                 assertEquals(platformName, platformBuilder.getPlatformName());
             }
 
-            switch (valuedGlobalInstanceOrIterableProperties) {
+            final DeployedModuleBuilder deployedModuleBuilder = isNotEmpty(moduleName)
+                    ? platformBuilder.findDeployedModuleBuilderByName(moduleName)
+                    : this.deployedModuleBuilder;
+
+            switch (propertiesNature) {
                 case "global":
                     platformBuilder.setGlobalProperties(data.asList(ValuedPropertyIO.class));
                     saveProperties.saveGlobalProperties();
@@ -188,14 +192,14 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                     break;
                 case "iterable":
                     deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
-                    saveProperties.saveValuedProperties();
+                    saveProperties.saveValuedProperties(deployedModuleBuilder);
 
                     break;
                 default:
                     deployedModuleBuilder.clearValuedProperties();
                     List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
                     valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
-                    saveProperties.saveValuedProperties();
+                    saveProperties.saveValuedProperties(deployedModuleBuilder);
                     break;
             }
         });
