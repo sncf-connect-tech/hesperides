@@ -51,6 +51,7 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludePropertyOutsideModel;
 
 @Component
 public class PlatformUseCases {
@@ -444,11 +445,7 @@ public class PlatformUseCases {
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final Long propertiesVersionId,
                                                            final User user) {
-        Optional<PlatformView> optPlatform = platformQueries.getOptionalPlatform(platformKey);
-        if (!optPlatform.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
-        }
-        PlatformView platform = optPlatform.get();
+        PlatformView platform = getPlatform(platformKey);
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
@@ -522,6 +519,32 @@ public class PlatformUseCases {
         }
 
         return applications;
+    }
+
+    public void purgeUnusedProperties(Platform.Key platformKey, String propertiesPath, User user) {
+        final PlatformView platform = getPlatform(platformKey);
+        if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
+            throw new ForbiddenOperationException("Cleaning properties of a production platform is reserved to production role");
+        }
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
+            throw new IllegalStateException("Cleaning only works on module properties (not global ones!)");
+        }
+
+        final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+
+        final List<AbstractPropertyView> propertiesModel = moduleQueries.getPropertiesModel(moduleKey);
+        final List<AbstractValuedPropertyView> baseValues = platform
+                .getDeployedModule(propertiesPath)
+                .getValuedProperties();
+
+        List<AbstractValuedProperty> filteredDomainValues = excludePropertyOutsideModel(baseValues, propertiesModel)
+                .map(AbstractValuedPropertyView::toDomainValuedProperty)
+                .map(AbstractValuedProperty.class::cast)
+                .collect(Collectors.toList());
+
+        Long propertiesVersionId = platformQueries.getPropertiesVersionId(platform.getId(), propertiesPath, null);
+
+        platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(), propertiesVersionId, propertiesVersionId, filteredDomainValues, user);
     }
 
     private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {

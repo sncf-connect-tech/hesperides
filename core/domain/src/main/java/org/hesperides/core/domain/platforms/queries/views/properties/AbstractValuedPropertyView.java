@@ -22,6 +22,7 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
+
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -42,7 +43,9 @@ public abstract class AbstractValuedPropertyView {
 
     protected abstract AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword);
 
-    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView propertyModel);
+    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Function<String, AbstractPropertyView> modelFinder);
+
+    protected abstract Optional<? extends AbstractValuedPropertyView> excludePropertyOutsideModel(Function<String, AbstractPropertyView> modelFinder);
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
@@ -72,6 +75,20 @@ public abstract class AbstractValuedPropertyView {
     }
 
     /**
+     * Récupère de manière récursive les propriétés en excluant les propriétés valorisées
+     * mais n'étant plus définie dans le modèle qu'elles illustrent
+     */
+    public static Stream<AbstractValuedPropertyView> excludePropertyOutsideModel(List<AbstractValuedPropertyView> valuedProperties,
+                                                                                 List<AbstractPropertyView> propertiesModel) {
+        Function<String, AbstractPropertyView> findInModel = toModelFinder(propertiesModel);
+
+        return valuedProperties.stream()
+                .map(valuedProperty -> valuedProperty.excludePropertyOutsideModel(findInModel))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    /**
      * Récupère de manière récursive les propriétés valorisées en excluant
      * les propriétés non valorisées mais ayant une valeur par défaut.
      * <p>
@@ -79,12 +96,31 @@ public abstract class AbstractValuedPropertyView {
      */
     public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> valuedProperties,
                                                                                          List<AbstractPropertyView> propertiesModel) {
-        Stream<AbstractPropertyView> propertiesModelStream = propertiesModel == null ? Stream.empty() : propertiesModel.stream();
-        Map<String, AbstractPropertyView> propertiesModelPerName = propertiesModelStream
-                .collect(Collectors.toMap(AbstractPropertyView::getName, Function.identity(), (p1, p2) -> p1));
+        Function<String, AbstractPropertyView> findInModel = toModelFinder(propertiesModel);
+
         return valuedProperties.stream()
-                .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(propertiesModelPerName.get(valuedProperty.getName())))
+                .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(findInModel))
                 .filter(Optional::isPresent).map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    private static Function<String, AbstractPropertyView> toModelFinder(List<AbstractPropertyView> propertiesModel) {
+        Function<String, AbstractPropertyView> finder;
+
+        if (propertiesModel == null || propertiesModel.isEmpty()) {
+            finder = any -> null;
+
+        } else {
+            Map<String, AbstractPropertyView> perName = new HashMap<>();
+            for (AbstractPropertyView model : propertiesModel) {
+                // en cas de doublon, c'est le 1er arrivé qui "gagne"
+                if (!perName.containsKey(model.getName())) {
+                    perName.put(model.getName(), model);
+                }
+            }
+            finder = perName::get;
+        }
+
+        return finder;
     }
 }

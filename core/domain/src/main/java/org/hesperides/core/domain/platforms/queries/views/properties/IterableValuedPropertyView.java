@@ -28,6 +28,8 @@ import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyVie
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -52,13 +54,33 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView iterablePropertyModel) {
-        List<AbstractPropertyView> propertiesModel = iterablePropertyModel == null ? null : ((IterablePropertyView) iterablePropertyModel).getProperties();
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Function<String, AbstractPropertyView> modelFinder) {
+        return Optional.of(excluding(IterablePropertyItemView::excludePropertyWithOnlyDefaultValue, modelFinder));
+    }
+
+    @Override
+    protected Optional<AbstractValuedPropertyView> excludePropertyOutsideModel(Function<String, AbstractPropertyView> modelFinder) {
+        return Optional.of(excluding(IterablePropertyItemView::excludePropertyOutsideModel, modelFinder));
+    }
+
+    private IterableValuedPropertyView excluding(
+            BiFunction<IterablePropertyItemView, List<AbstractPropertyView>, IterablePropertyItemView> sanitizer,
+            Function<String, AbstractPropertyView> modelFinder) {
+
+        List<AbstractPropertyView> propertiesModel = findPropertiesModel(modelFinder);
+
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
-                .map(item -> item.excludePropertyWithOnlyDefaultValue(propertiesModel))
+                .map(item -> sanitizer.apply(item, propertiesModel))
                 .collect(Collectors.toList());
 
-        return Optional.of(new IterableValuedPropertyView(getName(), items));
+        return new IterableValuedPropertyView(getName(), items);
+    }
+
+    private List<AbstractPropertyView> findPropertiesModel(Function<String, AbstractPropertyView> modelFinder) {
+        return Optional.ofNullable(modelFinder.apply(getName()))
+                .filter(IterablePropertyView.class::isInstance)
+                .map(view -> ((IterablePropertyView) view).getProperties())
+                .orElse(null);
     }
 
     @Override
