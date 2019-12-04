@@ -25,6 +25,20 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2019-11-19
+### Fixed
+
+- #810: Comparaison d'une propriété non définie à une propriété non valorisée mais avec valeur par défaut. [Thomas L'Hostis]
+
+
+
+## 2019-11-14
+### Fixed
+
+- #782: Détails des propriétés valorisées. [Thomas L'Hostis]
+
+
+
 ## 2019-10-23
 ### Fixed
 

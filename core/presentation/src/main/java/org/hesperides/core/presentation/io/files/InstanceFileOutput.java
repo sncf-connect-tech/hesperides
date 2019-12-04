@@ -31,11 +31,15 @@ import java.util.Optional;
 @AllArgsConstructor
 public class InstanceFileOutput {
 
+    String name;
+    String filename;
     String location;
     String url;
     Rights rights;
 
     public InstanceFileOutput(InstanceFileView instanceFileView) {
+        name = instanceFileView.getName();
+        filename = instanceFileView.getFilename();
         location = instanceFileView.getLocation();
         url = instanceFileView.getUrl();
         rights = Optional.ofNullable(instanceFileView.getRights()).map(Rights::new).orElse(null);
@@ -49,7 +53,7 @@ public class InstanceFileOutput {
         String group;
         String other;
 
-        public Rights(TemplateView.RightsView rights) {
+        Rights(TemplateView.RightsView rights) {
             user = Optional.ofNullable(rights).map(TemplateView.RightsView::getUser).map(Rights::fileRightsToString).orElse("");
             group = Optional.ofNullable(rights).map(TemplateView.RightsView::getGroup).map(Rights::fileRightsToString).orElse("");
             other = Optional.ofNullable(rights).map(TemplateView.RightsView::getOther).map(Rights::fileRightsToString).orElse("");

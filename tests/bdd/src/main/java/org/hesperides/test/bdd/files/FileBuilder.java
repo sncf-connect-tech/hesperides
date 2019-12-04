@@ -99,6 +99,8 @@ public class FileBuilder {
         String filename = replacePropertiesWithValues(template.getFilename(), modulePath, instanceName);
         try {
             return new InstanceFileOutput(
+                    template.getName(),
+                    template.getFilename(),
                     location + "/" + filename,
                     "/rest/files"
                             + "/applications/" + platform.getApplicationName()
