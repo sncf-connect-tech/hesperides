@@ -27,9 +27,8 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -54,30 +53,29 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Function<String, AbstractPropertyView> modelFinder) {
-        return Optional.of(excluding(IterablePropertyItemView::excludePropertyWithOnlyDefaultValue, modelFinder));
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName) {
+        List<AbstractPropertyView> propertiesModel = findPropertiesModel(modelPerName);
+
+        List<IterablePropertyItemView> items = iterablePropertyItems.stream()
+                .map(item -> item.excludePropertyWithOnlyDefaultValue(propertiesModel))
+                .collect(Collectors.toList());
+
+        return Optional.of(new IterableValuedPropertyView(getName(), items));
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyOutsideModel(Function<String, AbstractPropertyView> modelFinder) {
-        return Optional.of(excluding(IterablePropertyItemView::excludePropertyOutsideModel, modelFinder));
-    }
-
-    private IterableValuedPropertyView excluding(
-            BiFunction<IterablePropertyItemView, List<AbstractPropertyView>, IterablePropertyItemView> sanitizer,
-            Function<String, AbstractPropertyView> modelFinder) {
-
-        List<AbstractPropertyView> propertiesModel = findPropertiesModel(modelFinder);
+    protected Optional<AbstractValuedPropertyView> excludePropertyOutsideModel(Map<String, AbstractPropertyView> modelPerName) {
+        List<AbstractPropertyView> propertiesModel = findPropertiesModel(modelPerName);
 
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
-                .map(item -> sanitizer.apply(item, propertiesModel))
+                .map(item -> item.excludePropertyOutsideModel(propertiesModel))
                 .collect(Collectors.toList());
 
-        return new IterableValuedPropertyView(getName(), items);
+        return Optional.of(new IterableValuedPropertyView(getName(), items));
     }
 
-    private List<AbstractPropertyView> findPropertiesModel(Function<String, AbstractPropertyView> modelFinder) {
-        return Optional.ofNullable(modelFinder.apply(getName()))
+    private List<AbstractPropertyView> findPropertiesModel(Map<String, AbstractPropertyView> modelPerName) {
+        return Optional.ofNullable(modelPerName.get(getName()))
                 .filter(IterablePropertyView.class::isInstance)
                 .map(view -> ((IterablePropertyView) view).getProperties())
                 .orElse(null);

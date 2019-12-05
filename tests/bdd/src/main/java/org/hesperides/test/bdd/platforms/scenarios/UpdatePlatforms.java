@@ -167,7 +167,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
-        Given("^(?:the module \"([^\"]+)\" of )?the platform(?: \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
+        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?) has these (valued|global|instance|iterable)? properties$", (
                 String moduleName, String platformName, String propertiesNature, DataTable data) -> {
 
             if (isNotEmpty(platformName)) {
@@ -175,6 +175,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 assertEquals(platformName, platformBuilder.getPlatformName());
             }
 
+            // possibilité de surcharger la variable membre dans le cas où c'est un module précis qui nous intéresse
             final DeployedModuleBuilder deployedModuleBuilder = isNotEmpty(moduleName)
                     ? platformBuilder.findDeployedModuleBuilderByName(moduleName)
                     : this.deployedModuleBuilder;

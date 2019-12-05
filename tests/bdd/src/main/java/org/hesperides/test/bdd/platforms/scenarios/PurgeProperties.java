@@ -22,12 +22,28 @@ public class PurgeProperties extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
 
     public PurgeProperties() {
-        When("I purge unneeded properties(?: on path \"([^\"]+)\")?", (String path) -> {
-            PlatformIO input = platformBuilder.buildInput();
-            platformClient.cleanUnusedProperties(input, path);
+        When("I try to purge unneeded global properties of this platform", () -> {
+            PlatformIO selector = platformBuilder.buildInput();
+
+            platformClient.cleanUnusedProperties(selector, "#", "should fail");
         });
 
-        Then("module \"([^\"]+)\" contains only the following properties", (String moduleName, DataTable propertyNames) -> {
+        When("I purge unneeded properties (?:of this platform|of module \"([^\"]+)\")", (String moduleName) -> {
+            PlatformIO selector = platformBuilder.buildInput();
+            String path = moduleName == null ? null
+                    : platformBuilder.findDeployedModuleBuilderByName(moduleName).buildPropertiesPath();
+
+            platformClient.cleanUnusedProperties(selector, path, null);
+        });
+
+        When("I try to purge unneeded properties of unknown module \"([^\"]+)\"", (String badModuleName) -> {
+            PlatformIO selector = platformBuilder.buildInput();
+            String path = "#ABC#DEF#" + badModuleName + "#1.0#RELEASE";
+
+            platformClient.cleanUnusedProperties(selector, path, "should fail");
+        });
+
+        Then("the module \"([^\"]+)\" (?:contains only|still contains all) the following properties", (String moduleName, DataTable propertyNames) -> {
             List<String> expectedNames = propertyNames.asList(String.class);
 
             PlatformIO selector = platformBuilder.buildInput();

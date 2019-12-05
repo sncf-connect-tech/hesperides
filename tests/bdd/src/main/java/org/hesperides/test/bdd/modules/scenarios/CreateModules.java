@@ -136,30 +136,28 @@ public class CreateModules extends HesperidesScenario implements En {
         }
     }
 
-    /**
-     * Cette étape est la fusion de 2 glues :
-     * <ul>
-     * <li>{@code Given a template with the following content}
-     * <li>{@code Given a module with this template}
-     * </ul>
-     * il y a 59 tests qui dépendent de cette étape.
-     */
-    @Given("^an existing module(?: named \"([^\"]*)\")?(?: with version \"([^\"]*)\")? with this template content$")
-    public void givenModuleWithTemplateContent(String moduleName, String moduleVersion, String templateContent) {
-        moduleBuilder.reset();
-        if (isNotEmpty(moduleName)) {
-            moduleBuilder.withName(moduleName);
-        }
-        if (isNotEmpty(moduleVersion)) {
-            moduleBuilder.withVersion(moduleVersion);
-        }
-        createModule();
-        templateBuilder.setContent(templateContent);
-        addTemplatePropertiesToModuleBuilder(templateBuilder);
-        addTemplateToModule();
-    }
-
     public CreateModules() {
+
+        /*
+         * Cette étape est la fusion de 2 glues :
+         * - {@code Given a template with the following content}
+         * - {@code Given a module with this template}
+         *
+         * il y a 61 tests qui dépendent de cette étape.
+         */
+        Given("^an existing module(?: named \"([^\"]*)\")?(?: with version \"([^\"]*)\")? with this template content$", (String moduleName, String moduleVersion, String templateContent) -> {
+            moduleBuilder.reset();
+            if (isNotEmpty(moduleName)) {
+                moduleBuilder.withName(moduleName);
+            }
+            if (isNotEmpty(moduleVersion)) {
+                moduleBuilder.withVersion(moduleVersion);
+            }
+            createModule();
+            templateBuilder.setContent(templateContent);
+            addTemplatePropertiesToModuleBuilder(templateBuilder);
+            addTemplateToModule();
+        });
 
         Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {
             IntStream.range(0, nbVersions).forEach(index -> {

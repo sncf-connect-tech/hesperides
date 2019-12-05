@@ -116,8 +116,8 @@ public class SaveProperties extends HesperidesScenario implements En {
         saveValuedProperties(null, deployedModuleBuilder);
     }
 
-    void saveValuedProperties(DeployedModuleBuilder moduleBuilder) {
-        saveValuedProperties(null, moduleBuilder);
+    void saveValuedProperties(DeployedModuleBuilder deployedModuleBuilder) {
+        saveValuedProperties(null, deployedModuleBuilder);
     }
 
     private void saveValuedProperties(String tryTo, DeployedModuleBuilder deployedModuleBuilder) {

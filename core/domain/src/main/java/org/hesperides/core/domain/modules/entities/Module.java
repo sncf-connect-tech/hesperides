@@ -97,7 +97,7 @@ public class Module extends TemplateContainer {
             if (parts.length < 3) {
                 throw new IllegalArgumentException("Too short properties path: " + propertiesPath);
             }
-            VersionType versionType = VersionType.of(parts[parts.length - 1]);
+            VersionType versionType = VersionType.fromName(parts[parts.length - 1]);
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
         }
 

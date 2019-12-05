@@ -87,18 +87,18 @@ public abstract class TemplateContainer {
         }
 
         public static VersionType fromMinimizedForm(final String minimizedForm) {
-            for (VersionType v : VersionType.values()) {
-                if (v.minimizedForm.equalsIgnoreCase(minimizedForm)) {
-                    return v;
+            for (VersionType versionType : VersionType.values()) {
+                if (versionType.minimizedForm.equalsIgnoreCase(minimizedForm)) {
+                    return versionType;
                 }
             }
             throw new InvalidParameterException("No minimized form of VersionType found for " + minimizedForm);
         }
 
-        public static VersionType of(String name) {
-            for (VersionType v : VersionType.values()) {
-                if (v.name().equalsIgnoreCase(name)) {
-                    return v;
+        public static VersionType fromName(String name) {
+            for (VersionType versionType : VersionType.values()) {
+                if (versionType.name().equalsIgnoreCase(name)) {
+                    return versionType;
                 }
             }
             throw new IllegalArgumentException("Invalid version type, must be WORKINGCOPY or RELEASE : " + name);

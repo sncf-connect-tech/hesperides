@@ -28,7 +28,6 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,9 +42,9 @@ public abstract class AbstractValuedPropertyView {
 
     protected abstract AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword);
 
-    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Function<String, AbstractPropertyView> modelFinder);
+    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName);
 
-    protected abstract Optional<? extends AbstractValuedPropertyView> excludePropertyOutsideModel(Function<String, AbstractPropertyView> modelFinder);
+    protected abstract Optional<? extends AbstractValuedPropertyView> excludePropertyOutsideModel(Map<String, AbstractPropertyView> modelPerName);
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
@@ -80,10 +79,10 @@ public abstract class AbstractValuedPropertyView {
      */
     public static Stream<AbstractValuedPropertyView> excludePropertyOutsideModel(List<AbstractValuedPropertyView> valuedProperties,
                                                                                  List<AbstractPropertyView> propertiesModel) {
-        Function<String, AbstractPropertyView> findInModel = toModelFinder(propertiesModel);
+        Map<String, AbstractPropertyView> perName = modelsPerName(propertiesModel);
 
         return valuedProperties.stream()
-                .map(valuedProperty -> valuedProperty.excludePropertyOutsideModel(findInModel))
+                .map(valuedProperty -> valuedProperty.excludePropertyOutsideModel(perName))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
     }
@@ -96,31 +95,30 @@ public abstract class AbstractValuedPropertyView {
      */
     public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> valuedProperties,
                                                                                          List<AbstractPropertyView> propertiesModel) {
-        Function<String, AbstractPropertyView> findInModel = toModelFinder(propertiesModel);
+        Map<String, AbstractPropertyView> perName = modelsPerName(propertiesModel);
 
         return valuedProperties.stream()
-                .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(findInModel))
+                .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(perName))
                 .filter(Optional::isPresent).map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    private static Function<String, AbstractPropertyView> toModelFinder(List<AbstractPropertyView> propertiesModel) {
-        Function<String, AbstractPropertyView> finder;
+    private static Map<String, AbstractPropertyView> modelsPerName(List<AbstractPropertyView> propertiesModel) {
+        Map<String, AbstractPropertyView> perName;
 
         if (propertiesModel == null || propertiesModel.isEmpty()) {
-            finder = any -> null;
+            perName = Collections.emptyMap();
 
         } else {
-            Map<String, AbstractPropertyView> perName = new HashMap<>();
+            perName = new HashMap<>();
             for (AbstractPropertyView model : propertiesModel) {
                 // en cas de doublon, c'est le 1er arrivé qui "gagne"
                 if (!perName.containsKey(model.getName())) {
                     perName.put(model.getName(), model);
                 }
             }
-            finder = perName::get;
         }
 
-        return finder;
+        return perName;
     }
 }

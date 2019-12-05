@@ -120,18 +120,20 @@ public class PropertiesController extends AbstractController {
 
     @ApiOperation("Purge properties that are no longer needed by related templates")
     @DeleteMapping("/{application_name}/platforms/{platform_name}/properties/clean_unused_properties")
-    public ResponseEntity<Void> cleanUnusedProperties(Authentication authentication,
+    public ResponseEntity cleanUnusedProperties(Authentication authentication,
                                                       @PathVariable("application_name") String applicationName,
                                                       @PathVariable("platform_name") String platformName,
-                                                      @RequestParam(value = "properties_path", required = false) String path) {
+                                                      @RequestParam(value = "properties_path", required = false) String propertiesPath) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         User authenticatedUser = new User(authentication);
 
-        if (StringUtils.isEmpty(path) || "#".equals(path)) {
+        if (StringUtils.isEmpty(propertiesPath)) {
+            // tous les modules
             platformUseCases.getPlatform(platformKey).getActiveDeployedModules()
                     .forEach(module -> platformUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
         } else {
-            platformUseCases.purgeUnusedProperties(platformKey, path, authenticatedUser);
+            // un seul module
+            platformUseCases.purgeUnusedProperties(platformKey, propertiesPath, authenticatedUser);
         }
 
         return ResponseEntity.noContent().build();

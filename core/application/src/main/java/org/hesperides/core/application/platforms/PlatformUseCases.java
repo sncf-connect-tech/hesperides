@@ -527,7 +527,7 @@ public class PlatformUseCases {
             throw new ForbiddenOperationException("Cleaning properties of a production platform is reserved to production role");
         }
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
-            throw new IllegalStateException("Cleaning only works on module properties (not global ones!)");
+            throw new IllegalArgumentException("Cleaning only works on module properties (not global ones!)");
         }
 
         final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
@@ -537,14 +537,15 @@ public class PlatformUseCases {
                 .getDeployedModule(propertiesPath)
                 .getValuedProperties();
 
-        List<AbstractValuedProperty> filteredDomainValues = excludePropertyOutsideModel(baseValues, propertiesModel)
+        List<AbstractValuedProperty> filteredValuedProperties = excludePropertyOutsideModel(baseValues, propertiesModel)
                 .map(AbstractValuedPropertyView::toDomainValuedProperty)
                 .map(AbstractValuedProperty.class::cast)
                 .collect(Collectors.toList());
 
         Long propertiesVersionId = platformQueries.getPropertiesVersionId(platform.getId(), propertiesPath, null);
 
-        platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(), propertiesVersionId, propertiesVersionId, filteredDomainValues, user);
+        platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(),
+                propertiesVersionId, propertiesVersionId, filteredValuedProperties, user);
     }
 
     private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {

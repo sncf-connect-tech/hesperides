@@ -29,8 +29,8 @@ import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,9 +62,9 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Function<String, AbstractPropertyView> modelFinder) {
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName) {
         if (StringUtils.isEmpty(value)) {
-            PropertyView model = (PropertyView) modelFinder.apply(getName());
+            PropertyView model = (PropertyView) modelPerName.get(getName());
             if (model != null && StringUtils.isNotEmpty(model.getDefaultValue())) {
                 return Optional.empty();
             }
@@ -74,9 +74,9 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<? extends AbstractValuedPropertyView> excludePropertyOutsideModel(Function<String, AbstractPropertyView> modelFinder) {
+    protected Optional<? extends AbstractValuedPropertyView> excludePropertyOutsideModel(Map<String, AbstractPropertyView> modelPerName) {
         return Optional.of(this)
-                .filter(instance -> modelFinder.apply(getName()) != null);
+                .filter(instance -> modelPerName.containsKey(getName()));
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {
