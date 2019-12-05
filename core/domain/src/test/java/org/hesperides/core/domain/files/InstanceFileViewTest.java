@@ -22,23 +22,16 @@ package org.hesperides.core.domain.files;
 
 import org.junit.Test;
 
+import static org.hesperides.core.domain.files.InstanceFileView.buildLegacyFileLocation;
 import static org.junit.Assert.assertEquals;
 
 public class InstanceFileViewTest {
 
     @Test
-    public void testBuildFileLocation() {
-        assertEquals("location/filename", InstanceFileView.buildFileLocation("location", "filename"));
-        assertEquals("location/filename", InstanceFileView.buildFileLocation("location/", "filename"));
-        assertEquals("location/filename", InstanceFileView.buildFileLocation("location", "/filename"));
-        assertEquals("location/filename", InstanceFileView.buildFileLocation("location/", "/filename"));
-    }
-
-    @Test
     public void testBuildLegacyFileLocation() {
-        assertEquals("location/filename", InstanceFileView.buildLegacyFileLocation("location", "filename"));
-        assertEquals("location//filename", InstanceFileView.buildLegacyFileLocation("location/", "filename"));
-        assertEquals("location//filename", InstanceFileView.buildLegacyFileLocation("location", "/filename"));
-        assertEquals("location///filename", InstanceFileView.buildLegacyFileLocation("location/", "/filename"));
+        assertEquals("location/filename", buildLegacyFileLocation("location", "filename"));
+        assertEquals("location//filename", buildLegacyFileLocation("location/", "filename"));
+        assertEquals("location//filename", buildLegacyFileLocation("location", "/filename"));
+        assertEquals("location///filename", buildLegacyFileLocation("location/", "/filename"));
     }
 }

@@ -31,6 +31,8 @@ import java.net.URLEncoder;
 @Value
 public class InstanceFileView {
 
+    String name;
+    String filename;
     String location;
     String url;
     TemplateView.RightsView rights;
@@ -44,6 +46,8 @@ public class InstanceFileView {
                             TemplateView template,
                             boolean simulate) {
 
+        name = template.getName();
+        filename = template.getFilename();
         location = buildLegacyFileLocation(templateLocation, templateFilename);
         url = buildUrl(platform.getApplicationName(),
                 platform.getPlatformName(),
@@ -60,20 +64,6 @@ public class InstanceFileView {
 
     static String buildLegacyFileLocation(String location, String filename) {
         return location + "/" + filename;
-    }
-
-    static String buildFileLocation(String location, String filename) {
-        StringBuilder fileLocation = new StringBuilder();
-        if (location != null) {
-            fileLocation.append(location);
-            if (!location.endsWith("/") && !filename.startsWith("/")) {
-                fileLocation.append("/");
-            } else if (location.endsWith("/") && filename.startsWith("/")) {
-                filename = filename.substring(1);
-            }
-        }
-        fileLocation.append(filename);
-        return fileLocation.toString();
     }
 
     private String buildUrl(final String applicationName,
