@@ -29,6 +29,7 @@ import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyVie
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -64,14 +65,15 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyOutsideModel(Map<String, AbstractPropertyView> modelPerName) {
+    protected Optional<AbstractValuedPropertyView> excludeUnusedProperty(
+            Map<String, AbstractPropertyView> modelPerName, Set<String> indirects) {
         List<AbstractPropertyView> propertiesModel = findPropertiesModel(modelPerName);
 
-        List<IterablePropertyItemView> items = iterablePropertyItems.stream()
-                .map(item -> item.excludePropertyOutsideModel(propertiesModel))
+        List<IterablePropertyItemView> survivingItems = iterablePropertyItems.stream()
+                .map(item -> item.excludeUnusedProperties(propertiesModel, indirects))
                 .collect(Collectors.toList());
 
-        return Optional.of(new IterableValuedPropertyView(getName(), items));
+        return Optional.of(new IterableValuedPropertyView(getName(), survivingItems));
     }
 
     private List<AbstractPropertyView> findPropertiesModel(Map<String, AbstractPropertyView> modelPerName) {

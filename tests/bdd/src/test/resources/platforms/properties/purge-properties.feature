@@ -74,3 +74,31 @@ Feature: Get rid of unneeded values
     And an existing platform with this module and valued properties and global properties
     When I try to purge unneeded global properties of this platform
     Then the request is rejected with a bad request error
+
+  Scenario: do not clean "indirect" values
+    Given an existing module named "basic" with this template content
+      """
+      {{ a_property }}
+      {{ b_property }}
+      {{ c_property }}
+      """
+    And an existing platform with this module and an instance
+    And the module "basic" has these valued properties
+      | name       | value                  |
+      | a_property | {{ind1}}//url/{{ind3}} |
+      | b_property | {{ind2}}               |
+      | ind1       | http:                  |
+      | ind2       | {{ind1}}//other_url    |
+      | ind3       | service_path           |
+      | ind4       | www.perdu.com          |
+    And the platform has these instance properties
+      | name       | value                  |
+      | c_property | {{ind1}}//{{ind4}}     |
+    When I purge unneeded properties of this platform
+    Then the module "basic" still contains all the following properties
+      | a_property |
+      | b_property |
+      | ind1       |
+      | ind2       |
+      | ind3       |
+      | ind4       |

@@ -26,6 +26,7 @@ import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertyReferenceScanner;
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.entities.User;
@@ -51,7 +52,7 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
-import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludePropertyOutsideModel;
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludeUnusedProperties;
 
 @Component
 public class PlatformUseCases {
@@ -62,6 +63,7 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
     private final EventCommands eventCommands;
+    private final PropertyReferenceScanner propertyReferenceScanner;
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands,
@@ -69,13 +71,15 @@ public class PlatformUseCases {
                             ModuleQueries moduleQueries,
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
-                            EventCommands eventCommands) {
+                            EventCommands eventCommands,
+                            PropertyReferenceScanner propertyReferenceScanner) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
         this.eventCommands = eventCommands;
+        this.propertyReferenceScanner = propertyReferenceScanner;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -530,14 +534,14 @@ public class PlatformUseCases {
             throw new IllegalArgumentException("Cleaning only works on module properties (not global ones!)");
         }
 
+        final DeployedModuleView deployedModule = platform.getDeployedModule(propertiesPath);
         final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
 
         final List<AbstractPropertyView> propertiesModel = moduleQueries.getPropertiesModel(moduleKey);
-        final List<AbstractValuedPropertyView> baseValues = platform
-                .getDeployedModule(propertiesPath)
-                .getValuedProperties();
+        final List<AbstractValuedPropertyView> baseValues = deployedModule.getValuedProperties();
+        final Set<String> indirects = propertyReferenceScanner.findAll(baseValues, deployedModule.getInstances());
 
-        List<AbstractValuedProperty> filteredValuedProperties = excludePropertyOutsideModel(baseValues, propertiesModel)
+        List<AbstractValuedProperty> filteredValuedProperties = excludeUnusedProperties(baseValues, propertiesModel, indirects)
                 .map(AbstractValuedPropertyView::toDomainValuedProperty)
                 .map(AbstractValuedProperty.class::cast)
                 .collect(Collectors.toList());

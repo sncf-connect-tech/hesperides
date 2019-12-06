@@ -27,6 +27,7 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
@@ -61,7 +62,10 @@ public class IterablePropertyItemView {
         return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(abstractValuedPropertyViews, propertiesModel));
     }
 
-    IterablePropertyItemView excludePropertyOutsideModel(List<AbstractPropertyView> propertiesModel) {
-        return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertyOutsideModel(abstractValuedPropertyViews, propertiesModel).collect(toList()));
+    IterablePropertyItemView excludeUnusedProperties(List<AbstractPropertyView> propertiesModel, Set<String> indirections) {
+        final List<AbstractValuedPropertyView> surviving = AbstractValuedPropertyView.excludeUnusedProperties(
+                abstractValuedPropertyViews, propertiesModel, indirections).collect(toList());
+
+        return new IterablePropertyItemView(title, surviving);
     }
 }

@@ -44,7 +44,8 @@ public abstract class AbstractValuedPropertyView {
 
     protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName);
 
-    protected abstract Optional<? extends AbstractValuedPropertyView> excludePropertyOutsideModel(Map<String, AbstractPropertyView> modelPerName);
+    protected abstract Optional<? extends AbstractValuedPropertyView> excludeUnusedProperty(
+            Map<String, AbstractPropertyView> modelPerName, Set<String> indirects);
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
@@ -75,14 +76,19 @@ public abstract class AbstractValuedPropertyView {
 
     /**
      * Récupère de manière récursive les propriétés en excluant les propriétés valorisées
-     * mais n'étant plus définie dans le modèle qu'elles illustrent
+     * mais n'étant plus
+     * <ul>
+     * <li>ni définie dans le modèle qu'elles illustrent.
+     * <li>ni utilisée par une autre valorisation (incluant les variables d'instances ou itérables)
+     * </ul>
      */
-    public static Stream<AbstractValuedPropertyView> excludePropertyOutsideModel(List<AbstractValuedPropertyView> valuedProperties,
-                                                                                 List<AbstractPropertyView> propertiesModel) {
+    public static Stream<AbstractValuedPropertyView> excludeUnusedProperties(List<AbstractValuedPropertyView> valuedProperties,
+                                                                             List<AbstractPropertyView> propertiesModel,
+                                                                             Set<String> indirects) {
         Map<String, AbstractPropertyView> perName = modelsPerName(propertiesModel);
 
         return valuedProperties.stream()
-                .map(valuedProperty -> valuedProperty.excludePropertyOutsideModel(perName))
+                .map(valuedProperty -> valuedProperty.excludeUnusedProperty(perName, indirects))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
     }
