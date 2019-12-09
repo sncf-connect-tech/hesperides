@@ -26,6 +26,7 @@ import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertyReferenceScanner;
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.entities.User;
@@ -51,6 +52,7 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludeUnusedValues;
 
 @Component
 public class PlatformUseCases {
@@ -61,6 +63,7 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
     private final EventCommands eventCommands;
+    private final PropertyReferenceScanner propertyReferenceScanner;
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands,
@@ -68,13 +71,15 @@ public class PlatformUseCases {
                             ModuleQueries moduleQueries,
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
-                            EventCommands eventCommands) {
+                            EventCommands eventCommands,
+                            PropertyReferenceScanner propertyReferenceScanner) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
         this.eventCommands = eventCommands;
+        this.propertyReferenceScanner = propertyReferenceScanner;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -444,11 +449,7 @@ public class PlatformUseCases {
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final Long propertiesVersionId,
                                                            final User user) {
-        Optional<PlatformView> optPlatform = platformQueries.getOptionalPlatform(platformKey);
-        if (!optPlatform.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
-        }
-        PlatformView platform = optPlatform.get();
+        PlatformView platform = getPlatform(platformKey);
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
@@ -522,6 +523,33 @@ public class PlatformUseCases {
         }
 
         return applications;
+    }
+
+    public void purgeUnusedProperties(Platform.Key platformKey, String propertiesPath, User user) {
+        final PlatformView platform = getPlatform(platformKey);
+        if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
+            throw new ForbiddenOperationException("Cleaning properties of a production platform is reserved to production role");
+        }
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
+            throw new IllegalArgumentException("Cleaning only works on module properties (not global ones!)");
+        }
+
+        final DeployedModuleView deployedModule = platform.getDeployedModule(propertiesPath);
+        final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+
+        final List<AbstractPropertyView> propertiesModel = moduleQueries.getPropertiesModel(moduleKey);
+        final List<AbstractValuedPropertyView> baseValues = deployedModule.getValuedProperties();
+        final Set<String> referencedProperties = propertyReferenceScanner.findAll(baseValues, deployedModule.getInstances());
+
+        List<AbstractValuedProperty> filteredValuedProperties = excludeUnusedValues(baseValues, propertiesModel, referencedProperties)
+                .map(AbstractValuedPropertyView::toDomainValuedProperty)
+                .map(AbstractValuedProperty.class::cast)
+                .collect(Collectors.toList());
+
+        Long propertiesVersionId = platformQueries.getPropertiesVersionId(platform.getId(), propertiesPath, null);
+
+        platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(),
+                propertiesVersionId, propertiesVersionId, filteredValuedProperties, user);
     }
 
     private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {

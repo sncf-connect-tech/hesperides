@@ -22,14 +22,16 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
+
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
+import static java.util.stream.Collectors.*;
+import static java.util.function.Function.identity;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value
@@ -42,7 +44,10 @@ public abstract class AbstractValuedPropertyView {
 
     protected abstract AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword);
 
-    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView propertyModel);
+    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName);
+
+    protected abstract Optional<? extends AbstractValuedPropertyView> excludeUnusedValue(
+            Map<String, AbstractPropertyView> propertiesPerName, Set<String> referencedProperties);
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
@@ -50,7 +55,7 @@ public abstract class AbstractValuedPropertyView {
                 .stream()
                 .map(AbstractValuedPropertyView::toDomainValuedProperty)
                 .map(AbstractValuedProperty.class::cast)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public static <T extends AbstractValuedPropertyView> List<T> getAbstractValuedPropertyViewWithType(final List<AbstractValuedPropertyView> abstractValuedPropertyViews, Class<T> clazz) {
@@ -59,7 +64,7 @@ public abstract class AbstractValuedPropertyView {
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public static List<AbstractValuedPropertyView> hidePasswordProperties(List<AbstractValuedPropertyView> valuedProperties, List<AbstractPropertyView> propertiesModel) {
@@ -67,8 +72,35 @@ public abstract class AbstractValuedPropertyView {
         Set<String> passwordPropertyNames = AbstractPropertyView.getAllSimpleProperties(propertiesModel)
                 .filter(PropertyView::isPassword)
                 .map(PropertyView::getName)
-                .collect(Collectors.toSet());
-        return valuedProperties.stream().map(property -> property.withPasswordsHidden(passwordPropertyNames::contains)).collect(Collectors.toList());
+                .collect(toSet());
+
+        return valuedProperties.stream()
+                .map(property -> property.withPasswordsHidden(passwordPropertyNames::contains))
+                .collect(toList());
+    }
+
+    /**
+     * Récupère de manière récursive les propriétés en excluant les propriétés valorisées
+     * mais n'étant plus
+     * <ul>
+     * <li>ni définie dans le modèle qu'elles illustrent.
+     * <li>ni utilisée par une autre valorisation (incluant les variables d'instances ou itérables)
+     * </ul>
+     *
+     * @param valuedProperties     ensemble de valorisation candidates au nettoyage
+     * @param propertiesModel      structure des propriétés dans le module déclarant
+     * @param referencedProperties noms des propriétés référencées dans l'ensemble des valorisations (instances comprises),
+     *                             utilisés pour évaluer le 2e critère
+     */
+    public static Stream<AbstractValuedPropertyView> excludeUnusedValues(List<AbstractValuedPropertyView> valuedProperties,
+                                                                         List<AbstractPropertyView> propertiesModel,
+                                                                         Set<String> referencedProperties) {
+        Map<String, AbstractPropertyView> propertiesPerName = indexPropertiesPerName(propertiesModel);
+
+        return valuedProperties.stream()
+                .map(valuedProperty -> valuedProperty.excludeUnusedValue(propertiesPerName, referencedProperties))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
     }
 
     /**
@@ -79,12 +111,28 @@ public abstract class AbstractValuedPropertyView {
      */
     public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> valuedProperties,
                                                                                          List<AbstractPropertyView> propertiesModel) {
-        Stream<AbstractPropertyView> propertiesModelStream = propertiesModel == null ? Stream.empty() : propertiesModel.stream();
-        Map<String, AbstractPropertyView> propertiesModelPerName = propertiesModelStream
-                .collect(Collectors.toMap(AbstractPropertyView::getName, Function.identity(), (p1, p2) -> p1));
+        Map<String, AbstractPropertyView> propertiesPerName = indexPropertiesPerName(propertiesModel);
+
         return valuedProperties.stream()
-                .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(propertiesModelPerName.get(valuedProperty.getName())))
+                .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(propertiesPerName))
                 .filter(Optional::isPresent).map(Optional::get)
-                .collect(Collectors.toList());
+                .collect(toList());
+    }
+
+    private static Map<String, AbstractPropertyView> indexPropertiesPerName(List<AbstractPropertyView> propertiesModel) {
+        Map<String, AbstractPropertyView> index;
+
+        if (propertiesModel == null || propertiesModel.isEmpty()) {
+            index = Collections.emptyMap();
+
+        } else {
+            // en cas de doublon, c'est le 1er arrivé qui "gagne"
+            final BinaryOperator<AbstractPropertyView> firstWins = (p1, p2) -> p1;
+
+            index = propertiesModel.stream()
+                    .collect(toMap(AbstractPropertyView::getName, identity(), firstWins));
+        }
+
+        return index;
     }
 }

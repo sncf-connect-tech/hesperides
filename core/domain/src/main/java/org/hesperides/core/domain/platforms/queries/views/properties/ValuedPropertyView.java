@@ -29,7 +29,9 @@ import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -61,12 +63,22 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView propertyModel) {
-        if (StringUtils.isNotEmpty(value)) {
-            return Optional.of(this);
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName) {
+        if (StringUtils.isEmpty(value)) {
+            PropertyView model = (PropertyView) modelPerName.get(getName());
+            if (model != null && StringUtils.isNotEmpty(model.getDefaultValue())) {
+                return Optional.empty();
+            }
         }
-        PropertyView singlePropertyModel = (PropertyView) propertyModel;
-        return singlePropertyModel == null || StringUtils.isEmpty(singlePropertyModel.getDefaultValue()) ? Optional.of(this) : Optional.empty();
+
+        return Optional.of(this);
+    }
+
+    @Override
+    protected Optional<? extends AbstractValuedPropertyView> excludeUnusedValue(
+            Map<String, AbstractPropertyView> propertiesPerName, Set<String> referencedProperties) {
+        return Optional.of(this)
+                .filter(instance -> propertiesPerName.containsKey(getName()) || referencedProperties.contains(getName()));
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {

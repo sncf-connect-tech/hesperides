@@ -27,10 +27,12 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
+
+import static java.util.stream.Collectors.toList;
 
 @Value
 public class IterablePropertyItemView {
@@ -45,7 +47,7 @@ public class IterablePropertyItemView {
     public IterablePropertyItemView withPasswordsHidden(Predicate<String> isPassword) {
         return new IterablePropertyItemView(title, abstractValuedPropertyViews.stream()
                 .map(property -> property.withPasswordsHidden(isPassword))
-                .collect(Collectors.toList()));
+                .collect(toList()));
     }
 
     public static List<IterablePropertyItem> toDomainIterablePropertyItems(List<IterablePropertyItemView> iterablePropertyItems) {
@@ -53,10 +55,17 @@ public class IterablePropertyItemView {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemView::toDomainIterablePropertyItem)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     IterablePropertyItemView excludePropertyWithOnlyDefaultValue(List<AbstractPropertyView> propertiesModel) {
         return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(abstractValuedPropertyViews, propertiesModel));
+    }
+
+    IterablePropertyItemView excludeUnusedValues(List<AbstractPropertyView> propertiesModel, Set<String> indirections) {
+        final List<AbstractValuedPropertyView> surviving = AbstractValuedPropertyView.excludeUnusedValues(
+                abstractValuedPropertyViews, propertiesModel, indirections).collect(toList());
+
+        return new IterablePropertyItemView(title, surviving);
     }
 }

@@ -2,6 +2,7 @@ package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
+
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -11,6 +12,7 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.hesperides.test.bdd.users.UserAuthorities;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -136,10 +138,18 @@ public class CreateModules extends HesperidesScenario implements En {
 
     public CreateModules() {
 
-        Given("^an existing module(?: with version \"([^\"]*)\")? with this template content$", (String moduleVersion, String templateContent) -> {
-            // Cette étape est la fusion de `Given a template with the following content` et de
-            // `Given a module with this template`, il y a 59 tests qui dépendent de cette étape.
+        /*
+         * Cette étape est la fusion de 2 glues :
+         * - {@code Given a template with the following content}
+         * - {@code Given a module with this template}
+         *
+         * il y a 61 tests qui dépendent de cette étape.
+         */
+        Given("^an existing module(?: named \"([^\"]*)\")?(?: with version \"([^\"]*)\")? with this template content$", (String moduleName, String moduleVersion, String templateContent) -> {
             moduleBuilder.reset();
+            if (isNotEmpty(moduleName)) {
+                moduleBuilder.withName(moduleName);
+            }
             if (isNotEmpty(moduleVersion)) {
                 moduleBuilder.withVersion(moduleVersion);
             }

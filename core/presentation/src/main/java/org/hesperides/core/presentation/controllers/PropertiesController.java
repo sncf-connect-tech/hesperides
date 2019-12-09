@@ -17,6 +17,8 @@ import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUs
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -114,6 +116,27 @@ public class PropertiesController extends AbstractController {
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
+    }
+
+    @ApiOperation("Purge properties that are no longer needed by related templates")
+    @DeleteMapping("/{application_name}/platforms/{platform_name}/properties/clean_unused_properties")
+    public ResponseEntity cleanUnusedProperties(Authentication authentication,
+                                                      @PathVariable("application_name") String applicationName,
+                                                      @PathVariable("platform_name") String platformName,
+                                                      @RequestParam(value = "properties_path", required = false) String propertiesPath) {
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        User authenticatedUser = new User(authentication);
+
+        if (StringUtils.isEmpty(propertiesPath)) {
+            // tous les modules
+            platformUseCases.getPlatform(platformKey).getActiveDeployedModules()
+                    .forEach(module -> platformUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
+        } else {
+            // un seul module
+            platformUseCases.purgeUnusedProperties(platformKey, propertiesPath, authenticatedUser);
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     @ApiOperation("Get properties diff with the given paths in given platforms")

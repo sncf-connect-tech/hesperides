@@ -49,12 +49,15 @@ public class ValuedProperty extends AbstractValuedProperty {
     }
 
     public static List<String> extractValuesBetweenCurlyBrackets(String value) {
-        return Optional.ofNullable(value)
-                .map(notNullValue -> StringUtils.substringsBetween(notNullValue, "{{", "}}"))
+        return streamValuesBetweenCurlyBrackets(value)
+                .collect(Collectors.toList());
+    }
+
+    public static Stream<String> streamValuesBetweenCurlyBrackets(String value) {
+        return Optional.ofNullable(StringUtils.substringsBetween(value, "{{", "}}"))
                 .map(Arrays::stream)
                 .orElse(Stream.empty())
-                .map(String::trim)
-                .collect(Collectors.toList());
+                .map(String::trim);
     }
 
     /**

@@ -149,6 +149,16 @@ public class PlatformClient {
         return testContext.getResponseBody();
     }
 
+    public void cleanUnusedProperties(PlatformIO platformInput, String propertiesPath, String tryTo) {
+        restTemplate.deleteForEntity(
+                "/applications/{application_name}/platforms/{platform_name}/properties/clean_unused_properties?properties_path={path}",
+                getResponseType(tryTo, Void.class),
+                platformInput.getApplicationName(),
+                platformInput.getPlatformName(),
+                propertiesPath
+        );
+    }
+
     public void saveGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
         saveProperties(platform, propertiesInput, "#");
     }

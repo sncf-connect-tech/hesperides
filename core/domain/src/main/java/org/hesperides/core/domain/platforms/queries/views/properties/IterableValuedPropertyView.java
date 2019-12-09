@@ -20,18 +20,21 @@
  */
 package org.hesperides.core.domain.platforms.queries.views.properties;
 
-import lombok.EqualsAndHashCode;
-import lombok.Value;
+import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+
+import static java.util.Collections.emptyList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -52,13 +55,39 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView iterablePropertyModel) {
-        List<AbstractPropertyView> propertiesModel = iterablePropertyModel == null ? null : ((IterablePropertyView) iterablePropertyModel).getProperties();
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(Map<String, AbstractPropertyView> modelPerName) {
+        List<AbstractPropertyView> propertiesModel = findPropertiesModel(modelPerName);
+
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
                 .map(item -> item.excludePropertyWithOnlyDefaultValue(propertiesModel))
                 .collect(Collectors.toList());
 
         return Optional.of(new IterableValuedPropertyView(getName(), items));
+    }
+
+    @Override
+    protected Optional<AbstractValuedPropertyView> excludeUnusedValue(
+            Map<String, AbstractPropertyView> propertiesPerName, Set<String> referencedProperties) {
+        List<AbstractPropertyView> propertiesModel = findPropertiesModel(propertiesPerName);
+
+        List<IterablePropertyItemView> survivingItems = iterablePropertyItems.stream()
+                .map(item -> item.excludeUnusedValues(propertiesModel, referencedProperties))
+                .collect(Collectors.toList());
+
+        return Optional.of(new IterableValuedPropertyView(getName(), survivingItems));
+    }
+
+    private List<AbstractPropertyView> findPropertiesModel(Map<String, AbstractPropertyView> propertiesPerName) {
+        final List<AbstractPropertyView> properties;
+        final AbstractPropertyView property = propertiesPerName.get(getName());
+
+        if (property instanceof IterablePropertyView) {
+            properties = ((IterablePropertyView) property).getProperties();
+        } else {
+            properties = emptyList();
+        }
+
+        return properties;
     }
 
     @Override

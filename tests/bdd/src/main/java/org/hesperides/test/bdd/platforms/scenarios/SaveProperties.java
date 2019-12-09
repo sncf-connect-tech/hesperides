@@ -72,12 +72,12 @@ public class SaveProperties extends HesperidesScenario implements En {
 
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
             deployedModuleBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
-            saveValuedProperties(tryTo);
+            saveValuedProperties(tryTo, deployedModuleBuilder);
         });
 
         When("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
             deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
-            saveValuedProperties(tryTo);
+            saveValuedProperties(tryTo, deployedModuleBuilder);
         });
 
         Then("^the( global)? properties are successfully (?:sav|updat)ed$", (String globalProperties) -> {
@@ -92,7 +92,7 @@ public class SaveProperties extends HesperidesScenario implements En {
         When("^I try to save a property declared twice with the same name but different values$", () -> {
             deployedModuleBuilder.withValuedProperty("property-a", "foo");
             deployedModuleBuilder.withValuedProperty("property-a", "bar");
-            saveValuedProperties("should-fail");
+            saveValuedProperties("should-fail", deployedModuleBuilder);
         });
     }
 
@@ -113,10 +113,14 @@ public class SaveProperties extends HesperidesScenario implements En {
     }
 
     void saveValuedProperties() {
-        saveValuedProperties(null);
+        saveValuedProperties(null, deployedModuleBuilder);
     }
 
-    private void saveValuedProperties(String tryTo) {
+    void saveValuedProperties(DeployedModuleBuilder deployedModuleBuilder) {
+        saveValuedProperties(null, deployedModuleBuilder);
+    }
+
+    private void saveValuedProperties(String tryTo, DeployedModuleBuilder deployedModuleBuilder) {
         platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
         if (isEmpty(tryTo)) {
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
