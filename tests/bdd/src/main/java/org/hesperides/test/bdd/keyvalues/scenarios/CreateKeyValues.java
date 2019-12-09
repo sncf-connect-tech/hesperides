@@ -52,10 +52,6 @@ public class CreateKeyValues extends HesperidesScenario implements En {
             keyValueClient.createKeyValue(keyValueBuilder.buildInput());
         });
 
-        Then("^the key value is successfully created$", () -> {
-            assertCreated();
-            keyValueClient.getKeyValue(testContext.getLocation());
-            assertOK();
-        });
+        Then("^the key value is successfully created$", this::assertCreated);
     }
 }

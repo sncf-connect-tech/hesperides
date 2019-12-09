@@ -21,9 +21,6 @@
 package org.hesperides.core.domain.keyvalues.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.core.domain.keyvalues.CreateKeyValueCommand;
-import org.hesperides.core.domain.keyvalues.DeleteKeyValueCommand;
-import org.hesperides.core.domain.keyvalues.UpdateKeyValueCommand;
 import org.hesperides.core.domain.keyvalues.entities.KeyValue;
 import org.hesperides.core.domain.security.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +37,14 @@ public class KeyValueCommands {
     }
 
     public String createKeyValue(KeyValue keyValue, User user) {
-        return commandGateway.sendAndWait(new CreateKeyValueCommand(keyValue, user));
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public void updateKeyValue(String id, KeyValue keyValue, User user) {
-        commandGateway.sendAndWait(new UpdateKeyValueCommand(id, keyValue, user));
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public void deleteKeyValue(String id, User user) {
-        commandGateway.sendAndWait(new DeleteKeyValueCommand(id, user));
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

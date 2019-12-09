@@ -59,8 +59,4 @@ public class KeyValueClient {
     public void updateKeyValue(String id, KeyValueInput keyValueInput) {
         restTemplate.putForEntity("/keyvalues/{id}", keyValueInput, String.class, id);
     }
-
-    public void deleteKeyValue(String id) {
-        restTemplate.deleteForEntity("/keyvalues/{id}", String.class, id);
-    }
 }

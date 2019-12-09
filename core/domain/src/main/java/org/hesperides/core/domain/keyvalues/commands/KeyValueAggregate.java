@@ -22,17 +22,10 @@ package org.hesperides.core.domain.keyvalues.commands;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.core.domain.keyvalues.*;
-import org.hesperides.core.domain.keyvalues.entities.KeyValue;
 
 import java.io.Serializable;
-import java.util.UUID;
-
-import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 @Slf4j
 @NoArgsConstructor
@@ -44,46 +37,5 @@ public class KeyValueAggregate implements Serializable {
 
     /*** COMMAND HANDLERS ***/
 
-    @CommandHandler
-    public KeyValueAggregate(CreateKeyValueCommand command) {
-        String id = UUID.randomUUID().toString();
-        KeyValue keyValue = command
-                .getKeyValue()
-                .concatKeyValue();
-        log.info("Creating key-value");
-        apply(new KeyValueCreatedEvent(id, keyValue, command.getUser().getName()));
-    }
-
-    @CommandHandler
-    public void onUpdateKeyValueCommand(UpdateKeyValueCommand command) {
-        KeyValue keyValue = command
-                .getKeyValue()
-                .concatKeyValue();
-        log.info("Updating key-value");
-        apply(new KeyValueUpdatedEvent(command.getId(), keyValue, command.getUser().getName()));
-    }
-
-    @CommandHandler
-    public void onDeleteKeyValueCommand(DeleteKeyValueCommand command) {
-        log.info("Deleting key-value");
-        apply(new KeyValueDeletedEvent(command.getId(), command.getUser().getName()));
-    }
-
     /*** EVENT HANDLERS ***/
-
-    @EventSourcingHandler
-    public void onKeyValueCreatedEvent(KeyValueCreatedEvent event) {
-        log.info("Key-value created");
-        this.id = event.getId();
-    }
-
-    @EventSourcingHandler
-    public void onKeyValuUpdatedEvent(KeyValueUpdatedEvent event) {
-        log.info("Key-value updated");
-    }
-
-    @EventSourcingHandler
-    public void onKeyValueDeletedEvent(KeyValueDeletedEvent event) {
-        log.info("Key-value deleted");
-    }
 }

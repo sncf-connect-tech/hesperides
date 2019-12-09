@@ -17,8 +17,3 @@ Feature: key value related features
     Given an existing key value
     When I update this key value
     Then the key value is successfully updated
-
-  Scenario: delete a key value
-    Given an existing key value
-    When I delete this key value
-    Then the key value is successfully deleted

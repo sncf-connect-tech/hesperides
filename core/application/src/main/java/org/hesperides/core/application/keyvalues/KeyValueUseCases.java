@@ -22,7 +22,6 @@ package org.hesperides.core.application.keyvalues;
 
 import org.hesperides.core.domain.keyvalues.commands.KeyValueCommands;
 import org.hesperides.core.domain.keyvalues.entities.KeyValue;
-import org.hesperides.core.domain.keyvalues.exceptions.KeyValueNotFoundException;
 import org.hesperides.core.domain.keyvalues.queries.KeyValueQueries;
 import org.hesperides.core.domain.keyvalues.queries.views.KeyValueView;
 import org.hesperides.core.domain.security.entities.User;
@@ -42,25 +41,14 @@ public class KeyValueUseCases {
     }
 
     public String createKeyValue(KeyValue keyValue, User user) {
-        return keyValueCommands.createKeyValue(keyValue, user);
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public KeyValueView getKeyValue(String id) {
-        return keyValueQueries.getKeyValue(id)
-                .orElseThrow(() -> new KeyValueNotFoundException(id));
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public void updateKeyValue(String id, KeyValue keyValue, User user) {
-        if (!keyValueQueries.keyValueExists(id)) {
-            throw new KeyValueNotFoundException(id);
-        }
-        keyValueCommands.updateKeyValue(id, keyValue, user);
-    }
-
-    public void deleteKeyValue(String id, User user) {
-        if (!keyValueQueries.keyValueExists(id)) {
-            throw new KeyValueNotFoundException(id);
-        }
-        keyValueCommands.deleteKeyValue(id, user);
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

@@ -22,8 +22,6 @@ package org.hesperides.core.domain.keyvalues.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
-import org.hesperides.core.domain.keyvalues.GetKeyValueQuery;
-import org.hesperides.core.domain.keyvalues.KeyValueExistsQuery;
 import org.hesperides.core.domain.keyvalues.queries.views.KeyValueView;
 import org.springframework.stereotype.Component;
 
@@ -37,10 +35,10 @@ public class KeyValueQueries extends AxonQueries {
     }
 
     public Optional<KeyValueView> getKeyValue(String id) {
-        return querySyncOptional(new GetKeyValueQuery(id), KeyValueView.class);
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public boolean keyValueExists(String id) {
-        return querySync(new KeyValueExistsQuery(id), Boolean.class);
+        throw new UnsupportedOperationException("Not implemented");
     }
 }
