@@ -62,8 +62,8 @@ public class IterablePropertyItemView {
         return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(abstractValuedPropertyViews, propertiesModel));
     }
 
-    IterablePropertyItemView excludeUnusedProperties(List<AbstractPropertyView> propertiesModel, Set<String> indirections) {
-        final List<AbstractValuedPropertyView> surviving = AbstractValuedPropertyView.excludeUnusedProperties(
+    IterablePropertyItemView excludeUnusedValues(List<AbstractPropertyView> propertiesModel, Set<String> indirections) {
+        final List<AbstractValuedPropertyView> surviving = AbstractValuedPropertyView.excludeUnusedValues(
                 abstractValuedPropertyViews, propertiesModel, indirections).collect(toList());
 
         return new IterablePropertyItemView(title, surviving);

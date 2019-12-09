@@ -52,7 +52,7 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
 import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
-import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludeUnusedProperties;
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludeUnusedValues;
 
 @Component
 public class PlatformUseCases {
@@ -539,9 +539,9 @@ public class PlatformUseCases {
 
         final List<AbstractPropertyView> propertiesModel = moduleQueries.getPropertiesModel(moduleKey);
         final List<AbstractValuedPropertyView> baseValues = deployedModule.getValuedProperties();
-        final Set<String> indirects = propertyReferenceScanner.findAll(baseValues, deployedModule.getInstances());
+        final Set<String> referencedProperties = propertyReferenceScanner.findAll(baseValues, deployedModule.getInstances());
 
-        List<AbstractValuedProperty> filteredValuedProperties = excludeUnusedProperties(baseValues, propertiesModel, indirects)
+        List<AbstractValuedProperty> filteredValuedProperties = excludeUnusedValues(baseValues, propertiesModel, referencedProperties)
                 .map(AbstractValuedPropertyView::toDomainValuedProperty)
                 .map(AbstractValuedProperty.class::cast)
                 .collect(Collectors.toList());

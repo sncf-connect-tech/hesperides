@@ -75,10 +75,10 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<? extends AbstractValuedPropertyView> excludeUnusedProperty(
-            Map<String, AbstractPropertyView> modelPerName, Set<String> indirects) {
+    protected Optional<? extends AbstractValuedPropertyView> excludeUnusedValue(
+            Map<String, AbstractPropertyView> propertiesPerName, Set<String> referencedProperties) {
         return Optional.of(this)
-                .filter(instance -> modelPerName.containsKey(getName()) || indirects.contains(getName()));
+                .filter(instance -> propertiesPerName.containsKey(getName()) || referencedProperties.contains(getName()));
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {
