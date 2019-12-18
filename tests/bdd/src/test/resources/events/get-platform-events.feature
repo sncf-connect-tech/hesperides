@@ -21,3 +21,10 @@ Feature: Get platform events
     Given a platform that doesn't exist
     When I get the events of this platform
     Then 0 event is returned
+
+  Scenario: get the comments of updated properties events
+    Given an existing module
+    And an existing platform with this module
+    And I update the properties with the comment "I hope I don't type this for nothing..."
+    When I get the events of this platform
+    Then one of the events should contain the comment "I hope I don't type this for nothing..."

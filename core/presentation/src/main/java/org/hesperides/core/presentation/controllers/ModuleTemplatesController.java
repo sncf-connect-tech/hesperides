@@ -119,10 +119,10 @@ public class ModuleTemplatesController extends AbstractController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "template_name", required = true, dataType = "string", paramType = "path"),
     })
-    public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
-                                                      @PathVariable("module_name") final String moduleName,
-                                                      @PathVariable("module_version") final String moduleVersion,
-                                                      HttpServletRequest request) {
+    public ResponseEntity<Void> deleteTemplateInWorkingCopy(Authentication authentication,
+                                                            @PathVariable("module_name") final String moduleName,
+                                                            @PathVariable("module_version") final String moduleVersion,
+                                                            HttpServletRequest request) {
 
         String templateName = extractFilePath(request);
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);

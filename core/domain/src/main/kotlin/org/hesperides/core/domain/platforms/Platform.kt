@@ -14,7 +14,7 @@ data class CreatePlatformCommand(val platform: Platform, val user: User)
 data class DeletePlatformCommand(@TargetAggregateIdentifier val platformId: String, val platformKey: Platform.Key, val user: User)
 data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformId: String, val platform: Platform, val copyPropertiesForUpgradedModules: Boolean, val user: User)
 data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val platformId: String, val providedPlatformVersionId: Long, val providedPropertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
-data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val platformId: String, val propertiesPath: String, val providedPlatformVersionId: Long, val providedPropertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val user: User)
+data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val platformId: String, val propertiesPath: String, val providedPlatformVersionId: Long, val providedPropertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val userComment: String, val user: User)
 data class RestoreDeletedPlatformCommand(@TargetAggregateIdentifier val platformId: String, val user: User)
 
 // Event
@@ -26,7 +26,7 @@ data class PlatformCreatedEvent(override val platformId: String, val platform: P
 data class PlatformUpdatedEvent(override val platformId: String, val platform: Platform, val copyPropertiesForUpgradedModules: Boolean, override val user: String) : PlatformEventWithKey(platform.key, platformId, user)
 data class PlatformDeletedEvent(override val platformId: String, override val platformKey: Platform.Key, override val user: String) : PlatformEventWithKey(platformKey, platformId, user)
 data class PlatformPropertiesUpdatedEvent(override val platformId: String, val platformVersionId: Long, val globalPropertiesVersionId: Long, val valuedProperties: List<ValuedProperty>, override val user: String) : PlatformEvent(platformId, user)
-data class PlatformModulePropertiesUpdatedEvent(override val platformId: String, val propertiesPath: String, val platformVersionId: Long, val propertiesVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, override val user: String) : PlatformEvent(platformId, user)
+data class PlatformModulePropertiesUpdatedEvent(override val platformId: String, val propertiesPath: String, val platformVersionId: Long, val propertiesVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val userComment: String, override val user: String) : PlatformEvent(platformId, user)
 data class RestoreDeletedPlatformEvent(override val platformId: String, override val user: String) : PlatformEvent(platformId, user)
 
 // Query

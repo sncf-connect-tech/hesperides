@@ -42,15 +42,14 @@ public class UpdateProperties extends HesperidesScenario implements En {
     @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
-    private CreatePlatforms createPlatforms;
-    @Autowired
     private SaveProperties saveProperties;
 
     public UpdateProperties() {
 
-        When("^I update the properties$", () -> {
+        When("^I update the properties(?: with the comment \"([^\"]*)\")?$", (String comment) -> {
             deployedModuleBuilder.withValuedProperty("new-property", "new-value");
-            platformClient.updateProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformClient.updateProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(),
+                    deployedModuleBuilder.buildPropertiesPath(), comment, null);
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
@@ -59,7 +58,8 @@ public class UpdateProperties extends HesperidesScenario implements En {
             Long firstPlatformVersionId = platformBuilder.getVersionId();
 
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                platformClient.updateProperties(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                platformClient.updateProperties(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId),
+                        deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
                 platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
                 platformHistory.updatePlatformBuilder(platformBuilder);
             });
@@ -86,7 +86,7 @@ public class UpdateProperties extends HesperidesScenario implements En {
         When("^I try to update the properties of this module twice with the same properties version_id$", () -> {
             Long firstPropertiesVersionId = deployedModuleBuilder.getPropertiesVersionId();
             platformClient.updateProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(firstPropertiesVersionId), deployedModuleBuilder.buildPropertiesPath());
-            platformClient.updateProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(firstPropertiesVersionId), deployedModuleBuilder.buildPropertiesPath(), "should-fail");
+            platformClient.updateProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(firstPropertiesVersionId), deployedModuleBuilder.buildPropertiesPath(), null, "should-fail");
         });
 
         When("^I try to update global properties twice with the same global properties version_id$", () -> {

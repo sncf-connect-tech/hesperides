@@ -50,7 +50,7 @@ public class UsersController extends AbstractController {
 
     @ApiOperation("Retrieve information about a known user.")
     @GetMapping("/{username}")
-    public ResponseEntity getUserInfo(@PathVariable final String username) {
+    public ResponseEntity<UserInfoOutput> getUserInfo(@PathVariable final String username) {
         final User user = userUseCases.getUser(username);
         return ResponseEntity.ok(new UserInfoOutput(user));
     }
