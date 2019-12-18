@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
@@ -17,8 +18,6 @@ import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUs
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -93,12 +92,20 @@ public class PropertiesController extends AbstractController {
                                                        @PathVariable("platform_name") final String platformName,
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
+                                                       @RequestParam(value = "comment", required = false) final String userComment,
                                                        @Valid @RequestBody final PropertiesIO properties) {
         return ResponseEntity.ok()
                 .header("Deprecation", "version=\"2019-08-02\"")
                 .header("Sunset", "Sat Aug  3 00:00:00 CEST 2020")
                 .header("Link", String.format("/applications/%s/platforms/%s/properties", applicationName, platformName))
-                .body(updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties).getBody());
+                .body(updateProperties(
+                        authentication,
+                        applicationName,
+                        platformName,
+                        propertiesPath,
+                        platformVersionId,
+                        userComment,
+                        properties).getBody());
     }
 
     @ApiOperation("Update deployed modules or global properties")
@@ -108,19 +115,27 @@ public class PropertiesController extends AbstractController {
                                                          @PathVariable("platform_name") final String platformName,
                                                          @RequestParam("path") final String propertiesPath,
                                                          @RequestParam("platform_vid") final Long platformVersionId,
+                                                         @RequestParam(value = "comment", required = false) final String userComment,
                                                          @Valid @RequestBody final PropertiesIO properties) {
 
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(
+                platformKey,
+                propertiesPath,
+                platformVersionId,
+                abstractValuedProperties,
+                properties.getPropertiesVersionId(),
+                userComment,
+                new User(authentication));
         Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }
 
     @ApiOperation("Purge properties that are no longer needed by related templates")
     @DeleteMapping("/{application_name}/platforms/{platform_name}/properties/clean_unused_properties")
-    public ResponseEntity cleanUnusedProperties(Authentication authentication,
+    public ResponseEntity<Void> cleanUnusedProperties(Authentication authentication,
                                                       @PathVariable("application_name") String applicationName,
                                                       @PathVariable("platform_name") String platformName,
                                                       @RequestParam(value = "properties_path", required = false) String propertiesPath) {

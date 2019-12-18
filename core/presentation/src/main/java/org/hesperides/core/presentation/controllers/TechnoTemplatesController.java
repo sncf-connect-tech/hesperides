@@ -90,10 +90,10 @@ public class TechnoTemplatesController extends AbstractController {
 
     @ApiOperation("Delete template in the working copy of a version")
     @DeleteMapping("/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
-    public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
-                                                      @PathVariable("techno_name") final String technoName,
-                                                      @PathVariable("techno_version") final String technoVersion,
-                                                      @PathVariable("template_name") final String templateName) {
+    public ResponseEntity<Void> deleteTemplateInWorkingCopy(Authentication authentication,
+                                                            @PathVariable("techno_name") final String technoName,
+                                                            @PathVariable("techno_version") final String technoVersion,
+                                                            @PathVariable("template_name") final String templateName) {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         this.technoUseCases.deleteTemplate(technoKey, templateName, new User(authentication));

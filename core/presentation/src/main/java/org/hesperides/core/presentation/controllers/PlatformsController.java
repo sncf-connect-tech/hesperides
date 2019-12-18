@@ -123,9 +123,9 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Delete a platform")
     @DeleteMapping("/{application_name}/platforms/{platform_name}")
-    public ResponseEntity deletePlatform(Authentication authentication,
-                                         @PathVariable("application_name") final String applicationName,
-                                         @PathVariable("platform_name") final String platformName) {
+    public ResponseEntity<Void> deletePlatform(Authentication authentication,
+                                               @PathVariable("application_name") final String applicationName,
+                                               @PathVariable("platform_name") final String platformName) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         platformUseCases.deletePlatform(platformKey, new User(authentication));

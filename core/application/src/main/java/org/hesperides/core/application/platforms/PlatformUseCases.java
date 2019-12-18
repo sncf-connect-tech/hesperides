@@ -24,11 +24,7 @@ import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformExceptio
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
-import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
-import org.hesperides.core.domain.platforms.queries.views.properties.PropertyReferenceScanner;
-import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
-import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.*;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.ApplicationDirectoryGroupsQueries;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
@@ -448,6 +444,7 @@ public class PlatformUseCases {
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final Long propertiesVersionId,
+                                                           final String userComment,
                                                            final User user) {
         PlatformView platform = getPlatform(platformKey);
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
@@ -473,7 +470,15 @@ public class PlatformUseCases {
                 throw new ModuleNotFoundException(moduleKey);
             }
             validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey, platformKey);
-            platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, abstractValuedProperties, user);
+            platformCommands.saveModulePropertiesInPlatform(
+                    platform.getId(),
+                    propertiesPath,
+                    platformVersionId,
+                    propertiesVersionId,
+                    expectedPropertiesVersionId,
+                    abstractValuedProperties,
+                    userComment,
+                    user);
         }
 
         return getValuedProperties(platformKey, propertiesPath, null, user);
@@ -549,7 +554,8 @@ public class PlatformUseCases {
         Long propertiesVersionId = platformQueries.getPropertiesVersionId(platform.getId(), propertiesPath, null);
 
         platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(),
-                propertiesVersionId, propertiesVersionId, filteredValuedProperties, user);
+                propertiesVersionId, propertiesVersionId, filteredValuedProperties,
+                "Generated comment: cleaning unused properties", user);
     }
 
     private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {

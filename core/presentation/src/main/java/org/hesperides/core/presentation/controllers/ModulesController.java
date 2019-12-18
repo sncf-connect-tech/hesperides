@@ -166,10 +166,10 @@ public class ModulesController extends AbstractController {
 
     @ApiOperation("Delete a module")
     @DeleteMapping("/{module_name}/{module_version}/{module_type}")
-    public ResponseEntity deleteModule(Authentication authentication,
-                                       @PathVariable("module_name") final String moduleName,
-                                       @PathVariable("module_version") final String moduleVersion,
-                                       @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
+    public ResponseEntity<Void> deleteModule(Authentication authentication,
+                                             @PathVariable("module_name") final String moduleName,
+                                             @PathVariable("module_version") final String moduleVersion,
+                                             @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 

@@ -180,18 +180,18 @@ public class PlatformClient {
     }
 
     public void updateGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
-        updateProperties(platform, propertiesInput, "#", null);
+        updateProperties(platform, propertiesInput, "#", null, null);
     }
 
     public void updateGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput, String tryTo) {
-        updateProperties(platform, propertiesInput, "#", tryTo);
+        updateProperties(platform, propertiesInput, "#", null, tryTo);
     }
 
     public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {
-        updateProperties(platformInput, propertiesInput, propertiesPath, null);
+        updateProperties(platformInput, propertiesInput, propertiesPath, null, null);
     }
 
-    public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, String tryTo) {
+    public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, String comment, String tryTo) {
         restTemplate.putForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={properties_path}&comment={comment}",
                 propertiesInput,
@@ -200,7 +200,7 @@ public class PlatformClient {
                 platformInput.getPlatformName(),
                 platformInput.getVersionId(),
                 propertiesPath,
-                "this is a comment");
+                comment);
     }
 
     public void getGlobalPropertiesUsage(PlatformIO platform) {

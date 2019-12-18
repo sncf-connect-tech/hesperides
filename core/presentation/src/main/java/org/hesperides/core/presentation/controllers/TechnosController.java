@@ -132,10 +132,10 @@ public class TechnosController extends AbstractController {
 
     @ApiOperation("Delete a techno")
     @DeleteMapping("/{techno_name}/{techno_version}/{version_type}")
-    public ResponseEntity deleteTechno(Authentication authentication,
-                                       @PathVariable("techno_name") final String technoName,
-                                       @PathVariable("techno_version") final String technoVersion,
-                                       @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+    public ResponseEntity<Void> deleteTechno(Authentication authentication,
+                                             @PathVariable("techno_name") final String technoName,
+                                             @PathVariable("techno_version") final String technoVersion,
+                                             @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
 
         log.info("deleteTechno {} {} {}", technoName, technoVersion, versionType);
 

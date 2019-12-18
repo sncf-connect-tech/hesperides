@@ -107,6 +107,7 @@ public class PlatformAggregate implements Serializable {
                 (versionId + 1),
                 (command.getExpectedPropertiesVersionId() + 1),
                 command.getValuedProperties(),
+                command.getUserComment(),
                 command.getUser().getName()));
     }
 

@@ -208,6 +208,14 @@ public class PlatformHistory {
         PlatformBuilder platformBuilder;
 
         private TimestampedBuilder(PlatformBuilder platformBuilder) {
+            // Les tests faisant référence au timestamp d'un événement passé plantent
+            // de manière aléatoire en local. Cela vient du fait que le timestamp
+            // sauvegardé dans `PlatformHistory` est parfois défini juste avant la fin
+            // de la sauvegarde effective de l'événement. En attendant de trouver mieux...
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ignored) {
+            }
             timestamp = System.currentTimeMillis();
             this.platformBuilder = platformBuilder;
         }
