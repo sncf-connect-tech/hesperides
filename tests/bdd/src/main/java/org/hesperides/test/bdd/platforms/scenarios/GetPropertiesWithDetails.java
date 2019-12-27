@@ -1,7 +1,7 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
-import cucumber.api.DataTable;
-import cucumber.api.java8.En;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
@@ -68,7 +68,7 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
     }
 
     @Value
-    private static class TestPropertyWithDetails {
+    public static class TestPropertyWithDetails {
         String name;
         String storedValue;
         String finalValue;

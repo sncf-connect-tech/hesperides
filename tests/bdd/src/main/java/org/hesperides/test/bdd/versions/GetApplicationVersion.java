@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.versions;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 
 import java.util.Map;

@@ -20,9 +20,9 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.When;
-import cucumber.api.java8.En;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.When;
+import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
@@ -66,18 +66,18 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private CreatePlatforms createPlatforms;
 
     @When("^I( try to)? update this platform" +
-            "(?:, (?:upgrading|downgrading) its module version to \"([^\"]*)\")?" +
+            "(?:, upgrading|, downgrading)?( its module version to \"([^\"]+)\")?" +
             "(?:, upgrading its module name to \"([^\"]*)\")?" +
             "(, upgrading its module to the release version)?" +
-            "(, adding this module(?: again)?(?: in logical group \"([^\"]*)\")?)?" +
+            "(, adding this module(?: again)?)?(?: in logical group \"([^\"]+)\")?" +
             "(, removing this module)?" +
-            "(, adding an instance(?: named \"([^\"]*)\")?(?: (and|with) instance properties)?)?" +
-            "(?:, removing the instance named \"([^\"]*)\")?" +
+            "(, adding an instance)?(?: named \"([^\"]+)\")?(?: (and|with) instance properties)?" +
+            "(?:, removing the instance named \"([^\"]+)\")?" +
             "(, clearing the modules)?" +
             "(, changing the platform version)?" +
             "( to a prod one)?" +
             "( and requiring the copy of properties)?$")
-    public void whenIupdateThisPlatform(
+    public void iUpdateThisPlatform(
             String tryTo,
             String newModuleVersion,
             String newModuleName,
@@ -167,8 +167,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
-        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?) has these (valued|global|instance|iterable)? properties$", (
-                String moduleName, String platformName, String propertiesNature, DataTable data) -> {
+        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)(?: in version \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
+                String moduleName, String platformName, String moduleVersion, String propertiesNature, DataTable data) -> {
 
             if (isNotEmpty(platformName)) {
                 // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
@@ -177,7 +177,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
             // possibilité de surcharger la variable membre dans le cas où c'est un module précis qui nous intéresse
             final DeployedModuleBuilder deployedModuleBuilder = isNotEmpty(moduleName)
-                    ? platformBuilder.findDeployedModuleBuilderByName(moduleName)
+                    ? platformBuilder.findDeployedModuleBuilderByName(moduleName, moduleVersion)
                     : this.deployedModuleBuilder;
 
             switch (propertiesNature) {

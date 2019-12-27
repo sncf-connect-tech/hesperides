@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
@@ -96,8 +96,8 @@ public class CreateTechnos extends HesperidesScenario implements En {
             });
         });
 
-        Given("^a list of ?(\\d+)? technos( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
-            int technosToCreateCount = isEmpty(modulesCount) ? 12 : Integer.parseInt(modulesCount);
+        Given("^a list of ?(\\d+)? technos( with different names)?(?: with the same name)?$", (Integer technosCount, String withDifferentNames) -> {
+            int technosToCreateCount = technosCount == null ? 12 : technosCount;
             IntStream.range(0, technosToCreateCount).forEach(index -> {
                 if (isNotEmpty(withDifferentNames)) {
                     technoBuilder.withName("a-techno-" + index);

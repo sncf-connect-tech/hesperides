@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.applications.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -24,19 +24,19 @@ public class SearchApplications extends HesperidesScenario implements En {
 
     public SearchApplications() {
 
-        Given("^a list of (\\d+) applications prefixed by \"([^\"]*)\"( with (\\d+) platforms prefixed by \"([^\"]*)\" in each application)?$", (
-                Integer nbApplications, String applicationPrefix, String withPlatform, Integer nbPlatforms, String platformPrefix) -> {
+        Given("^a list of (\\d+) applications prefixed by \"([^\"]*)\"(?: with (\\d+) platforms prefixed by \"([^\"]*)\" in each application)?$", (
+                Integer applicationsCount, String applicationPrefix, Integer platformsCount, String platformPrefix) -> {
 
-            for (int i = 0; i < nbApplications; i++) {
+            for (int i = 0; i < applicationsCount; i++) {
                 platformBuilder.withApplicationName(applicationPrefix + "-" + (i + 1));
 
-                if (StringUtils.isNotEmpty(withPlatform)) {
-                    for (int j = 0; j < nbPlatforms; j++) {
+                if (platformsCount == null) {
+                    createPlatforms.createPlatform();
+                } else {
+                    for (int j = 0; j < platformsCount; j++) {
                         platformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
                         createPlatforms.createPlatform();
                     }
-                } else {
-                    createPlatforms.createPlatform();
                 }
             }
         });

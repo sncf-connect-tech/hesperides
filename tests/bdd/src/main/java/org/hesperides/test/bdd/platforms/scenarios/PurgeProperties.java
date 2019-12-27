@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
+import io.cucumber.java.en.Then;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -8,8 +9,8 @@ import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import cucumber.api.DataTable;
-import cucumber.api.java8.En;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -42,17 +43,16 @@ public class PurgeProperties extends HesperidesScenario implements En {
 
             platformClient.cleanUnusedProperties(selector, path, "should fail");
         });
+    }
 
-        Then("the module \"([^\"]+)\" (?:contains only|still contains all) the following properties", (String moduleName, DataTable propertyNames) -> {
-            List<String> expectedNames = propertyNames.asList(String.class);
+    @Then("the module \"([^\"]+)\" (?:contains only|still contains all) the following properties")
+    public void theModuleContainsThoseProperties(String moduleName, List<String> expectedNames) {
+        PlatformIO selector = platformBuilder.buildInput();
+        DeployedModuleBuilder moduleBuilder = platformBuilder.findDeployedModuleBuilderByName(moduleName);
 
-            PlatformIO selector = platformBuilder.buildInput();
-            DeployedModuleBuilder moduleBuilder = platformBuilder.findDeployedModuleBuilderByName(moduleName);
+        PropertiesIO output = platformClient.getProperties(selector, moduleBuilder.buildPropertiesPath());
 
-            PropertiesIO output = platformClient.getProperties(selector, moduleBuilder.buildPropertiesPath());
-
-            assertThat(output.getValuedProperties()).hasSize(expectedNames.size())
-                    .allSatisfy(valueProperty -> assertThat(valueProperty.getName()).isIn(expectedNames));
-        });
+        assertThat(output.getValuedProperties()).hasSize(expectedNames.size())
+                .allSatisfy(valueProperty -> assertThat(valueProperty.getName()).isIn(expectedNames));
     }
 }

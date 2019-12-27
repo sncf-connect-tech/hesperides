@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.commons;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.springframework.http.HttpStatus;
 
 import static org.hamcrest.Matchers.containsString;

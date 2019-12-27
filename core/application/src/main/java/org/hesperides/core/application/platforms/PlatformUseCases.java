@@ -36,6 +36,7 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -285,7 +286,7 @@ public class PlatformUseCases {
                                             final Platform.Key toPlatformKey,
                                             final String toPropertiesPath,
                                             final String toInstanceName,
-                                            final Long timestamp,
+                                            @Nullable final Long timestamp,
                                             final ComparisonMode comparisonMode,
                                             final User user) {
 
@@ -320,10 +321,18 @@ public class PlatformUseCases {
                     fromPlatform, fromModulePath, fromModuleKey,
                     fromModulePropertiesModels,
                     fromInstanceName, fromShouldHidePasswordProperties);
-            PropertyVisitorsSequence toPropertyVisitors = buildModulePropertyVisitorsSequence(
-                    toPlatform, toModulePath, toModuleKey,
-                    toModulePropertiesModels,
-                    toInstanceName, toShouldHidePasswordProperties);
+            PropertyVisitorsSequence toPropertyVisitors;
+            try {
+                toPropertyVisitors = buildModulePropertyVisitorsSequence(
+                        toPlatform, toModulePath, toModuleKey,
+                        toModulePropertiesModels,
+                        toInstanceName, toShouldHidePasswordProperties);
+            } catch (ModuleNotFoundException error) {
+                if (timestamp != null) { // We make the error message more explicit:
+                    error = new ModuleNotFoundException(toModuleKey, toModulePath, timestamp);
+                }
+                throw error;
+            }
 
             propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, comparisonMode);
         }

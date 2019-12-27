@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;

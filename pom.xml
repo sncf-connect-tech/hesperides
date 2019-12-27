@@ -29,15 +29,15 @@
 
     <properties>
         <!-- Project -->
-        <java.version>1.8</java.version>
-        <kotlin.version>1.3.10</kotlin.version>
+        <java.version>11</java.version>
+        <kotlin.version>1.3.60</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Dependencies -->
         <axon.version>3.4.3</axon.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <commons-io.version>2.6</commons-io.version>
-        <cucumber.version>1.2.5</cucumber.version>
+        <cucumber.version>4.7.4</cucumber.version>
         <ehcache.version>2.10.6</ehcache.version>
         <gson.version>2.8.5</gson.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -46,7 +46,7 @@
         <liquibase.version>3.6.1</liquibase.version>
         <logback.version>1.2.3</logback.version>
         <aspectj.version>1.9.2</aspectj.version>
-        <lombok.version>1.16.20</lombok.version>
+        <lombok.version>1.18.4</lombok.version>
         <micrometer.version>1.1.3</micrometer.version>
         <mockito.version>2.23.0</mockito.version>
         <mongo-java-server.version>1.9.8</mongo-java-server.version>
@@ -68,6 +68,7 @@
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <sentry.version>1.7.16</sentry.version>
         <retry4j.version>0.15.0</retry4j.version>
+        <jaxb.version>2.3.2</jaxb.version>
     </properties>
 
     <dependencies>
@@ -250,6 +251,18 @@
                 <version>${retry4j.version}</version>
             </dependency>
 
+            <!-- Avoiding java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlType with Java 11 due to org.axonframework - cf. https://stackoverflow.com/a/43574427/636849 -->
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+
             <!-- Test -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -262,17 +275,23 @@
                 <version>${hamcrest.version}</version>
             </dependency>
             <dependency>
-                <groupId>info.cukes</groupId>
+                <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-junit</artifactId>
                 <version>${cucumber.version}</version>
             </dependency>
+            <!-- Quoting cucumber-jvm CHANGELOG.md: To use both lambda and annotation based step definitions add a dependency on cucumber-java and cucumber-java8 -->
             <dependency>
-                <groupId>info.cukes</groupId>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${cucumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-java8</artifactId>
                 <version>${cucumber.version}</version>
             </dependency>
             <dependency>
-                <groupId>info.cukes</groupId>
+                <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-spring</artifactId>
                 <version>${cucumber.version}</version>
             </dependency>

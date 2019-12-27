@@ -12,4 +12,8 @@ public class ModuleNotFoundException extends NotFoundException {
     public ModuleNotFoundException(Module.Key key, String modulePath) {
         super("Could not find module " + key.getNamespaceWithoutPrefix() + " at path " + modulePath);
     }
+
+    public ModuleNotFoundException(Module.Key key, String modulePath, Long timestamp) {
+        super("Could not find module " + key.getNamespaceWithoutPrefix() + " at path " + modulePath + " and at timestamp " + timestamp);
+    }
 }

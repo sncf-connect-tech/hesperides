@@ -33,6 +33,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -288,10 +289,20 @@ public class PlatformBuilder implements Serializable {
     }
 
     public DeployedModuleBuilder findDeployedModuleBuilderByName(String moduleName) {
-        return deployedModuleBuilders.stream()
-                .filter(builder -> moduleName.equals(builder.getName()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Can't find deployed module with name \"" + moduleName + "\""));
+        return findDeployedModuleBuilderByName(moduleName, null);
+    }
+
+    public DeployedModuleBuilder findDeployedModuleBuilderByName(String moduleName, @Nullable String moduleVersion) {
+        List<DeployedModuleBuilder> matchingDeployedModuleBuilder = deployedModuleBuilders.stream()
+                .filter(builder -> moduleName.equals(builder.getName()) && (moduleVersion == null || moduleVersion.equals(builder.getVersion())))
+                .collect(Collectors.toList());
+        if (matchingDeployedModuleBuilder.size() == 0) {
+            throw new RuntimeException("Can't find deployed module with name \"" + moduleName + "\"" + ((moduleVersion == null) ? "" : (" and version \"" + moduleVersion + "\"")));
+        }
+        if (matchingDeployedModuleBuilder.size() > 1) {
+            throw new RuntimeException("Several deployed module named \"" + moduleName + "\" exist on the platform");
+        }
+        return matchingDeployedModuleBuilder.get(0);
     }
 
     public DeployedModuleBuilder findDeployedModuleBuilderByVersion(String moduleVersion) {

@@ -20,8 +20,9 @@
  */
 package org.hesperides.test.bdd.applications.scenarios;
 
-import cucumber.api.DataTable;
-import cucumber.api.java8.En;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
@@ -69,15 +70,6 @@ public class CreateApplications extends HesperidesScenario implements En {
             assertOK();
         });
 
-        Given("^an application ?(.+)? associated with the directory groups$", (String applicationName, DataTable directoryGroups) -> {
-            createApplication(applicationName);
-            assertOK();
-            List<String> realDirectoryGroups = directoryGroups.asList(String.class).stream().map(directoryGroup ->
-                    authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup)).collect(Collectors.toList());
-            addApplicationDirectoryGroups(realDirectoryGroups);
-            assertOK();
-        });
-
         When("^I(?: try to)? add (.*)? directory group to the application$", (String directoryGroup) -> {
             String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
             addApplicationDirectoryGroups(realDirectoryGroup);
@@ -90,6 +82,16 @@ public class CreateApplications extends HesperidesScenario implements En {
                     applicationDirectoryGroupsBuilder.buildInput());
             assertOK();
         });
+    }
+
+    @Given("^an application ?(.+)? associated with the directory groups$")
+    public void anAppAssociatedWithThoseDirectoryGroups(String applicationName, List<String> directoryGroups) {
+        createApplication(applicationName);
+        assertOK();
+        List<String> realDirectoryGroups = directoryGroups.stream().map(directoryGroup ->
+                authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup)).collect(Collectors.toList());
+        addApplicationDirectoryGroups(realDirectoryGroups);
+        assertOK();
     }
 
     private void createApplication(String applicationName) {

@@ -6,11 +6,9 @@ import org.hesperides.core.domain.platforms.entities.properties.visitors.Iterabl
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.SimplePropertyVisitor;
+import org.springframework.lang.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -104,7 +102,7 @@ public class PropertiesDiff {
         return hasValue;
     }
 
-    private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, ComparisonMode comparisonMode) {
+    private static AbstractDifferingProperty buildDifferingPropertyRecursive(@Nullable PropertyVisitor leftProperty, @Nullable PropertyVisitor rightProperty, ComparisonMode comparisonMode) {
         AbstractDifferingProperty differingProperty;
         if (leftProperty == null) {
             // Cas où la propriété n'a pas de model, n'est pas renseignée à gauche et vide à droite
@@ -113,7 +111,7 @@ public class PropertiesDiff {
             differingProperty = new SimpleDifferingProperty(leftProperty.getName(), (SimplePropertyVisitor) leftProperty, (SimplePropertyVisitor) rightProperty);
         } else {
             List<PropertyVisitorsSequence> iterablePropertyLeftItems = ((IterablePropertyVisitor) leftProperty).getItems();
-            List<PropertyVisitorsSequence> iterablePropertyRightItems = ((IterablePropertyVisitor) rightProperty).getItems();
+            List<PropertyVisitorsSequence> iterablePropertyRightItems = (rightProperty == null) ? Collections.emptyList() : ((IterablePropertyVisitor) rightProperty).getItems();
             int maxRange = Math.max(iterablePropertyLeftItems.size(), iterablePropertyRightItems.size());
             List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
                 PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? PropertyVisitorsSequence.empty() : iterablePropertyLeftItems.get(index);

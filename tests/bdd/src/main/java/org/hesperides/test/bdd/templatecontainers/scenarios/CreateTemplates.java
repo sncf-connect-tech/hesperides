@@ -20,7 +20,7 @@
  */
 package org.hesperides.test.bdd.templatecontainers.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package org.hesperides.test.mongo_integration;
 
-import cucumber.api.CucumberOptions;
-import cucumber.api.java.Before;
-import cucumber.api.junit.Cucumber;
+import io.cucumber.java.Before;
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
 import org.hesperides.test.bdd.commons.DbCleaner;
 import org.hesperides.test.bdd.commons.TestContextCleaner;
 import org.hesperides.test.mongo_integration.config.IntegTestConfig;
@@ -10,7 +10,6 @@ import org.hesperides.test.mongo_integration.config.IntegTestHttpConfig;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -29,7 +28,6 @@ public class CucumberMongoIntegTests {
 
     @ActiveProfiles(profiles = {MONGO, NOLDAP, TEST})
     @ContextConfiguration(classes = {IntegTestConfig.class, IntegTestHttpConfig.class})
-    @Configuration
     public static class SpringIntegTests {
         @Autowired
         private TestContextCleaner testContextCleaner;
