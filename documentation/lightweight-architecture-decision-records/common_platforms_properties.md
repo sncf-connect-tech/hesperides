@@ -3,22 +3,22 @@
 Dans le but de permettre aux utilisateurs de l'API REST de définir des propriétés communes aux plateformes d'une application.
 
 <!-- toc -->
- [Besoin fonctionnel](#besoin-fonctionnel)
+- [Besoin fonctionnel](#besoin-fonctionnel)
 - [Design](#design)
 - [Ressources REST](#ressources-rest)
     * [POST/PUT /applications/{application_name}/common_properties/](#post-applicationsapplication_namecommon_properties)
     * [GET /applications/{application_name}/common_properties/](#get-applicationsapplication_namecommon_properties)
-    * [DELETE /applications/{application_name}/common_properties/{common_properties_name/}](#delete-applicationsapplication_namecommon_properties_commonpropertiesname)
+- [Détails notables d'implémentation](#details-notables-dimplementation)
 <!-- tocstop -->
 
 ## Besoin fonctionnel
 
-- Exposer via l'API REST des ressources CRUD permettant de créer/lire/modifier/supprimer de propriétés communes (globales) aux plateformes d'une application
-- Apeler ces resources dans le front end suite à une action utilisateur
+- Exposer via l'API REST des ressources CRUD permettant de créer/lire/modifier des propriétés communes (comme pour les globales) partagées entre les plateformes d'une application
+- Ajouter dans le frontend une section d'édition de ces propriétés dans la section supérieure de la page /#/properties/APP
 
 ## Design 
 
-S'inspirer de platform_global_properties existant pour réaliser application_common_properties
+S'inspirer de globales properties au niveau platform existant, pour réaliser cette fonctionnalité (application common properties)
 
 ## Ressources REST
 ### POST/PUT /applications/{application_name}/common_properties/
@@ -33,9 +33,6 @@ S'inspirer de platform_global_properties existant pour réaliser application_com
                  "name": "value1"
              },
              ...    
-         ],
-         "iterable_properties": [
-             ...
          ]
      }
      ```
@@ -51,11 +48,12 @@ S'inspirer de platform_global_properties existant pour réaliser application_com
                   "name": "value1"
               },
               ...    
-          ],
-          "iterable_properties": [
-              ...
           ]
       }
       ```
-  ### DELETE /applications/{application_name}/common_properties/{common_properties_name}
-  
+  ## Détails notables d'implémentation
+ - Prévoir un mécanisme de versionId pour une meilleure gestion des modifications ultérieures de ces propriétés
+ - Lors de la valorisation séparer la logique des propriétés communes aux propriétés globales, mais prévoir une information visuelle quand une propriété commune est utilisé au niveau plateforme par une propriété globale. 
+ - Faire en sorte que ces nouvelles propriétés ne puissent avoir aucun impact sur les  sur les fonctionnalités get-global-properties-usage, purge-properties et restore-platforms.
+ - Prévoir: ApplicationCommad, ApplicationQuery et réutiliser EventCommand.
+ - Ajout d'une nouvelle collection applications pour limiter les impacts et séparer la logique plateforme et la logique application.
