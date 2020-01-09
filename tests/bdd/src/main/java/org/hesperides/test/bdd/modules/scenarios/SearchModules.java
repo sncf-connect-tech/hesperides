@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -31,9 +31,8 @@ public class SearchModules extends HesperidesScenario implements En {
             moduleClient.searchModules(searchInput);
         });
 
-        When("^I search for some of those modules(?:, limiting the number of results to (\\d+))?$", (String nbResults) -> {
-            Integer size = StringUtils.isEmpty(nbResults) ? 0 : Integer.parseInt(nbResults);
-            moduleClient.searchModules("new-module", size, null);
+        When("^I search for some of those modules(?:, limiting the number of results to (\\d+))?$", (Integer resultsCount) -> {
+            moduleClient.searchModules("new-module", resultsCount == null ? 0 : resultsCount, null);
         });
 
         When("^I search for a module that does not exist$", () -> moduleClient.searchModules("nope"));

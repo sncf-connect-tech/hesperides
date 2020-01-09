@@ -1,7 +1,7 @@
 package org.hesperides.test.bdd.events;
 
 import com.google.gson.internal.LinkedTreeMap;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.hesperides.core.presentation.io.events.EventOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;

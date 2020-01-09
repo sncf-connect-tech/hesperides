@@ -20,8 +20,8 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
-import cucumber.api.java.en.Given;
-import cucumber.api.java8.En;
+import io.cucumber.java.en.Given;
+import io.cucumber.java8.En;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
@@ -77,7 +77,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             "(?: named \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|those) modules?)?" +
             "(?: in logical group \"([^\"]*)\")?" +
-            "( (?:and|with) an instance(?: named \"([^\"]*)\")?)?" +
+            // Note: il y a actuellement un risque d'employer la formulation incorrecte « in logical group "XXX"" named "YYY" »
+            // Il faudrait empêcher ça mais Cucumber 3 limite la possibilité d'imbriquer des groupes entre parenthèses en regex
+            "( (?:and|with) an instance)?(?: named \"([^\"]*)\")?" +
             "( (?:and|with) valued properties)?" +
             "( (?:and|with) iterable properties)?" +
             "( (?:and|with) global properties)?" +

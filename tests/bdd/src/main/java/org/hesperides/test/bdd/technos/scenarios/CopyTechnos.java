@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;

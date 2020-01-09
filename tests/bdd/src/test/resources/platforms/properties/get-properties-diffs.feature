@@ -351,3 +351,18 @@ Feature: Get properties diffs
     Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing |
       |          | property  |        |           |
+
+  #issue-818
+  Scenario: comparison including an iterable property that only exists on the left side
+    Given an existing module with this template content
+      """
+      {{#iterable_property}}
+        {{ simple_property }}
+      {{/iterable_property}}
+      """
+    And another existing module
+    And an existing platform with those modules
+    When I get the properties diff on final values between the currently deployed modules
+    Then the resulting diff matches
+      | onlyLeft | onlyRight | common            | differing |
+      |          |           | iterable_property |           |

@@ -20,8 +20,8 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
-import cucumber.api.DataTable;
-import cucumber.api.java8.En;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java8.En;
 import lombok.Value;
 import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -142,7 +142,7 @@ public class SaveProperties extends HesperidesScenario implements En {
     }
 
     @Value
-    private static class IterableProperty {
+    public static class IterableProperty {
         String iterable;
         String bloc;
         String name;

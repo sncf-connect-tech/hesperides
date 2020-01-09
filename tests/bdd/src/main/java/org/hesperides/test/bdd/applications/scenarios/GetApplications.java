@@ -20,8 +20,9 @@
  */
 package org.hesperides.test.bdd.applications.scenarios;
 
-import cucumber.api.DataTable;
-import cucumber.api.java8.En;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Then;
+import io.cucumber.java8.En;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
@@ -112,10 +113,6 @@ public class GetApplications extends HesperidesScenario implements En {
             assertDirectoryGroups(Collections.singletonList(directoryGroupCN));
         });
 
-        Then("^the application details contains the directory groups", (DataTable directoryGroupCNs) -> {
-            assertDirectoryGroups(directoryGroupCNs.asList(String.class));
-        });
-
         Then("^the application details contains no directory groups", () -> {
             String directoryGroupsKey = applicationDirectoryGroupsBuilder.getDirectoryGroupsKey();
             List<String> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups().get(directoryGroupsKey);
@@ -131,6 +128,11 @@ public class GetApplications extends HesperidesScenario implements En {
             Boolean hasPasswords = testContext.getResponseBody(AllApplicationsDetailOutput.class).getApplications().get(0).getPlatforms().get(0).getHasPasswords();
             Assertions.assertThat(hasPasswords).isNotNull();
         });
+    }
+
+    @Then("^the application details contains the directory groups")
+    public void theAppDetailsContainsThoseDirectoryGroups(List<String> directoryGroupCNs) {
+        assertDirectoryGroups(directoryGroupCNs);
     }
 
     private void assertDirectoryGroups(List<String> directoryGroupCNs) {

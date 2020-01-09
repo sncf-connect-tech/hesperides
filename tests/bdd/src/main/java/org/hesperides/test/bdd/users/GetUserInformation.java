@@ -1,6 +1,6 @@
 package org.hesperides.test.bdd.users;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.hesperides.core.presentation.io.UserInfoOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.springframework.beans.factory.annotation.Autowired;

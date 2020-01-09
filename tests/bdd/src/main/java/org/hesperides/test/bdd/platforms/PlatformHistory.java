@@ -203,7 +203,7 @@ public class PlatformHistory {
     }
 
     @Value
-    private static class TimestampedBuilder {
+    public static class TimestampedBuilder {
         Long timestamp;
         PlatformBuilder platformBuilder;
 

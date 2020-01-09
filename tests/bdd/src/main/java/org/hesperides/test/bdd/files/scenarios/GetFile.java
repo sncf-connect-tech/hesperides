@@ -20,7 +20,7 @@
  */
 package org.hesperides.test.bdd.files.scenarios;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.assertj.core.api.Assertions;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileBuilder;

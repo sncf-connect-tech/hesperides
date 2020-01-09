@@ -1,7 +1,7 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
-import cucumber.api.java.en.Given;
-import cucumber.api.java8.En;
+import io.cucumber.java.en.Given;
+import io.cucumber.java8.En;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -49,7 +49,7 @@ public class CreateModules extends HesperidesScenario implements En {
 
     private List<CompletableFuture<ResponseEntity>> concurrentCreations;
 
-    @Given("^an existing( released)? module" +
+    @Given("^an(other)? existing( released)? module" +
             "(?: named \"([^\"]*)\")?" +
             "(?: with version \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|a) template)?" +
@@ -60,6 +60,7 @@ public class CreateModules extends HesperidesScenario implements En {
             "( (?:and|with) nested iterable properties)?" +
             "( (?:and|with) this techno)?$")
     public void givenAnExistingModule(
+            String other,
             String released,
             String moduleName,
             String moduleVersion,
@@ -73,7 +74,9 @@ public class CreateModules extends HesperidesScenario implements En {
 
         moduleBuilder.reset();
 
-        if (isNotEmpty(moduleName)) {
+        if (isNotEmpty(other)) {
+            moduleBuilder.withName("another-test-module");
+        } else if (isNotEmpty(moduleName)) {
             moduleBuilder.withName(moduleName);
         }
 
@@ -166,10 +169,10 @@ public class CreateModules extends HesperidesScenario implements En {
             });
         });
 
-        Given("^a list of( \\d+)? modules( with different names(?: starting with the same prefix)?)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
-            int modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.parseInt(modulesCount.substring(1));
+        Given("^a list of ?(\\d+)? modules( with different names(?: starting with the same prefix)?)?(?: with the same name)?$", (Integer modulesCount, String withDifferentNames) -> {
+            int modulesToCreateCount = modulesCount == null ? 12 : modulesCount;
             for (int i = 0; i < modulesToCreateCount; i++) {
-                boolean isLast = i == (modulesToCreateCount - 1);
+                boolean isLast = (i == (modulesToCreateCount - 1));
                 // Note: il faut créer en dernier le module associé à un "match exact",
                 // car par défaut Mongo semble remonter les résultats ordonnés par date de création
                 if (isLast || isEmpty(withDifferentNames)) {

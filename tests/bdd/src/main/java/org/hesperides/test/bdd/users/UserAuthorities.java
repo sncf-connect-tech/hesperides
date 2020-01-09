@@ -20,7 +20,7 @@
  */
 package org.hesperides.test.bdd.users;
 
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.infrastructure.security.LdapAuthenticationProvider;
