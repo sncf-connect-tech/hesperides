@@ -10,7 +10,7 @@ if [ "$DOCKER_USER" != "" ] && [ "$DOCKER_PASS" != "" ]; then
     else
         TAG=$(echo $TRAVIS_BRANCH | sed -e 's~/~_~g' -e 's/#//g' -e 's/-/_/g')
     fi
-    docker tag hesperides/hesperides:$TRAVIS_BRANCH hesperides/hesperides:$TAG
+    docker tag hesperides/hesperides:$TRAVIS_COMMIT hesperides/hesperides:$TAG
     echo "✓ Docker image hesperides/hesperides:$TRAVIS_BRANCH tagged: $TAG"
     docker push hesperides/hesperides:$TAG
     echo "✓ Docker image pushed to public hub with version $TAG"
