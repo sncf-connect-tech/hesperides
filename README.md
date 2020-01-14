@@ -23,7 +23,7 @@ The list of features planned is available in [ROADMAP.md](https://github.com/voy
 
 ## Requirements
 
- * Java 8 (openjdk, sun)
+ * Java 11 (correto, openjdk)
  
  Choose between:
 
