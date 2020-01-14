@@ -30,7 +30,7 @@ jobs:
       env: BUILD DOCKER IMAGE
       install: echo Not performing default install step
       script: |
-        docker build -t hesperides/hesperides:$TRAVIS_BRANCH \
+        docker build -t hesperides/hesperides:$TRAVIS_COMMIT \
             --label git_commit=$TRAVIS_COMMIT \
             --label date=$(date +%F) \
             --build-arg BUILD_TIME=$(date +%FT%T) \
@@ -38,6 +38,12 @@ jobs:
             --build-arg GIT_BRANCH=$TRAVIS_BRANCH \
             --build-arg GIT_COMMIT=$TRAVIS_COMMIT \
             --build-arg GIT_COMMIT_MSG="$TRAVIS_COMMIT_MESSAGE" .
+        docker save --output hesperides-docker-image.tar hesperides/hesperides:$TRAVIS_COMMIT
+      workspaces:
+        create:
+          name: hesperides-docker-image
+          paths:
+            - hesperides-docker-image.tar
     - stage: test
       env: CUCUMBER TESTS
       before_script:
@@ -58,7 +64,11 @@ jobs:
         - mvn -pl tests/mongo-integration verify
     - stage: deploy
       env: DEPLOY TO DOCKER HUB
-      script: .travis/docker_build_push.sh
+      script:
+        - docker load --input hesperides-docker-image.tar
+        - .travis/docker_build_push.sh
+      workspaces:
+        use: hesperides-docker-image
     - stage: deploy
       env: DEPLOY TO NEXUS (SONATYPE)
       before_script:
