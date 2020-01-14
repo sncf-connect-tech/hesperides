@@ -44,7 +44,7 @@ Si le problème persiste, il faut désactiver tous les plugins d'IntelliJ, et ne
 
 ### Requirements
 
- * Java 8 (openjdk, sun)
+ * Java 11 (correto, openjdk)
 
 Choose between:
 
