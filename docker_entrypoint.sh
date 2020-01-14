@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -o pipefail -o errexit -o nounset
 
 if [ -z "${MONGO_URI:-}" ]; then
