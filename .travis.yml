@@ -23,10 +23,6 @@ stages:
 jobs:
   include:
     - stage: build
-      env: BUILD WITHOUT TEST
-      install: echo Not performing default install step
-      script: mvn clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
-    - stage: build
       env: BUILD DOCKER IMAGE
       install: echo Not performing default install step
       script: |
@@ -38,6 +34,8 @@ jobs:
             --build-arg GIT_BRANCH=$TRAVIS_BRANCH \
             --build-arg GIT_COMMIT=$TRAVIS_COMMIT \
             --build-arg GIT_COMMIT_MSG="$TRAVIS_COMMIT_MESSAGE" .
+        # We validate that the image built can start without any error:
+        docker run --rm -e SPRING_PROFILES_ACTIVE=noldap,fake_mongo -e EXIT_AFTER_INIT=true hesperides/hesperides:$TRAVIS_COMMIT
         docker save --output hesperides-docker-image.tar hesperides/hesperides:$TRAVIS_COMMIT
       workspaces:
         create:
