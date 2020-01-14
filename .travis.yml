@@ -26,6 +26,18 @@ jobs:
       env: BUILD WITHOUT TEST
       install: echo Not performing default install step
       script: mvn clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
+    - stage: build
+      env: BUILD DOCKER IMAGE
+      install: echo Not performing default install step
+      script: |
+        docker build -t hesperides/hesperides:$TRAVIS_BRANCH \
+            --label git_commit=$TRAVIS_COMMIT \
+            --label date=$(date +%F) \
+            --build-arg BUILD_TIME=$(date +%FT%T) \
+            --build-arg GIT_TAG=$(date +%F) \
+            --build-arg GIT_BRANCH=$TRAVIS_BRANCH \
+            --build-arg GIT_COMMIT=$TRAVIS_COMMIT \
+            --build-arg GIT_COMMIT_MSG="$TRAVIS_COMMIT_MESSAGE" .
     - stage: test
       env: CUCUMBER TESTS
       before_script:
@@ -46,7 +58,7 @@ jobs:
         - mvn -pl tests/mongo-integration verify
     - stage: deploy
       env: DEPLOY TO DOCKER HUB
-      script: "./.travis/docker_build_push.sh"
+      script: .travis/docker_build_push.sh
     - stage: deploy
       env: DEPLOY TO NEXUS (SONATYPE)
       before_script:
