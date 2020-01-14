@@ -1,4 +1,4 @@
-FROM maven:3-jdk-11-alpine
+FROM maven:3-jdk-11
 WORKDIR /usr/local/src
 COPY pom.xml .
 COPY bootstrap bootstrap

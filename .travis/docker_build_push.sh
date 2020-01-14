@@ -6,13 +6,12 @@ set -o pipefail -o errexit -o nounset -o xtrace
 if [ "$DOCKER_USER" != "" ] && [ "$DOCKER_PASS" != "" ]; then
     docker login -u $DOCKER_USER -p $DOCKER_PASS
     if [ "$TRAVIS_BRANCH" == "master" ]; then
-        export TAG=latest
+        TAG=latest
     else
-        export TAG=$(echo $TRAVIS_BRANCH | sed -e 's/\//_/g' -e 's/\#//g' -e 's/\-/_/g')
+        TAG=$(echo $TRAVIS_BRANCH | sed -e 's~/~_~g' -e 's/#//g' -e 's/-/_/g')
     fi
-    docker build -t hesperides/hesperides:$TAG --label git_commit=$TRAVIS_COMMIT --label date=$(date +%F) \
-        --build-arg BUILD_TIME=$(date +%FT%T) --build-arg GIT_TAG=$(date +%F) --build-arg GIT_BRANCH=$TRAVIS_BRANCH --build-arg GIT_COMMIT=$TRAVIS_COMMIT --build-arg GIT_COMMIT_MSG="$TRAVIS_COMMIT_MESSAGE" .
-    echo "✓ Docker image built"
+    docker tag hesperides/hesperides:$TRAVIS_BRANCH hesperides/hesperides:$TAG
+    echo "✓ Docker image hesperides/hesperides:$TRAVIS_BRANCH tagged: $TAG"
     docker push hesperides/hesperides:$TAG
     echo "✓ Docker image pushed to public hub with version $TAG"
     docker tag hesperides/hesperides:$TAG hesperides/hesperides:$(date +%F)
