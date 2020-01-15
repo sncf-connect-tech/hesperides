@@ -1,34 +1,48 @@
 package org.hesperides.core.presentation.controllers;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
+
+import static org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
+import org.hesperides.core.domain.platforms.entities.properties.events.PropertiesEvent;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
+import org.hesperides.core.presentation.io.platforms.properties.events.PropertiesEventOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @Api(tags = "05. Properties", description = " ")
@@ -139,6 +153,20 @@ public class PropertiesController extends AbstractController {
                 timestamp, compareStoredValues ? ComparisonMode.STORED : ComparisonMode.FINAL,
                 new User(authentication));
         return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
+    }
+
+    @ApiPageable
+    @ApiOperation("Get properties diff between two events")
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties/event")
+    public ResponseEntity<Page<PropertiesEventOutput>> getEventsPropertiesDiff(
+                Authentication authentication,
+                @PathVariable("application_name") final String applicationName,
+                @PathVariable("platform_name") final String platformName,
+                @RequestParam("path") final String fromPropertiesPath,
+                @SortDefault.SortDefaults({@SortDefault(sort = "timestamp", direction = Sort.Direction.DESC)}) @ApiIgnore Pageable pageable) {
+
+        List<PropertiesEvent> propertiesEvents = platformUseCases.getPropertiesEvents();
+        return ResponseEntity.ok().body(null);
     }
 
     @ApiOperation("List all platform global properties usage")

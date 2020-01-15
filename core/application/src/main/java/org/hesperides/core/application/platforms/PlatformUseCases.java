@@ -1,5 +1,22 @@
 package org.hesperides.core.application.platforms;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
+import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
+import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
@@ -18,12 +35,18 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
+import org.hesperides.core.domain.platforms.entities.properties.events.PropertiesEvent;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
-import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
+import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
+import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
@@ -41,16 +64,6 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.logging.log4j.util.Strings.isBlank;
-import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
-import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
-import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
 
 @Component
 public class PlatformUseCases {
@@ -327,6 +340,11 @@ public class PlatformUseCases {
             propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, comparisonMode);
         }
         return propertiesDiff;
+    }
+
+    public List<PropertiesEvent> getPropertiesEvents() {
+        // TODO
+        return null;
     }
 
     private static PropertyVisitorsSequence buildModulePropertyVisitorsSequence(PlatformView platform,
