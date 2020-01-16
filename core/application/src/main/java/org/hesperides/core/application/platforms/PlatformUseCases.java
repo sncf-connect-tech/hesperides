@@ -21,13 +21,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.application.platforms.properties.PropertyValuationContext;
+import org.hesperides.core.application.platforms.properties.mappers.PropertiesEventMapper;
 import org.hesperides.core.domain.events.commands.EventCommands;
+import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.PlatformModulePropertiesUpdatedEvent;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -62,6 +66,7 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -74,6 +79,7 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
     private final EventCommands eventCommands;
+    private final EventQueries eventQueries;
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands,
@@ -81,13 +87,15 @@ public class PlatformUseCases {
                             ModuleQueries moduleQueries,
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
-                            EventCommands eventCommands) {
+                            EventCommands eventCommands,
+                            EventQueries eventQueries) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
         this.eventCommands = eventCommands;
+        this.eventQueries = eventQueries;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -342,9 +350,28 @@ public class PlatformUseCases {
         return propertiesDiff;
     }
 
-    public List<PropertiesEvent> getPropertiesEvents() {
-        // TODO
-        return null;
+    public List<PropertiesEvent> getEventsPropertiesDiff(final String applicationName,
+                                                         final String platformName,
+                                                         final String propertiesPath,
+                                                         final Pageable pageable) {
+        // Retrieve deployed module
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+
+        // Get Platform events
+        List<EventView> events = platformQueries.getOptionalPlatformId(platformKey)
+                .map(platformId -> eventQueries.getPageEvents(platformId, pageable))
+                .orElseGet(Collections::emptyList);
+
+        // TODO - inclure la variable propertyPath pour filtrer seulement les evénements
+        // TODO - de type PlatformModulePropertiesUpdatedEvent et pour le module concerné
+        List<EventView> filteredEvents = events.stream()
+                .filter(event -> event.getType().equals(PlatformModulePropertiesUpdatedEvent.class.getTypeName()))
+                .collect(Collectors.toList());
+
+        // Transform PlatformModulePropertiesUpdatedEvent events to PropertiesEvent objects
+        return filteredEvents.stream()
+                .map(PropertiesEventMapper::convertToPropertiesEvent)
+                .collect(Collectors.toList());
     }
 
     private static PropertyVisitorsSequence buildModulePropertyVisitorsSequence(PlatformView platform,

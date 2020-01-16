@@ -1,11 +1,21 @@
 package org.hesperides.core.domain.platforms.entities.properties.events;
 
+import java.time.Instant;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
 
-@Value
-public class PropertiesEvent {
 
+@Value
+@Builder
+@AllArgsConstructor
+public class PropertiesEvent {
+    String author;
     String comment;
-    PropertiesEventDiff diff;
-    
+    Instant timestamp;
+    List<String> addedProperties;
+    List<String> removedProperties;
+    List<PropertyEventUpdatedValue> updatedProperties;
 }

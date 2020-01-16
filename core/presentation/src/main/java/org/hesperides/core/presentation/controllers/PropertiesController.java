@@ -18,12 +18,11 @@ import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWit
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
-import org.hesperides.core.presentation.io.platforms.properties.events.PropertiesEventOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
+import org.hesperides.core.presentation.io.platforms.properties.events.PropertiesEventOutput;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
@@ -158,15 +157,15 @@ public class PropertiesController extends AbstractController {
     @ApiPageable
     @ApiOperation("Get properties diff between two events")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/event")
-    public ResponseEntity<Page<PropertiesEventOutput>> getEventsPropertiesDiff(
+    public ResponseEntity<List<PropertiesEventOutput>> getEventsPropertiesDiff(
                 Authentication authentication,
                 @PathVariable("application_name") final String applicationName,
                 @PathVariable("platform_name") final String platformName,
-                @RequestParam("path") final String fromPropertiesPath,
+                @RequestParam("path") final String propertiesPath,
                 @SortDefault.SortDefaults({@SortDefault(sort = "timestamp", direction = Sort.Direction.DESC)}) @ApiIgnore Pageable pageable) {
+        List<PropertiesEvent> propertiesEvents = platformUseCases.getEventsPropertiesDiff(applicationName, platformName, propertiesPath, pageable);
 
-        List<PropertiesEvent> propertiesEvents = platformUseCases.getPropertiesEvents();
-        return ResponseEntity.ok().body(null);
+        return ResponseEntity.ok().body(PropertiesEventOutput.fromPropertiesEventsDiffs(propertiesEvents));
     }
 
     @ApiOperation("List all platform global properties usage")
