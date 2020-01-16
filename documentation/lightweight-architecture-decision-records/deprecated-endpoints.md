@@ -14,3 +14,7 @@ Exemple :
         .header("Sunset", "Wed Apr 24 00:00:00 CEST 2020")  // Date de suppression du endpoint
         .header("Link", "/nouveau-endpoint")                // Où trouver la nouvelle ressource
         .body(...);                                         // Corps de la réponse
+
+Voici une commande utile pour lister toutes les dates de _Sunset_ définies pour nos APIs dépréciées :
+
+    grep Sunset core/presentation/src/main/java/org/hesperides/core/presentation/controllers/*
