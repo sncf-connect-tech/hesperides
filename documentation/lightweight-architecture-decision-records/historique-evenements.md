@@ -17,7 +17,7 @@ Ces ressources seront conservées mais dépréciées.
 * Visualisation des ajouts/suppressions de templates (dans un module ou une techno)
 * Comparer les valorisations d'un module entre 2 versions
 
-3 cas d'utilisations :
+3 cas d'utilisations dans des modales _frontend_ :
 1. Historique des valorisations d'un module déployé
 1. Historique au niveau d'une plateforme
 1. Historique d'un module ou d'une techno
@@ -27,16 +27,24 @@ Ces ressources seront conservées mais dépréciées.
 Etape par étape :
 * Remettre en place la liste des modifications de propriétés avec le commentaire utilisateur
 * Permettre d'afficher les propriétés ajoutées, modifiées et supprimées
-* Permettre de déclencher un diff en 2 valorisations d'un module
+* Permettre de déclencher un diff entre 2 valorisations d'un module, depuis la modale
 * Bonus - Afficher les changements de versions du module
 
-#### Endpoint
+#### Endpoints
 
+    /applications/{application_name}/platforms/{platform_name}/properties/events?properties_path={properties_path}
     /applications/{application_name}/platforms/{platform_name}/properties/events?properties_path={properties_path}
 
 `properties_path` est obligatoire.
 
-#### Output
+Envisagés, plus tard :
+
+    /modules/{name}/{version}/{type}/events
+    /modules/{name}/{version}/{type}/templates/{file}/events
+    /technos/{name}/{version}/{type}/events
+    /technos/{name}/{version}/{type}/templates/{file}/events
+
+#### Output de .../properties/events
 
 L'évènement contenant les valorisations des propriétés est `PlatformModulePropertiesUpdatedEvent`. Il n'est pas nécessaire de modifier cet évènement pour y stocker les différences avec l'état précédent car il contient l'intégralité des valorisations de propriétés d'un module déployé.
 
@@ -56,16 +64,29 @@ Le traitement à exécuter consiste à comparer les évènements n et n-1 afin d
         removed_properties: []
     }
 
+Le champ `commment` sera vide pour les propriété globales, qui n'en possèdend pas.
+
+Les champs `added_properties` / `updated_properties` / `removed_properties`
+seront caclulés en comparant les évenements `PlatformModulePropertiesUpdatedEvent` consécutifs 2 à 2.
+
 Ne pas oublier de tenir compte de l'évènement `RestoreDeletedPlatformEvent` dans le calcul de ces données.
+
+#### Output de .../events
+
+TODO
 
 #### Pagination
 
-Un système de pagination doit être mis en place pour éviter de charger l'intégralité des données d'un module déployé, ce qui peut s'avérer coûteux.
+Un système de pagination doit être mis en place pour éviter de charger l'intégralité des données d'un module déployé,
+ce qui peut s'avérer coûteux.
 
 2 propositions :
 
 * `?offset={}&size={}`
-* `?version_id_start={}&version_id_stop={}` : possibilité de cache mais plus coûteux en temps d'exécution
+* `?version_id_start={}&version_id_stop={}` : moins standard, mais permettrait des headers HTTP de cache bien plus efficaces.
+
+La première solution a été retenue, comme côté _frontend_ dans la majorité des cas seuls 2 appels à ces APIs
+seront effectués par affichage de modale.
 
 ### Historique au niveau d'une plateforme
 
