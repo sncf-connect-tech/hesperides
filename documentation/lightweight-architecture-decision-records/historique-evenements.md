@@ -110,22 +110,23 @@ Les évènements contenant les données permettant d'extraire ces informations s
             timestamp: Long,
             events: [
                 {
-                    name: "platform_version_updated", 
+                    event_name: "platform_version_updated", 
                     old_version: String,
                     new_version: String
                 },
                 {
-                    name: "deployed_module_version_updated",
+                    event_name: "deployed_module_version_updated",
+                    properties_path: String,
                     old_version: String,
                     new_version: String
                 },
                 {
-                    name: "deployed_module_added",
-                    path: String
+                    event_name: "deployed_module_added",
+                    properties_path: String,
                 },
                 {
-                    name: "deployed_module_removed",
-                    path: String
+                    event_name: "deployed_module_removed",
+                    properties_path: String,
                 }
             ]
         }
