@@ -20,6 +20,10 @@
  */
 package org.hesperides.test.bdd.platforms;
 
+import java.util.Map;
+import java.util.Set;
+
+import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
@@ -30,6 +34,7 @@ import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUs
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
+import org.hesperides.core.presentation.io.platforms.properties.events.PropertiesEventOutput;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.commons.TestContext;
 import org.hesperides.test.bdd.templatecontainers.TestVersionType;
@@ -39,11 +44,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
-import java.util.Set;
-
-import static org.hesperides.test.bdd.commons.TestContext.getResponseType;
 
 @Component
 public class PlatformClient {
@@ -264,6 +264,23 @@ public class PlatformClient {
                 toPropertiesPath,
                 toInstance,
                 compareStoredValues);
+    }
+
+    public void getModulePropertiesEvents(String applicationName, String platformName, String propertiesPath, Integer size, Integer page) {
+        String url = "/applications/{application_name}/platforms/{platform_name}/properties/event?path={properties_path}";
+        if (size != null && page != null) {
+            url += "&size={size}&page={page}";
+        }
+
+        restTemplate.getForEntity(
+                url,
+                PropertiesEventOutput[].class,
+                applicationName,
+                platformName,
+                propertiesPath,
+                size,
+                page
+        );
     }
 
     public void getPlatformsUsingModule(ModuleIO module) {

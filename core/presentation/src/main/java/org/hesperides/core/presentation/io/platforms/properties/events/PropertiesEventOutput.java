@@ -5,8 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 
 import org.hesperides.core.domain.platforms.entities.properties.events.PropertiesEvent;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -15,16 +18,25 @@ import lombok.Value;
 @AllArgsConstructor
 public class PropertiesEventOutput {
 
+    @NotNull
     String author;
-    
+
+    @NotNull
     String comment;
 
+    @NotNull
     Instant timestamp;
 
+    @SerializedName("added_properties")
+    @JsonProperty("added_properties")
     List<String> addedProperties;
 
+    @SerializedName("removed_properties")
+    @JsonProperty("removed_properties")
     List<String> removedProperties;
 
+    @SerializedName("updated_properties")
+    @JsonProperty("updated_properties")
     List<PropertyEventUpdatedValueOuput> updatedProperties;
 
 

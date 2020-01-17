@@ -362,10 +362,10 @@ public class PlatformUseCases {
                 .map(platformId -> eventQueries.getPageEvents(platformId, pageable))
                 .orElseGet(Collections::emptyList);
 
-        // TODO - inclure la variable propertyPath pour filtrer seulement les evénements
-        // TODO - de type PlatformModulePropertiesUpdatedEvent et pour le module concerné
+        // TODO - normalement le filtre par type d'event sera fait dans la query
         List<EventView> filteredEvents = events.stream()
                 .filter(event -> event.getType().equals(PlatformModulePropertiesUpdatedEvent.class.getTypeName()))
+                .filter(event -> ((PlatformModulePropertiesUpdatedEvent) event.getData()).getPropertiesPath().equals(propertiesPath))
                 .collect(Collectors.toList());
 
         // Transform PlatformModulePropertiesUpdatedEvent events to PropertiesEvent objects

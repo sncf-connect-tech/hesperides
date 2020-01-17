@@ -165,7 +165,8 @@ public class PropertiesController extends AbstractController {
                 @SortDefault.SortDefaults({@SortDefault(sort = "timestamp", direction = Sort.Direction.DESC)}) @ApiIgnore Pageable pageable) {
         List<PropertiesEvent> propertiesEvents = platformUseCases.getEventsPropertiesDiff(applicationName, platformName, propertiesPath, pageable);
 
-        return ResponseEntity.ok().body(PropertiesEventOutput.fromPropertiesEventsDiffs(propertiesEvents));
+        List<PropertiesEventOutput> test = PropertiesEventOutput.fromPropertiesEventsDiffs(propertiesEvents);
+        return ResponseEntity.ok().body(test);
     }
 
     @ApiOperation("List all platform global properties usage")
