@@ -82,6 +82,12 @@ public class EventUseCases {
     }
 
     public List<EventView> getEvents(TemplateContainer.Key key, Integer page, Integer size) {
+
+        List<EventView> eventViewList = moduleQueries.getOptionalModuleId(key)
+                .map(moduleId -> eventQueries.getEvents(moduleId, page, size))
+                .orElseGet(Collections::emptyList);
+
+
         return moduleQueries.getOptionalModuleId(key)
                 .map(moduleId -> eventQueries.getEvents(moduleId, page, size))
                 .orElseGet(Collections::emptyList);

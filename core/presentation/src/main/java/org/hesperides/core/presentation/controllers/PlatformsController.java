@@ -6,13 +6,16 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
+import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
+import org.hesperides.core.domain.security.UserEvent;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.presentation.io.events.EventOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
@@ -97,6 +100,17 @@ public class PlatformsController extends AbstractController {
 
         PlatformIO platformOutput = new PlatformIO(platformView);
         return ResponseEntity.ok(platformOutput);
+    }
+
+    @ApiOperation("Retrieve a platform events")
+    @GetMapping("/{application_name}/platforms/{platform_name:.+}/events")
+    public ResponseEntity<List<EventOutput>> getPlatformEvents(@PathVariable("application_name") final String applicationName,
+                                                       @PathVariable("platform_name") final String platformName) {
+
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        List<EventView> eventView = platformUseCases.getPlatformEvents(platformKey);
+
+        return ResponseEntity.ok(EventOutput.fromEventViews(eventView));
     }
 
     @ApiOperation("Update a platform")

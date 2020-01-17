@@ -5,12 +5,16 @@ import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.application.platforms.properties.PropertyValuationContext;
 import org.hesperides.core.domain.events.commands.EventCommands;
+import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -24,7 +28,9 @@ import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformExceptio
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.events.UpdatedPlatformEventsView;
 import org.hesperides.core.domain.platforms.queries.views.properties.*;
+import org.hesperides.core.domain.security.UserEvent;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.ApplicationDirectoryGroupsQueries;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
@@ -60,6 +66,7 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
     private final EventCommands eventCommands;
+    private final EventQueries eventQueries;
     private final PropertyReferenceScanner propertyReferenceScanner;
 
     @Autowired
@@ -69,6 +76,7 @@ public class PlatformUseCases {
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
                             EventCommands eventCommands,
+                            EventQueries eventQueries,
                             PropertyReferenceScanner propertyReferenceScanner) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
@@ -76,6 +84,7 @@ public class PlatformUseCases {
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
         this.eventCommands = eventCommands;
+        this.eventQueries = eventQueries;
         this.propertyReferenceScanner = propertyReferenceScanner;
     }
 
@@ -135,6 +144,36 @@ public class PlatformUseCases {
             platform = platform.withPasswordIndicator(hasPasswords);
         }
         return platform;
+    }
+
+    public List<EventView> getPlatformEvents(Platform.Key platformKey) {
+        List<EventView> eventViews = platformQueries.getOptionalPlatformId(platformKey)
+                .map(platformId -> eventQueries.getEventsWithType(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, 1, 100))
+                .orElseGet(Collections::emptyList);
+
+        // Trier sur le timestamp
+        eventViews.sort(Comparator.comparing(EventView::getTimestamp));
+
+        // Il te faut l'objet du payload
+        PlatformUpdatedEvent platformUpdatedEvent = (PlatformUpdatedEvent)eventViews.get(0).getData();
+
+        ListIterator<EventView> eventViewsListIterator = eventViews.listIterator();
+
+        //List<UpdatedPlatformEventsView> updatedPlatformEventsViews = new List<UpdatedPlatformEventsView>;
+
+        while (eventViewsListIterator.hasNext()) {
+            String versionN = ((PlatformUpdatedEvent)eventViewsListIterator.next().getData()).getPlatform().getVersion();
+            if (eventViewsListIterator.hasNext()) {
+                String versionN1 =  ((PlatformUpdatedEvent)eventViewsListIterator.next().getData()).getPlatform().getVersion();
+
+                if (!versionN.equals(versionN1)) {
+                    // Remplir updatedPlatformEventsViews
+                }
+            }
+        }
+
+        return eventViews;
+
     }
 
     public PlatformView getPlatformAtPointInTime(Platform.Key platformKey, long timestamp) {

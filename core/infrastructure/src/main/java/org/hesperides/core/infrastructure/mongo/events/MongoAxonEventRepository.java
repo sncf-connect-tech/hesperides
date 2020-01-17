@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,8 @@ public class MongoAxonEventRepository implements EventRepository {
         return eventStorageEngine.readEvents(query.getAggregateIdentifier())
                 .asStream()
                 .map(EventView::new)
+                .filter(eventView -> query.getTypeFilter().length == 0
+                        || Arrays.stream(query.getTypeFilter()).anyMatch(userEventClass -> eventView.getData().getClass().equals(userEventClass)))
                 .collect(Collectors.toList());
     }
 
