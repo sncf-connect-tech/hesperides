@@ -12,7 +12,7 @@ Etape par étape :
 
 `properties_path` est obligatoire.
 
-## Output de
+## Output
 
 L'évènement contenant les valorisations des propriétés est `PlatformModulePropertiesUpdatedEvent`. Il n'est pas nécessaire de modifier cet évènement pour y stocker les différences avec l'état précédent car il contient l'intégralité des valorisations de propriétés d'un module déployé.
 
