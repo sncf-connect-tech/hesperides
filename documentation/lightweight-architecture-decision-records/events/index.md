@@ -18,6 +18,6 @@ Ces ressources seront conservées mais dépréciées.
 * Comparer les valorisations d'un module entre 2 versions
 
 3 cas d'utilisations dans des modales _frontend_ :
-1. Historique des valorisations d'un module déployé
-1. Historique au niveau d'une plateforme
-1. Historique d'un module ou d'une techno
+1. [Historique des valorisations d'un module déployé](deployed_module_events.md)
+1. [Historique au niveau d'une plateforme](platform_events.md)
+1. [Historique d'un module ou d'une techno](template_container_events.md)
