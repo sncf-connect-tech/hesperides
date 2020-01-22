@@ -34,7 +34,7 @@ Une fois installés vous pourrez alors lancer l'application avec les profils Spr
 
 Si le premier lancement ne fonctionne pas, il est nécessaire de faire un `mvn clean install` ou pour gagner du temps :
 
-    mvn clean install -Dmaven.javadoc.skip=true -DskipTests 
+    mvn clean install -Dmaven.javadoc.skip=true -DskipTests
 
 *Nous avons rencontré un problème qui empêche l'application de démarrer : le bouton Run se grise après avoir cliqué dessus sans que rien ne se passe.
 Il semblerait que le problème vienne du plugin Gradle, il suffit de le désactiver.
