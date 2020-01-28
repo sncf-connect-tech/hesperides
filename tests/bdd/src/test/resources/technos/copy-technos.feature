@@ -29,3 +29,12 @@ Feature: Copy technos
     When I try to create a copy of this techno, using the same key
     Then the techno copy is rejected with a conflict error
 
+  #issue-828
+  Scenario: copy a techno and specify an empty name
+    When I try to create a copy of a techno, using an empty name
+    Then the request is rejected with a bad request error
+
+  #issue-828
+  Scenario: copy a techno and specify an empty version
+    When I try to create a copy of a techno, using an empty version
+    Then the request is rejected with a bad request error

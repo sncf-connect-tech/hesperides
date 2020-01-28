@@ -43,6 +43,16 @@ public class CopyTechnos extends HesperidesScenario implements En {
             technoHistory.addTechnoBuilder(technoBuilder);
         });
 
+        When("^I try to create a copy of a techno, using an empty (name|version)$", (String emptyFieldName) -> {
+            TechnoIO existingTechno = technoBuilder.build();
+            if ("name".equals(emptyFieldName)) {
+                technoBuilder.withName("");
+            } else {
+                technoBuilder.withVersion("");
+            }
+            technoClient.copyTechno(existingTechno, technoBuilder.build(), " try to");
+        });
+
         Then("^the techno is successfully (?:duplicated|released)$", () -> {
             assertCreated();
             TechnoIO expectedTechno = technoBuilder.build();
