@@ -25,6 +25,41 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- Error 500 when specifying an empty from_name or from_version to POST /technos. [Lucas Cimon]
+
+
+
+## 2020-01-22
+### Changed
+
+- Now using Java 11 + fix #818 (#819) [Lucas Cimon]
+
+
+### Fixed
+
+- Runtime OpenJDK version in Dockerfile (#823) [Lucas Cimon]
+
+- Maven Docker image version used. [Lucas Cimon]
+
+
+
+## 2019-12-18
+### Fixed
+
+- #813: Sauvegarde des commentaires lors des mises à jour de propriétés (oops...) [Thomas L'Hostis]
+
+
+
+## 2019-12-09
+### Fixed
+
+- #803 : Permettre le nettoyage des propriétés inutilisées (#815) [baaroth]
+
+
+
 ## 2019-11-19
 ### Fixed
 
@@ -219,7 +254,7 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ## 2019-07-26
 ### Fixed
 
-- Ing Maven build. [Lucas Cimon]
+- Maven build. [Lucas Cimon]
 
 - Syntaxe du application.yml pour prendre en compte $AGGREGATES_LOG_LEVEL pour contrôler le niveau de logs de PlatformAggregate. [Lucas Cimon]
 

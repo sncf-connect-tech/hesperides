@@ -200,6 +200,8 @@ public class TechnosController extends AbstractController {
                                                @Valid @RequestBody final TechnoIO technoInput) {
 
         log.info("copyTechno {}", technoInput.toString());
+        checkQueryParameterNotEmpty("from_name", fromTechnoName);
+        checkQueryParameterNotEmpty("from_version", fromTechnoVersion);
 
         TemplateContainer.Key existingTechnoKey = new Techno.Key(fromTechnoName, fromTechnoVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
         TemplateContainer.Key newTechnoKey = new Techno.Key(technoInput.getName(), technoInput.getVersion(), TemplateContainer.VersionType.workingcopy);
