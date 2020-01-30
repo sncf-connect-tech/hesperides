@@ -80,8 +80,9 @@ public class DeployedModuleBuilder implements Serializable {
         this.name = name;
     }
 
-    public void withVersion(String version) {
+    public DeployedModuleBuilder withVersion(String version) {
         this.version = version;
+        return this;
     }
 
     public void withVersionType(String versionType) {

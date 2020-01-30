@@ -2,7 +2,7 @@ package org.hesperides.core.domain.events.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
-import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
+import org.hesperides.core.domain.events.GetEventsByAggregateIdentifierQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -18,14 +18,11 @@ public class EventQueries extends AxonQueries {
     }
 
     public List<EventView> getEvents(String aggregateId, Integer page, Integer size) {
-        List<EventView> events = querySyncList(new GenericEventsByStreamQuery(aggregateId), EventView.class);
-        return ordinateAndPaginateAccordingSize(events, page, size);
+        return getEventsByTypes(aggregateId, new Class[0], page, size);
     }
 
-    private List<EventView> ordinateAndPaginateAccordingSize(final List<EventView> events, Integer page, Integer size) {
-        return events.stream().sorted(Comparator.comparing(EventView::getTimestamp).reversed())
-                .skip((page - 1) * size)
-                .limit(size)
-                .collect(Collectors.toList());
+    public List<EventView> getEventsByTypes(String aggregateId, Class[] eventTypes, Integer page, Integer size) {
+        List<EventView> events = querySyncList(new GetEventsByAggregateIdentifierQuery(aggregateId, eventTypes, page, size), EventView.class);
+        return events.stream().sorted(Comparator.comparing(EventView::getTimestamp).reversed()).collect(Collectors.toList());
     }
 }

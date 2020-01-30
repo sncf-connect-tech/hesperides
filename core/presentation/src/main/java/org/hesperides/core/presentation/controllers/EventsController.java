@@ -29,6 +29,7 @@ public class EventsController extends AbstractController {
         this.eventUseCases = eventUseCases;
     }
 
+    @Deprecated
     @ApiOperation("Get the events list from a legacy stream name of platform or module")
     @GetMapping("/{stream_name:.+}")
     public ResponseEntity<List<EventOutput>> getEvents(@PathVariable("stream_name") final String streamName,
@@ -39,7 +40,11 @@ public class EventsController extends AbstractController {
                 .stream()
                 .map(EventOutput::new)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok().body(events);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2021-01-01\"")
+                .header("Sunset", " Jan  15 00:00:00 CEST 2020")
+                .header("Link", "/applications/{application_name}/platforms/{platform_name}/properties/events")
+                .body(events);
     }
 
     @ApiOperation("Get the events list of a module")
@@ -60,6 +65,7 @@ public class EventsController extends AbstractController {
         return ResponseEntity.ok().body(events);
     }
 
+    @Deprecated
     @ApiOperation("Get the events list of a platform")
     @GetMapping("/platforms/{application_name}/{platform_name}")
     public ResponseEntity<List<EventOutput>> getPlatformEvents(@PathVariable("application_name") final String applicationName,
@@ -74,7 +80,11 @@ public class EventsController extends AbstractController {
                 .stream()
                 .map(EventOutput::new)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok().body(events);
+        return ResponseEntity.ok()
+                .header("Deprecation", "version=\"2021-01-01\"")
+                .header("Sunset", " Jan  15 00:00:00 CEST 2020")
+                .header("Link", String.format("/applications/%s/platforms/%s/events", applicationName, platformName))
+                .body(events);
     }
 
 }

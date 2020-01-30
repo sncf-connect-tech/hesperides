@@ -9,11 +9,13 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
+import org.hesperides.core.domain.platforms.queries.views.PlatformEventView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformEventOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,5 +191,19 @@ public class PlatformsController extends AbstractController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(searchResultOutputs);
+    }
+
+    @ApiOperation("Retrieve a platform events")
+    @GetMapping("/{application_name}/platforms/{platform_name:.+}/events")
+    public ResponseEntity<List<PlatformEventOutput>> getPlatformEvents(@PathVariable("application_name") final String applicationName,
+                                                                       @PathVariable("platform_name") final String platformName,
+                                                                       @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
+                                                                       @RequestParam(value = "size", required = false, defaultValue = "20") final Integer size) {
+
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        List<PlatformEventView> platformEventViews = platformUseCases.getPlatformEvents(platformKey, page, size);
+        List<PlatformEventOutput> platformEventOutputs = PlatformEventOutput.fromViews(platformEventViews);
+
+        return ResponseEntity.ok(platformEventOutputs);
     }
 }

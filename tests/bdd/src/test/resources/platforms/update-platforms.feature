@@ -52,9 +52,9 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-451
-  Scenario: update an existing platform, changing the platform version
+  Scenario: update an existing platform, changing the version
     Given an existing platform
-    When I update this platform, changing the platform version
+    When I update this platform, changing the version
     Then the platform is successfully updated
 
   Scenario: update an existing platform, upgrading a module version and requiring the copy of properties

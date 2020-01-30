@@ -3,6 +3,7 @@ package org.hesperides.core.presentation;
 import com.google.gson.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.StandardWrapper;
+import org.hesperides.core.presentation.io.platforms.PlatformEventOutput.PlatformChangeOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
@@ -73,7 +74,8 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                 .registerTypeAdapter(PlatformIO.class, new PlatformIO.Serializer()) // Exclusion de hasPasswords lorsqu'il est null
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
-                .registerTypeAdapter(AbstractDifferingPropertyOutput.class, new AbstractDifferingPropertyOutput.Serializer()) // Classe abstraite
+                .registerTypeAdapter(AbstractDifferingPropertyOutput.class, new AbstractDifferingPropertyOutput.Adapter()) // Classe abstraite
+                .registerTypeAdapter(PlatformChangeOutput.class, new PlatformChangeOutput.Adapter()) // Classe abstraite
                 .serializeNulls()
                 .addSerializationExclusionStrategy(new ExclusionStrategy() {
                     @Override

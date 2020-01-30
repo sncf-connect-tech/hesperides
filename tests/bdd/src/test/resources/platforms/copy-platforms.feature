@@ -23,7 +23,7 @@ Feature: Copy platforms
 
   #issue-623
   Scenario: copy of a platform with an history of deployed modules
-    And an existing module with properties
+    Given an existing module with properties
     And an existing platform with this module and valued properties
     And a copy of this module in version "2.0"
     And I update this platform, upgrading its module version to "2.0" and requiring the copy of properties

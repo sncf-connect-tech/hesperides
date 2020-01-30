@@ -75,6 +75,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
+            "(?: with version \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|those) modules?)?" +
             "(?: in logical group \"([^\"]*)\")?" +
             // Note: il y a actuellement un risque d'employer la formulation incorrecte « in logical group "XXX"" named "YYY" »
@@ -90,6 +91,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public void givenAnExistingPlatform(
             String prodPlatform,
             String platformName,
+            String platformVersion,
             String withThoseModule,
             String moduleLogicalGroup,
             String withAnInstance,
@@ -111,6 +113,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(platformName)) {
             platformBuilder.withPlatformName(platformName);
+        }
+
+        if (isNotEmpty(platformVersion)) {
+            platformBuilder.withVersion(platformVersion);
         }
 
         if (isNotEmpty(withAnInstance)) {

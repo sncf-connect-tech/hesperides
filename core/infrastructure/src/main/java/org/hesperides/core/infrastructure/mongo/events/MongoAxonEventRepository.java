@@ -4,12 +4,13 @@ import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.events.EventRepository;
-import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
+import org.hesperides.core.domain.events.GetEventsByAggregateIdentifierQuery;
 import org.hesperides.core.domain.events.queries.EventView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,10 +33,14 @@ public class MongoAxonEventRepository implements EventRepository {
     @QueryHandler
     @Override
     @Timed
-    public List<EventView> onGenericEventsByStreamQuery(final GenericEventsByStreamQuery query) {
+    public List<EventView> onGenericEventsByStreamQuery(final GetEventsByAggregateIdentifierQuery query) {
         return eventStorageEngine.readEvents(query.getAggregateIdentifier())
                 .asStream()
+                .skip((query.getPage() - 1) * query.getSize())
+                .limit(query.getSize())
                 .map(EventView::new)
+                .filter(eventView -> query.getEventTypes().length == 0
+                        || Arrays.stream(query.getEventTypes()).anyMatch(userEventClass -> eventView.getData().getClass().equals(userEventClass)))
                 .collect(Collectors.toList());
     }
 

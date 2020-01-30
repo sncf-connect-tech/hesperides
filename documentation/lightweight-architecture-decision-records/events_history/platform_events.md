@@ -2,7 +2,7 @@
 
 L'idée est d'afficher le détails des modifications d'une platforme. Il y a 4 types d'évènements à détailler :
 * Changements de version de la plateforme
-* Changements de versions de modules déployés
+* Mise à jour de modules déployés (changement de version, release, etc.)
 * Ajout de modules déployés
 * Suppression de modules déployés
 
@@ -21,12 +21,15 @@ Les évènements contenant les données permettant d'extraire ces informations s
             timestamp: Long,
             changes: [
                 {
-                    event_name: "platform_version_updated", 
+                    event_name: "platform_created",
+                },
+                {
+                    event_name: "platform_version_updated",
                     old_version: String,
                     new_version: String
                 },
                 {
-                    event_name: "deployed_module_version_updated",
+                    event_name: "deployed_module_updated",
                     old_properties_path: String,
                     new_properties_path: String
                 },

@@ -5,12 +5,16 @@ import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.application.platforms.properties.PropertyValuationContext;
 import org.hesperides.core.domain.events.commands.EventCommands;
+import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -41,10 +45,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
@@ -60,6 +65,7 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
     private final EventCommands eventCommands;
+    private final EventQueries eventQueries;
     private final PropertyReferenceScanner propertyReferenceScanner;
 
     @Autowired
@@ -69,6 +75,7 @@ public class PlatformUseCases {
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
                             EventCommands eventCommands,
+                            EventQueries eventQueries,
                             PropertyReferenceScanner propertyReferenceScanner) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
@@ -76,6 +83,7 @@ public class PlatformUseCases {
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
         this.eventCommands = eventCommands;
+        this.eventQueries = eventQueries;
         this.propertyReferenceScanner = propertyReferenceScanner;
     }
 
@@ -208,7 +216,7 @@ public class PlatformUseCases {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<Module.Key, List<Techno.Key>> technoKeysByModuleMap = allPlatformsModules.stream().collect(Collectors.toMap(
+        Map<Module.Key, List<Techno.Key>> technoKeysByModuleMap = allPlatformsModules.stream().collect(toMap(
                 ModuleView::getKey,
                 module -> module.getTechnos().stream()
                         .map(TechnoView::getKey)
@@ -227,7 +235,7 @@ public class PlatformUseCases {
                         .map(Map.Entry::getKey))
                 .collect(Collectors.toSet());
 
-        Map<Platform.Key, List<Module.Key>> moduleKeysByPlatformMap = platforms.stream().collect(Collectors.toMap(
+        Map<Platform.Key, List<Module.Key>> moduleKeysByPlatformMap = platforms.stream().collect(toMap(
                 PlatformView::getPlatformKey,
                 platform -> platform.getDeployedModules().stream()
                         .map(DeployedModuleView::getModuleKey)
@@ -437,7 +445,7 @@ public class PlatformUseCases {
 
         return platform.getGlobalProperties().stream()
                 .map(ValuedPropertyView::getName)
-                .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
+                .collect(toMap(identity(), globalPropertyName ->
                         GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, deployedModules, modulesProperties)));
     }
 
@@ -576,5 +584,14 @@ public class PlatformUseCases {
     private String cleanCreatePlatform(Platform platform, User user) {
         eventCommands.cleanAggregateEvents(platform.getKey().generateHash());
         return platformCommands.createPlatform(platform, user);
+    }
+
+    public List<PlatformEventView> getPlatformEvents(Platform.Key platformKey, Integer page, Integer size) {
+        List<EventView> events = platformQueries.getOptionalPlatformId(platformKey)
+                .map(platformId -> eventQueries.getEventsByTypes(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, page, size))
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+
+        events.sort(Comparator.comparing(EventView::getTimestamp));
+        return PlatformEventView.buildPlatformEvents(events);
     }
 }

@@ -5,6 +5,8 @@ import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.modules.ModuleCreatedEvent;
 import org.hesperides.core.domain.modules.TemplateCreatedEvent;
 import org.hesperides.core.domain.modules.TemplateUpdatedEvent;
+import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.security.UserEvent;
 
 
@@ -35,6 +37,12 @@ public class EventOutput {
         }
         if (userEvent instanceof TemplateUpdatedEvent) {
             return new TemplateUpdatedEventIO((TemplateUpdatedEvent) userEvent);
+        }
+        if (userEvent instanceof PlatformCreatedEvent) {
+            return new PlatformCreatedEventIO((PlatformCreatedEvent) userEvent);
+        }
+        if (userEvent instanceof PlatformUpdatedEvent) {
+            return new PlatformUpdatedEventIO((PlatformUpdatedEvent) userEvent);
         }
         // For TemplateDeletedEvent, only field used by legacy front is .templateName, so we pass through the event
         // For many other events (ModuleTechnosUpdatedEvent, techno events...) legacy front was totally bogus and used .platform.platform_name...

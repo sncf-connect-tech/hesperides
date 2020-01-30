@@ -22,10 +22,7 @@ package org.hesperides.test.bdd.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
-import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
+import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
@@ -292,5 +289,13 @@ public class PlatformClient {
                 getResponseType(tryTo, PlatformIO.class),
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
+    }
+
+    public void getPlatformEvents(PlatformIO platform) {
+        restTemplate.getForEntity(
+                "/applications/{application_name}/platforms/{platform_name}/events",
+                PlatformEventOutput[].class,
+                platform.getApplicationName(),
+                platform.getPlatformName());
     }
 }
