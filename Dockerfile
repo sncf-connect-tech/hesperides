@@ -34,6 +34,9 @@ ARG GIT_TAG
 ENV GIT_TAG=$GIT_TAG
 ENV SENTRY_TAGS=GIT_BRANCH:$GIT_BRANCH,GIT_COMMIT:$GIT_COMMIT,GIT_TAG:$GIT_TAG
 
+# This file need to exist or ch.qos.logback.core.rolling.RollingFileAppender will raise an IllegalStateException:
+RUN touch /var/log/hesperides.log
+
 ENTRYPOINT ["/docker_entrypoint.sh"]
 
 EXPOSE 8080
