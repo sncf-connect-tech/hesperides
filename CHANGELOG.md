@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2020-01-28
 ### Fixed
 
-- Error 500 when specifying an empty from_name or from_version to POST /technos. [Lucas Cimon]
+- Error 500 when specifying an empty from_name or from_version to POST /technos (#829) [Lucas Cimon]
 
 
 

@@ -2,8 +2,6 @@
 
 ## Logs
 
-Les logs sont générés dans `/var/log/hesperides.log`.
-
 Le contrôle de leur niveau de verbosité est défini dans [application.yml](https://github.com/voyages-sncf-technologies/hesperides/blob/master/bootstrap/src/main/resources/application.yml)
 et configurable via des variables d'environnement, comme par exemple :
 
