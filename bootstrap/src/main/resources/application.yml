@@ -41,7 +41,6 @@ ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
   delay-between-tries-in-seconds: ${LDAP_RETRY_DELAY_IN_SECS:1}
 
 logging:
-  file: /var/log/hesperides.log
   level:
     root: INFO
 
