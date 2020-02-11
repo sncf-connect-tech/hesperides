@@ -44,15 +44,10 @@ jobs:
             - hesperides-docker-image.tar
     - stage: test
       env: CUCUMBER TESTS
-      before_script:
-        - sudo touch /var/log/hesperides.log
-        - sudo chown travis /var/log/hesperides.log
       script: mvn test -pl '!tests/activedirectory-integration,!tests/mongo-integration,!tests/regression'
     - stage: test
       env: MONGO INTEGRATION TESTS
-      before_script:
-        - sudo service mongod start
-        - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
+      before_script: sudo service mongod start
       script:
         - sleep 15  # waiting for MongoDB to start up
         # On crée les collections MongoDB avec leurs collations:
