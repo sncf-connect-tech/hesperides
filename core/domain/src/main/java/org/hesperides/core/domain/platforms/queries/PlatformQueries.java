@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class PlatformQueries extends AxonQueries {
 
-    private QueryGateway queryGateway;
+    private final QueryGateway queryGateway;
 
     protected PlatformQueries(QueryGateway queryGateway) {
         super(queryGateway);
@@ -80,7 +80,7 @@ public class PlatformQueries extends AxonQueries {
         return querySyncOptional(new GetApplicationByNameQuery(applicationName, hidePlatformsModules), ApplicationView.class);
     }
 
-    public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {
+    public List<String> getInstancesModel(Platform.Key platformKey, String propertiesPath) {
         return querySyncList(new GetInstancesModelQuery(platformKey, propertiesPath), String.class);
     }
 
@@ -100,15 +100,7 @@ public class PlatformQueries extends AxonQueries {
         return querySyncList(new SearchPlatformsQuery(applicationName, platformName), SearchPlatformResultView.class);
     }
 
-    public Long getPropertiesVersionId(final String platformId, final String propertiesPath, final Long timestamp) {
-        return querySync(new GetPropertiesVersionIdQuery(platformId, propertiesPath, timestamp == null ? -1 : timestamp), Long.class);
-    }
-
-    public Optional<Long> getGlobalPropertiesVersionId(final Platform.Key platformKey) {
-        return querySyncOptional(new GetGlobalPropertiesVersionIdQuery(platformKey), Long.class);
-    }
-
-    public List<ValuedPropertyView> getGlobalProperties(final Platform.Key platformKey) {
+    public List<ValuedPropertyView> getGlobalProperties(Platform.Key platformKey) {
         return querySyncList(new GetGlobalPropertiesQuery(platformKey), ValuedPropertyView.class);
     }
 
