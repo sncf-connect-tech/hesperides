@@ -17,7 +17,6 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.commands.PlatformAggregate;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -55,7 +54,7 @@ import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
 @Repository
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
 
-    private MinimalPlatformRepository minimalPlatformRepository;
+    private final MinimalPlatformRepository minimalPlatformRepository;
     private final MongoPlatformRepository platformRepository;
     private final MongoModuleRepository moduleRepository;
     private final EventStorageEngine eventStorageEngine;
@@ -368,35 +367,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     @Timed
-    public Long onGetPropertiesVersionIdQuery(GetPropertiesVersionIdQuery query) {
-        PlatformDocument platformDocument = getExistingPlatformDocument(query.getTimestamp(), query.getPlatformId(), query.getPropertiesPath());
-
-        final Optional<DeployedModuleDocument> deployedModuleDocument = platformDocument
-                .getActiveDeployedModules()
-                .filter(deployedModule -> deployedModule.getPropertiesPath().equals(query.getPropertiesPath()))
-                .findFirst();
-
-        // Dans le cas ou le deployed module n'existe pas on peut renvoyez la valuer d'init (par exemple dans le get des globales)
-        return deployedModuleDocument.isPresent() ? deployedModuleDocument.get().getPropertiesVersionId() : DeployedModule.INIT_PROPERTIES_VERSION_ID;
-    }
-
-    private PlatformDocument getExistingPlatformDocument(Long timestamp, String platformId, String propertiesPath) {
-        PlatformDocument platformDocument;
-        if (timestamp >= 0) {
-            // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
-            platformDocument = getPlatformAtPointInTime(platformId, timestamp);
-        } else {
-            platformDocument = minimalPlatformRepository.findById(platformId)
-                    .orElseThrow(() -> new NotFoundException("Platform not found - impossible to get deployed module properties"
-                            + " - platform ID: " + platformId + " - path: " + propertiesPath)
-                    );
-        }
-        return platformDocument;
-    }
-
-    @QueryHandler
-    @Override
-    @Timed
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final Optional<PlatformDocument> platformDocument = platformRepository
@@ -409,15 +379,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         .orElseGet(Collections::emptyList)
                         .stream())
                 .collect(Collectors.toList());
-    }
-
-    @QueryHandler
-    @Override
-    @Timed
-    public Optional<Long> onGetGlobalPropertiesVersionIdQuery(final GetGlobalPropertiesVersionIdQuery query) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        return platformRepository.findGlobalPropertiesVersionIdByPlatformKey(platformKeyDocument)
-                .map(PlatformDocument::getGlobalPropertiesVersionId);
     }
 
     @QueryHandler
