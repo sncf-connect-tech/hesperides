@@ -37,29 +37,34 @@ import java.util.function.Supplier;
 @Slf4j
 public class LdapSearchContext implements ParentGroupsDNRetriever {
 
-    private final DirContext dirContext;
+    private final String username;
+    private final String password;
     private final LdapConfiguration ldapConfiguration;
     private final MeterRegistry meterRegistry;
     private final LdapSearchMetrics ldapSearchMetrics;
     private final RetryConfig retryConfig;
     private final Gson gson;
     private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    private DirContext dirContext = null;
 
     public LdapSearchContext(String username, String password, LdapConfiguration ldapConfiguration,
                              MeterRegistry meterRegistry, LdapSearchMetrics ldapSearchMetrics, RetryConfig retryConfig, Gson gson) {
+        this.username = username;
+        this.password = password;
         this.ldapConfiguration = ldapConfiguration;
         this.meterRegistry = meterRegistry;
         this.ldapSearchMetrics = ldapSearchMetrics;
         this.retryConfig = retryConfig;
         this.gson = gson;
-        this.dirContext = withRetry("ldapBuildContext", "building LDAP context for user=" + username,
-                () -> buildSearchContext(username, password));
     }
 
     public void closeContext() {
-        LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
+        if (dirContext != null) {
+            LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
+        }
     }
 
+    // Cette méthode établit une connexion TCP avec le serveur LDAP
     private DirContext buildSearchContext(String username, String password) {
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -108,6 +113,13 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
     }
 
     private DirContextOperations searchCNWithRetry(String cn, String base, String searchFilter) {
+        if (dirContext == null) {
+            // On lazy-load cet attribut pour éviter de faire systématiquement une connexion TCP au serveur LDAP,
+            // même quand cela n'est pas nécessaire, comme par exemple dans le cas de extractGroupAuthoritiesRecursivelyWithCache,
+            // lorsque le cache contient toutes les infos.
+            dirContext = withRetry("ldapBuildContext", "building LDAP context for user=" + username,
+                    () -> buildSearchContext(username, password));
+        }
         return withRetry("ldapSearchCN", "requesting LDAP for CN=" + cn,
                 () -> searchCN(dirContext, cn, base, searchFilter));
     }
