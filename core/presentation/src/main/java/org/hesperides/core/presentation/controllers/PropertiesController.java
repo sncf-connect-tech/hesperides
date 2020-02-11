@@ -47,12 +47,12 @@ public class PropertiesController extends AbstractController {
     @ApiOperation("Get properties with the given path in a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity getValuedProperties(Authentication authentication,
-                                              @PathVariable("application_name") final String applicationName,
-                                              @PathVariable("platform_name") final String platformName,
-                                              @RequestParam("path") final String propertiesPath,
+                                              @PathVariable("application_name") String applicationName,
+                                              @PathVariable("platform_name") String platformName,
+                                              @RequestParam("path") String propertiesPath,
                                               @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
-                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp,
-                                              @RequestParam(value = "with_details", required = false) final boolean withDetails) {
+                                              @RequestParam(value = "timestamp", required = false) Long timestamp,
+                                              @RequestParam(value = "with_details", required = false) boolean withDetails) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         User authenticatedUser = new User(authentication);
 
@@ -74,9 +74,9 @@ public class PropertiesController extends AbstractController {
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
     @ApiOperation("Get properties with the given path in a platform")
-    public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") final String applicationName,
-                                                                  @PathVariable("platform_name") final String platform_name,
-                                                                  @RequestParam("path") final String propertiesPath) {
+    public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") String applicationName,
+                                                                  @PathVariable("platform_name") String platform_name,
+                                                                  @RequestParam("path") String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
         List<String> instancesModelView = platformUseCases.getInstancesModel(platformKey, propertiesPath);
@@ -88,12 +88,12 @@ public class PropertiesController extends AbstractController {
     @ApiOperation("Deprecated - Use PUT /{application_name}/platforms/{platform_name}/properties instead")
     @PostMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> saveProperties(Authentication authentication,
-                                                       @PathVariable("application_name") final String applicationName,
-                                                       @PathVariable("platform_name") final String platformName,
-                                                       @RequestParam("path") final String propertiesPath,
-                                                       @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @RequestParam(value = "comment", required = false) final String userComment,
-                                                       @Valid @RequestBody final PropertiesIO properties) {
+                                                       @PathVariable("application_name") String applicationName,
+                                                       @PathVariable("platform_name") String platformName,
+                                                       @RequestParam("path") String propertiesPath,
+                                                       @RequestParam("platform_vid") Long platformVersionId,
+                                                       @RequestParam(value = "comment", required = false) String userComment,
+                                                       @Valid @RequestBody PropertiesIO properties) {
         return ResponseEntity.ok()
                 .header("Deprecation", "version=\"2019-08-02\"")
                 .header("Sunset", "Sat Aug  3 00:00:00 CEST 2020")
@@ -111,12 +111,12 @@ public class PropertiesController extends AbstractController {
     @ApiOperation("Update deployed modules or global properties")
     @PutMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> updateProperties(Authentication authentication,
-                                                         @PathVariable("application_name") final String applicationName,
-                                                         @PathVariable("platform_name") final String platformName,
-                                                         @RequestParam("path") final String propertiesPath,
-                                                         @RequestParam("platform_vid") final Long platformVersionId,
-                                                         @RequestParam(value = "comment", required = false) final String userComment,
-                                                         @Valid @RequestBody final PropertiesIO properties) {
+                                                         @PathVariable("application_name") String applicationName,
+                                                         @PathVariable("platform_name") String platformName,
+                                                         @RequestParam("path") String propertiesPath,
+                                                         @RequestParam("platform_vid") Long platformVersionId,
+                                                         @RequestParam(value = "comment", required = false) String userComment,
+                                                         @Valid @RequestBody PropertiesIO properties) {
 
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
@@ -129,7 +129,7 @@ public class PropertiesController extends AbstractController {
                 properties.getPropertiesVersionId(),
                 userComment,
                 new User(authentication));
-        Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
+        Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, null);
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }
 
@@ -157,17 +157,17 @@ public class PropertiesController extends AbstractController {
     @ApiOperation("Get properties diff with the given paths in given platforms")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/diff")
     public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(Authentication authentication,
-                                                                  @PathVariable("application_name") final String fromApplicationName,
-                                                                  @PathVariable("platform_name") final String fromPlatformName,
-                                                                  @RequestParam("path") final String fromPropertiesPath,
-                                                                  @RequestParam(value = "instance_name", required = false, defaultValue = "") final String fromInstanceName,
-                                                                  @RequestParam("to_application") final String toApplicationName,
-                                                                  @RequestParam("to_platform") final String toPlatformName,
-                                                                  @RequestParam("to_path") final String toPropertiesPath,
-                                                                  @RequestParam(value = "to_instance_name", required = false, defaultValue = "") final String toInstanceName,
-                                                                  @RequestParam(value = "compare_stored_values", required = false) final boolean compareStoredValues,
+                                                                  @PathVariable("application_name") String fromApplicationName,
+                                                                  @PathVariable("platform_name") String fromPlatformName,
+                                                                  @RequestParam("path") String fromPropertiesPath,
+                                                                  @RequestParam(value = "instance_name", required = false, defaultValue = "") String fromInstanceName,
+                                                                  @RequestParam("to_application") String toApplicationName,
+                                                                  @RequestParam("to_platform") String toPlatformName,
+                                                                  @RequestParam("to_path") String toPropertiesPath,
+                                                                  @RequestParam(value = "to_instance_name", required = false, defaultValue = "") String toInstanceName,
+                                                                  @RequestParam(value = "compare_stored_values", required = false) boolean compareStoredValues,
                                                                   @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
-                                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp) {
+                                                                  @RequestParam(value = "timestamp", required = false) Long timestamp) {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
 
@@ -181,8 +181,8 @@ public class PropertiesController extends AbstractController {
 
     @ApiOperation("List all platform global properties usage")
     @GetMapping("/{application_name}/platforms/{platform_name}/global_properties_usage")
-    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getGlobalPropertiesUsage(@PathVariable("application_name") final String applicationName,
-                                                                                                @PathVariable("platform_name") final String platformName) {
+    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getGlobalPropertiesUsage(@PathVariable("application_name") String applicationName,
+                                                                                                @PathVariable("platform_name") String platformName) {
 
         Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = platformUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
 

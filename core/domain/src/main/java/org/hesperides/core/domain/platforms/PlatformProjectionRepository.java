@@ -69,12 +69,6 @@ public interface PlatformProjectionRepository {
     List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query);
 
     @QueryHandler
-    Long onGetPropertiesVersionIdQuery(GetPropertiesVersionIdQuery query);
-
-    @QueryHandler
-    Optional<Long> onGetGlobalPropertiesVersionIdQuery(GetGlobalPropertiesVersionIdQuery query);
-
-    @QueryHandler
     List<ValuedPropertyView> onGetGlobalPropertiesQuery(GetGlobalPropertiesQuery query);
 
     @QueryHandler

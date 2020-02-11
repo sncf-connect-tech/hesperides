@@ -24,6 +24,7 @@ import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesD
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
+import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
@@ -271,32 +272,36 @@ public class PlatformUseCases {
         return platformQueries.searchPlatforms(applicationName, platformName);
     }
 
-    public Long getPropertiesVersionId(final Platform.Key platformKey, final String propertiesPath) {
-        return getPropertiesVersionId(platformKey, propertiesPath, null);
-    }
-
-    public Long getPropertiesVersionId(final Platform.Key platformKey, final String propertiesPath, final Long timestamp) {
-
-        Optional<Long> propertiesVersionId = Optional.empty();
+    public static Long getPropertiesVersionId(PlatformView platform, String propertiesPath) {
+        Long propertiesVersionId;
 
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
-            propertiesVersionId = platformQueries.getGlobalPropertiesVersionId(platformKey);
-        } else if (StringUtils.isNotEmpty(propertiesPath)) {
-            final String platformId = platformQueries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
-            propertiesVersionId = Optional.ofNullable(platformQueries.getPropertiesVersionId(platformId, propertiesPath, timestamp));
+            propertiesVersionId = platform.getGlobalPropertiesVersionId();
+        } else {
+            propertiesVersionId = platform.getActiveDeployedModules()
+                    .filter(deployedModule -> deployedModule.getPropertiesPath().equals(propertiesPath))
+                    .findFirst()
+                    .orElseThrow(() -> new DeployedModuleNotFoundException(platform.getPlatformKey(), propertiesPath))
+                    .getPropertiesVersionId();
         }
-        return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
+        return Optional.ofNullable(propertiesVersionId)
+                .orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
     }
 
-    public PropertiesDiff getPropertiesDiff(final Platform.Key fromPlatformKey,
-                                            final String fromPropertiesPath,
-                                            final String fromInstanceName,
-                                            final Platform.Key toPlatformKey,
-                                            final String toPropertiesPath,
-                                            final String toInstanceName,
-                                            @Nullable final Long timestamp,
-                                            final ComparisonMode comparisonMode,
-                                            final User user) {
+    public Long getPropertiesVersionId(Platform.Key platformKey, String propertiesPath, Long timestamp) {
+        PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
+        return getPropertiesVersionId(platform, propertiesPath);
+    }
+
+    public PropertiesDiff getPropertiesDiff(Platform.Key fromPlatformKey,
+                                            String fromPropertiesPath,
+                                            String fromInstanceName,
+                                            Platform.Key toPlatformKey,
+                                            String toPropertiesPath,
+                                            String toInstanceName,
+                                            @Nullable Long timestamp,
+                                            ComparisonMode comparisonMode,
+                                            User user) {
 
         PlatformView fromPlatform = getPlatform(fromPlatformKey);
         PlatformView toPlatform = timestamp != null ? getPlatformAtPointInTime(toPlatformKey, timestamp) : getPlatform(toPlatformKey);
@@ -401,7 +406,7 @@ public class PlatformUseCases {
         return propertyVisitorsSequence.getPropertiesWithDetails();
     }
 
-    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
+    public List<AbstractValuedPropertyView> getValuedProperties(Platform.Key platformKey, String propertiesPath, Long timestamp, User user) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
@@ -409,7 +414,7 @@ public class PlatformUseCases {
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             properties.addAll(platform.getGlobalProperties());
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
-            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+            Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             // Note: on devrait passer le timestamp aux 2 appels ci-dessous, cf. issue #724
             List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
 
@@ -429,7 +434,7 @@ public class PlatformUseCases {
         return properties;
     }
 
-    public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
+    public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(Platform.Key platformKey) {
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
         // On ne tient compte que des modules utilisés dans la platforme (pas des modules sauvegardés)
@@ -449,20 +454,20 @@ public class PlatformUseCases {
                         GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, deployedModules, modulesProperties)));
     }
 
-    public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {
+    public List<String> getInstancesModel(Platform.Key platformKey, String propertiesPath) {
         if (!platformQueries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
         return platformQueries.getInstancesModel(platformKey, propertiesPath);
     }
 
-    public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
-                                                           final String propertiesPath,
-                                                           final Long platformVersionId,
-                                                           final List<AbstractValuedProperty> abstractValuedProperties,
-                                                           final Long propertiesVersionId,
-                                                           final String userComment,
-                                                           final User user) {
+    public List<AbstractValuedPropertyView> saveProperties(Platform.Key platformKey,
+                                                           String propertiesPath,
+                                                           Long platformVersionId,
+                                                           List<AbstractValuedProperty> abstractValuedProperties,
+                                                           Long propertiesVersionId,
+                                                           String userComment,
+                                                           User user) {
         PlatformView platform = getPlatform(platformKey);
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
@@ -472,7 +477,7 @@ public class PlatformUseCases {
             throw new IllegalArgumentException("Saving properties with duplicate keys is forbidden");
         }
 
-        Long expectedPropertiesVersionId = getPropertiesVersionId(platformKey, propertiesPath);
+        Long expectedPropertiesVersionId = getPropertiesVersionId(platform, propertiesPath);
 
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
@@ -482,7 +487,7 @@ public class PlatformUseCases {
             }
             platformCommands.savePlatformProperties(platform.getId(), platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user);
         } else {
-            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+            Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
@@ -518,7 +523,7 @@ public class PlatformUseCases {
         allSimpleProperties.forEach(moduleProperty -> moduleProperty.validateRequiredAndPatternProperties(allValuedProperties));
     }
 
-    public PlatformView restoreDeletedPlatform(final Platform.Key platformKey, final User user) {
+    public PlatformView restoreDeletedPlatform(Platform.Key platformKey, User user) {
         if (platformQueries.platformExists(platformKey)) {
             throw new IllegalArgumentException("Cannot restore an existing platform");
         }
@@ -548,7 +553,7 @@ public class PlatformUseCases {
     }
 
     public void purgeUnusedProperties(Platform.Key platformKey, String propertiesPath, User user) {
-        final PlatformView platform = getPlatform(platformKey);
+        PlatformView platform = getPlatform(platformKey);
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Cleaning properties of a production platform is reserved to production role");
         }
@@ -556,19 +561,19 @@ public class PlatformUseCases {
             throw new IllegalArgumentException("Cleaning only works on module properties (not global ones!)");
         }
 
-        final DeployedModuleView deployedModule = platform.getDeployedModule(propertiesPath);
-        final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+        DeployedModuleView deployedModule = platform.getDeployedModule(propertiesPath);
+        Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
 
-        final List<AbstractPropertyView> propertiesModel = moduleQueries.getPropertiesModel(moduleKey);
-        final List<AbstractValuedPropertyView> baseValues = deployedModule.getValuedProperties();
-        final Set<String> referencedProperties = propertyReferenceScanner.findAll(baseValues, deployedModule.getInstances());
+        List<AbstractPropertyView> propertiesModel = moduleQueries.getPropertiesModel(moduleKey);
+        List<AbstractValuedPropertyView> baseValues = deployedModule.getValuedProperties();
+        Set<String> referencedProperties = propertyReferenceScanner.findAll(baseValues, deployedModule.getInstances());
 
         List<AbstractValuedProperty> filteredValuedProperties = excludeUnusedValues(baseValues, propertiesModel, referencedProperties)
                 .map(AbstractValuedPropertyView::toDomainValuedProperty)
                 .map(AbstractValuedProperty.class::cast)
                 .collect(Collectors.toList());
 
-        Long propertiesVersionId = platformQueries.getPropertiesVersionId(platform.getId(), propertiesPath, null);
+        Long propertiesVersionId = getPropertiesVersionId(platform, propertiesPath);
 
         platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(),
                 propertiesVersionId, propertiesVersionId, filteredValuedProperties,

@@ -28,7 +28,7 @@ Feature: Get properties
     Given an existing module with properties
     And an existing platform with this module and valued properties
     When I try to get the platform properties for this module with an invalid version type
-    Then the request is rejected with a bad request error
+    Then the resource is not found
 
   Scenario: get platform global properties
     Given an existing platform with global properties
