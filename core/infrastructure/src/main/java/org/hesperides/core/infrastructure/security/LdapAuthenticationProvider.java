@@ -88,8 +88,9 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Autowired
     private CacheManager cacheManager;
     // Pour débuguer le contenus des caches:
-    //   Evaluate Expression: cacheManager.ehcaches.get(USERS_AUTHENTICATION_CACHE_NAME).compoundStore.map
-    //   Evaluate Expression: cacheManager.ehcaches.get(AUTHORIZATION_GROUPS_TREE_CACHE_NAME).compoundStore.map
+    // Evaluate Expression: cacheManager.getEhcache(USERS_AUTHENTICATION_CACHE_NAME);
+    // Evaluate Expression: cacheManager.getEhcache(AUTHORIZATION_GROUPS_TREE_CACHE_NAME);
+    // Dans la méthode doAuthentication() par exemple
     private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever;
 
     @PostConstruct

@@ -5,19 +5,23 @@
          monitoring="autodetect"
          dynamicConfig="true">
     <cache name="users-authentication"
-           maxElementsInMemory="1000"
+           maxElementsInMemory="2000"
            timeToLiveSeconds="300"
            memoryStoreEvictionPolicy="LRU"
            diskPersistent="false"
            eternal="false"
-           overflowToDisk="false"/>
+           overflowToDisk="false">
+        <sizeOfPolicy maxDepth="10000" maxDepthExceededBehavior="abort"/>
+    </cache>
     <cache name="authorization-groups-tree"
-           maxElementsInMemory="5000"
+           maxElementsInMemory="8000"
            timeToLiveSeconds="3600"
            memoryStoreEvictionPolicy="LRU"
            diskPersistent="false"
            eternal="false"
-           overflowToDisk="false"/>
+           overflowToDisk="false">
+        <sizeOfPolicy maxDepth="10000" maxDepthExceededBehavior="abort"/>
+    </cache>
     <cache name="all-applications-detail"
            maxElementsInMemory="1"
            timeToLiveSeconds="3600"
