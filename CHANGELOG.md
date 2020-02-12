@@ -25,6 +25,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- On PUT /properties, detect a duplicate property differing only by a trailing whitespace - fix #836. [Lucas Cimon]
+
+
+
 ## 2020-02-11
 ### Fixed
 

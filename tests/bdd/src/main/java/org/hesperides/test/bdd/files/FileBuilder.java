@@ -102,14 +102,13 @@ public class FileBuilder {
                     template.getName(),
                     template.getFilename(),
                     location + "/" + filename,
-                    "/rest/files"
-                            + "/applications/" + platform.getApplicationName()
+                    "/rest/applications/" + platform.getApplicationName()
                             + "/platforms/" + platform.getPlatformName()
                             + "/" + URLEncoder.encode(modulePath, "UTF-8")
                             + "/" + module.getName()
                             + "/" + module.getVersion()
                             + "/instances/" + instanceName
-                            + "/" + template.getName()
+                            + "/files/" + template.getName()
                             + "?isWorkingCopy=" + module.getIsWorkingCopy()
                             + "&template_namespace=" + URLEncoder.encode(templateNamespace, "UTF-8")
                             + "&simulate=" + simulate,

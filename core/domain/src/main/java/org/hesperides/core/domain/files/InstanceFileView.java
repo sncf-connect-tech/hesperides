@@ -77,7 +77,7 @@ public class InstanceFileView {
                             final String templateNamespace,
                             final boolean simulate) {
         try {
-            return String.format("/rest/files/applications/%1$s/platforms/%2$s/%3$s/%4$s/%5$s/instances/%6$s/%7$s?isWorkingCopy=%8$s&template_namespace=%9$s&simulate=%10$s",
+            return String.format("/rest/applications/%1$s/platforms/%2$s/%3$s/%4$s/%5$s/instances/%6$s/files/%7$s?isWorkingCopy=%8$s&template_namespace=%9$s&simulate=%10$s",
                     URLEncoder.encode(applicationName, "UTF-8").replace("+", "%20"),
                     URLEncoder.encode(platformName, "UTF-8").replace("+", "%20"),
                     URLEncoder.encode(path, "UTF-8").replace("+", "%20"),
