@@ -9,6 +9,9 @@ Dans le but de permettre aux utilisateurs de l'API REST de définir des proprié
     * [POST/PUT /applications/{application_name}/properties/](#postput-applicationsapplication_nameproperties)
     * [GET /applications/{application_name}/properties/](#get-applicationsapplication_nameproperties)
 - [Détails notables d'implémentation](#détails-notables-d'implémentation)
+- [global_properties_usages](#global-properties-usages)
+- [application_properties_usages](#application-properties-usages)
+- [Purge properties](#purge-properties)
 <!-- tocstop -->
 
 ## Besoin fonctionnel
@@ -56,7 +59,7 @@ S'inspirer des globales properties au niveau platform existant, pour réaliser c
    - Le paramètre application_properties_version_id à inclure systématiquement dans le put
    - Incrémenter cet application_properties_version_id à chaque création de ces propriétés
    - Informer de façon visuelle quand une propriété d'application est utilisé par une propriété globale/de module/d'instance, pour cela :
-     * Indiquer au niveau module et/ou globale, avec un tooltip ou une icône lorsqu'une propriété fait référence à une propriété commune  (cf. voyages-sncf-technologies/hesperides-gui#329). Ceci nessecitera la mise en place d'une méthode comme global_properties_usage pour les propriétés globales.
+     * Indiquer au niveau module et/ou globale, avec un tooltip ou une icône lorsqu'une propriété fait référence à une propriété commune  (cf. voyages-sncf-technologies/hesperides-gui#329). Ceci nécessitera la mise en place d'une méthode comme global_properties_usage pour les propriétés globales.
      * Au niveau de la nouvelle section "propriétés d'application", indiquer où elles sont employées, de la même manière que c'est fait actuellement pour les globales.
    - Faire en sorte que ces nouvelles propriétés ne puissent avoir aucun impact sur les fonctionnalités get-global-properties-usage, purge-properties et restore-platforms.
    - Prévoir : ApplicationCommad, ApplicationQuery et réutiliser EventCommand pour les commands et events.
@@ -64,3 +67,16 @@ S'inspirer des globales properties au niveau platform existant, pour réaliser c
    - Prévoir des tests BDD Validant:
      * qu'on peut faire référence à ces propriétés dans: des propriétés de module, de plateforme (globales), d'instance ou d'autres propriétés d'application
      * qu'une propriété d'application est bien écrasée par une propriété du même nom au niveau plateforme / module / instance  
+    
+ ## Global properties usages
+   global_properties_usages est une méthode qui permet de savoir le nombre de propriétés (propriétés de modules) qui référencent une propriété globale (proprités de plateforme), prévoir [application_properties_usages](#application-properties-usages) éviterait les impacts avec cette fonctionnalité.
+ 
+ ## Application properties usages
+   Comme pour global_properties_usages, c'est une methode qui aura pour but de savoir le nombre d'utilisation d'une propriété d'application en propriétés globale (propriétés de plateforme), de modules, et d'instances.
+ 
+ ## Purge properties
+   Cette fonctionnalité permet de supprimer les propriétés globales non référencées au niveau module/instance, ou les propriétés de modules supprimées dans le template. Prévoir une méthode de ce type pour réaliser la même chose pour les propriétés d'application. 
+  
+ ## Restore platform
+   Permet de restaurer une platform supprimé. Prévoir une fonctionnalité similaire pour restauré une propriété d'application supprimé   
+    
