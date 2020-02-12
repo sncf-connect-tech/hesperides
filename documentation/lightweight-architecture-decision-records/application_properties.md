@@ -18,7 +18,7 @@ Dans le but de permettre aux utilisateurs de l'API REST de définir des proprié
 
 ## Design 
 
-S'inspirer des globales properties au niveau platform existant, pour réaliser cette fonctionnalité (application common properties)
+S'inspirer des globales properties au niveau platform existant, pour réaliser cette fonctionnalité (application properties)
 
 ## Ressources REST
 ### POST/PUT /applications/{application_name}/properties/
