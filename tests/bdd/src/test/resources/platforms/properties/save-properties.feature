@@ -146,3 +146,10 @@ Feature: Save properties the old way
     And an existing platform with this module
     When I try to save a property declared twice with the same name but different values
     Then the request is rejected with a bad request error
+
+  #issue-836
+  Scenario: save a duplicate property that only differ by a trailing whitespace
+    Given an existing module
+    And an existing platform with this module
+    When I try to save a duplicate property that only differ by a trailing whitespace
+    Then the request is rejected with a bad request error
