@@ -581,9 +581,10 @@ public class PlatformUseCases {
     }
 
     private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {
-        return !CollectionUtils.isEmpty(list) && !list.stream()
+        return list.stream()
                 .map(AbstractValuedProperty::getName)
-                .allMatch(new HashSet<>()::add);
+                .map(StringUtils::trim)
+                .collect(Collectors.toSet()).size() != list.size();
     }
 
     private String cleanCreatePlatform(Platform platform, User user) {

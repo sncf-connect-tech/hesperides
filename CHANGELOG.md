@@ -25,6 +25,15 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2020-02-11
+### Fixed
+
+- Sub-optimal cache that systematically made LDAP connections (#835) [Lucas Cimon]
+
+- #832: Impossible de purger les propriétés inutilisées d'un module dont le `propertiesVersionId` est à `null` (#833) [Thomas L'Hostis]
+
+
+
 ## 2020-01-28
 ### Fixed
 

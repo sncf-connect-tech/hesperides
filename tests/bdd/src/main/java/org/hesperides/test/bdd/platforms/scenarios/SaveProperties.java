@@ -94,6 +94,12 @@ public class SaveProperties extends HesperidesScenario implements En {
             deployedModuleBuilder.withValuedProperty("property-a", "bar");
             saveValuedProperties("should-fail", deployedModuleBuilder);
         });
+
+        When("^I try to save a duplicate property that only differ by a trailing whitespace$", () -> {
+            deployedModuleBuilder.withValuedProperty("property-a", "foo");
+            deployedModuleBuilder.withValuedProperty("property-a ", "bar");
+            saveValuedProperties("should-fail", deployedModuleBuilder);
+        });
     }
 
     private void assertValuedProperties() {
