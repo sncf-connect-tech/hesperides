@@ -594,10 +594,10 @@ public class PlatformUseCases {
 
     public List<PlatformEventView> getPlatformEvents(Platform.Key platformKey, Integer page, Integer size) {
         List<EventView> events = platformQueries.getOptionalPlatformId(platformKey)
-                .map(platformId -> eventQueries.getEventsByTypes(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, page, size))
+                .map(platformId -> eventQueries.getEventsByTypes(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, 0, 0))
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
         events.sort(Comparator.comparing(EventView::getTimestamp));
-        return PlatformEventView.buildPlatformEvents(events);
+        return PlatformEventView.buildPlatformEvents(events, page, size);
     }
 }

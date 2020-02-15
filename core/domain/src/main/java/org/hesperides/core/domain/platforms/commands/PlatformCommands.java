@@ -58,12 +58,12 @@ public class PlatformCommands {
     public void saveModulePropertiesInPlatform(final String platformId,
                                                final String propertiesPath,
                                                final Long platformVersionId,
-                                               final Long propertiesVersionId,
+                                               final Long providedPropertiesVersionId,
                                                final Long expectedPropertiesVersionId,
                                                final List<AbstractValuedProperty> valuedProperties,
                                                final String userComment,
                                                final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, propertiesPath, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, userComment, user));
+        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, propertiesPath, platformVersionId, providedPropertiesVersionId, expectedPropertiesVersionId, valuedProperties, userComment, user));
     }
 
     public void savePlatformProperties(final String platformId,

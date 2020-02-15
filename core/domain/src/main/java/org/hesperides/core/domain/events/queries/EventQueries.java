@@ -22,7 +22,6 @@ public class EventQueries extends AxonQueries {
     }
 
     public List<EventView> getEventsByTypes(String aggregateId, Class[] eventTypes, Integer page, Integer size) {
-        List<EventView> events = querySyncList(new GetEventsByAggregateIdentifierQuery(aggregateId, eventTypes, page, size), EventView.class);
-        return events.stream().sorted(Comparator.comparing(EventView::getTimestamp).reversed()).collect(Collectors.toList());
+        return querySyncList(new GetEventsByAggregateIdentifierQuery(aggregateId, eventTypes), EventView.class);
     }
 }

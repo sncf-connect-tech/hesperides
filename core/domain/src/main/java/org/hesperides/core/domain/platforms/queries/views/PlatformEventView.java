@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -72,7 +73,7 @@ public class PlatformEventView {
         String propertiesPath;
     }
 
-    public static List<PlatformEventView> buildPlatformEvents(List<EventView> events) {
+    public static List<PlatformEventView> buildPlatformEvents(List<EventView> events, Integer page, Integer size) {
         List<PlatformEventView> platformEvents = new ArrayList<>();
 
         ListIterator<EventView> eventsIterator = events.listIterator();
@@ -126,7 +127,11 @@ public class PlatformEventView {
                 eventsIterator.previous();
             }
         }
-        return platformEvents;
+        return platformEvents
+                .stream()
+                .skip((page - 1) * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     private static Platform getPlatformDataFromCreateOrUpdateEvent(EventView event) {
