@@ -29,7 +29,6 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ import static java.util.stream.Collectors.toMap;
 @Value
 public class PlatformEventView {
 
-    Instant timestamp;
+    String timestamp;
     List<PlatformChangeView> changes;
 
     @Value
@@ -75,12 +74,15 @@ public class PlatformEventView {
 
     public static List<PlatformEventView> buildPlatformEvents(List<EventView> events, Integer page, Integer size) {
         List<PlatformEventView> platformEvents = new ArrayList<>();
+        // Il est important de trier les évènements dans l'ordre chronologique
+        // parce que l'algorithme ci-dessous dépend de ce tri
+        events.sort(Comparator.comparing(EventView::getTimestamp));
 
         ListIterator<EventView> eventsIterator = events.listIterator();
         while (eventsIterator.hasNext()) {
             EventView previousEvent = eventsIterator.next();
             if (isPlatformCreatedEvent(previousEvent)) {
-                // Evènement de création
+                // Évènement de création
                 platformEvents.add(new PlatformEventView(previousEvent.getTimestamp(), Collections.singletonList(new PlatformCreatedView())));
             }
 
@@ -129,6 +131,7 @@ public class PlatformEventView {
         }
         return platformEvents
                 .stream()
+                .sorted(Comparator.comparing(PlatformEventView::getTimestamp).reversed())
                 .skip((page - 1) * size)
                 .limit(size)
                 .collect(Collectors.toList());

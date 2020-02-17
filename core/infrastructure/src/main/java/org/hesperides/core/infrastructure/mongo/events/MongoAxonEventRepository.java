@@ -1,26 +1,20 @@
 package org.hesperides.core.infrastructure.mongo.events;
 
-import com.thoughtworks.xstream.XStream;
 import io.micrometer.core.annotation.Timed;
-import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
-import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.events.EventRepository;
-import org.hesperides.core.domain.events.GetEventsByAggregateIdentifierQuery;
+import org.hesperides.core.domain.events.GetEventsQuery;
 import org.hesperides.core.domain.events.queries.EventView;
-import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
@@ -29,32 +23,28 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 @Repository
 public class MongoAxonEventRepository implements EventRepository {
 
-    private final EventStorageEngine eventStorageEngine;
     private final MongoEventRepository mongoEventRepository;
-    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MongoAxonEventRepository(EventStorageEngine eventStorageEngine, MongoEventRepository mongoEventRepository, MongoTemplate mongoTemplate) {
-        this.eventStorageEngine = eventStorageEngine;
+    public MongoAxonEventRepository(MongoEventRepository mongoEventRepository) {
         this.mongoEventRepository = mongoEventRepository;
-        this.mongoTemplate = mongoTemplate;
     }
 
     @QueryHandler
     @Override
     @Timed
-    public List<EventView> onGetEventsByAggregateIdentifierQuery(GetEventsByAggregateIdentifierQuery query) {
+    public List<EventView> onGetEventsQuery(GetEventsQuery query) {
+        List<String> payloadTypes = Stream.of(query.getEventTypes()).map(Class::getName).collect(Collectors.toList());
+        Pageable pageable = query.getPage() > 0 && query.getSize() > 0
+                ? PageRequest.of(query.getPage() - 1, query.getSize())
+                : Pageable.unpaged();
 
-        List<EventDocument> allByAggregateIdentifier = mongoEventRepository.findAllByAggregateIdentifier(query.getAggregateIdentifier());
+        List<EventDocument> events = CollectionUtils.isEmpty(payloadTypes)
+                ? mongoEventRepository.findAllByAggregateIdentifierOrderByTimestampDesc(query.getAggregateIdentifier(), pageable)
+                : mongoEventRepository.findAllByAggregateIdentifierAndPayloadTypeInOrderByTimestampDesc(query.getAggregateIdentifier(), payloadTypes, pageable);
 
-        XStream xStream = new XStream();
-        PlatformCreatedEvent e = (PlatformCreatedEvent) xStream.fromXML(allByAggregateIdentifier.get(0).getSerializedPayload());
-
-        return eventStorageEngine.readEvents(query.getAggregateIdentifier())
-                .asStream()
-                .map(EventView::new)
-                .filter(eventView -> query.getEventTypes().length == 0
-                        || Arrays.stream(query.getEventTypes()).anyMatch(userEventClass -> eventView.getData().getClass().equals(userEventClass)))
+        return events.stream()
+                .map(EventDocument::toEventView)
                 .collect(Collectors.toList());
     }
 

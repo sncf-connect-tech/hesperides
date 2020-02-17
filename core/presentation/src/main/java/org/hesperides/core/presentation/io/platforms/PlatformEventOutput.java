@@ -29,7 +29,6 @@ import org.hesperides.core.domain.platforms.queries.views.PlatformEventView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformEventView.*;
 
 import java.lang.reflect.Type;
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,7 @@ import static org.hesperides.core.presentation.io.platforms.PlatformEventOutput.
 @Value
 public class PlatformEventOutput {
 
-    Instant timestamp;
+    String timestamp;
     List<PlatformChangeOutput> changes;
 
     public PlatformEventOutput(PlatformEventView platformEventView) {

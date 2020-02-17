@@ -1,7 +1,9 @@
 package org.hesperides.core.infrastructure.mongo.events;
 
+import com.thoughtworks.xstream.XStream;
 import lombok.Data;
 import org.hesperides.core.domain.events.queries.EventView;
+import org.hesperides.core.domain.security.UserEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import static org.hesperides.core.infrastructure.mongo.Collections.DOMAINEVENTS;
@@ -18,4 +20,12 @@ public class EventDocument {
     private String payloadType;
     private String serializedMetadata;
     private String eventIdentifier;
+
+    public EventView toEventView() {
+        return new EventView(
+                payloadType,
+                (UserEvent) new XStream().fromXML(serializedPayload),
+                timestamp
+        );
+    }
 }

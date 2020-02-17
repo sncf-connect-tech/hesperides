@@ -291,9 +291,16 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public void getPlatformEvents(PlatformIO platform) {
+    public void getPlatformEvents(PlatformIO platform, Integer page, Integer size) {
+        String url = "/applications/{application_name}/platforms/{platform_name}/events?";
+        if (page != null) {
+            url += "page=" + page;
+        }
+        if (size != null) {
+            url += "&size=" + size;
+        }
         restTemplate.getForEntity(
-                "/applications/{application_name}/platforms/{platform_name}/events",
+                url,
                 PlatformEventOutput[].class,
                 platform.getApplicationName(),
                 platform.getPlatformName());

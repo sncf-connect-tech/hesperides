@@ -24,8 +24,8 @@ public class GetPlatformEvents extends HesperidesScenario implements En {
 
     public GetPlatformEvents() {
 
-        When("^I get this platform's events", () -> {
-            platformClient.getPlatformEvents(platformBuilder.buildInput());
+        When("^I get this platform's events(?: with page (\\d) and size (\\d))?$", (Integer page, Integer size) -> {
+            platformClient.getPlatformEvents(platformBuilder.buildInput(), page, size);
         });
 
         Then("^the event at index (\\d) contains \"([^\"]*)\"(?: with old version \"([^\"]*)\" and new version \"([^\"]*)\")?$", (
@@ -58,7 +58,7 @@ public class GetPlatformEvents extends HesperidesScenario implements En {
                     assertEquals(deployedModuleBuilder.buildPropertiesPath(), deployedModuleRemoved.getPropertiesPath());
 
                 } else {
-                    throw new IllegalArgumentException("Can't find given change name");
+                    throw new IllegalArgumentException("Event at index " + eventIndex + " does not contain change \"" + changeName + "\"");
                 }
             }
         });

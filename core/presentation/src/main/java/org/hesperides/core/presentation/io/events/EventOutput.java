@@ -14,13 +14,13 @@ import org.hesperides.core.domain.security.UserEvent;
 public class EventOutput {
 
     String type;
-    Long timestamp;
+    String timestamp;
     String user;
     Object data;
 
     public EventOutput(EventView view) {
         this.type = view.getType();
-        this.timestamp = view.getTimestamp().toEpochMilli();
+        this.timestamp = view.getTimestamp();
         this.user = view.getData().getUser();
         this.data = getEventData(view.getData());
     }

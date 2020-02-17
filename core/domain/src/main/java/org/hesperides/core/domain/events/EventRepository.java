@@ -8,7 +8,7 @@ import java.util.List;
 public interface EventRepository {
 
     @QueryHandler
-    List<EventView> onGetEventsByAggregateIdentifierQuery(GetEventsByAggregateIdentifierQuery query);
+    List<EventView> onGetEventsQuery(GetEventsQuery query);
 
     void cleanAggregateEvents(String aggregateIdentifier);
 }

@@ -594,10 +594,12 @@ public class PlatformUseCases {
 
     public List<PlatformEventView> getPlatformEvents(Platform.Key platformKey, Integer page, Integer size) {
         List<EventView> events = platformQueries.getOptionalPlatformId(platformKey)
-                .map(platformId -> eventQueries.getEventsByTypes(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, 0, 0))
+                .map(platformId -> eventQueries.getEventsByTypes(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, -1, -1))
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
-
-        events.sort(Comparator.comparing(EventView::getTimestamp));
+        // Certains évènements de mise à jour de plateforme ne contiennent
+        // que l'incrémentation du version_id. On ne peut donc pas appliquer
+        // la pagination sur la requête à l'EventStore mais une fois qu'on a
+        // la liste des vraies modifications de la plateforme.
         return PlatformEventView.buildPlatformEvents(events, page, size);
     }
 }
