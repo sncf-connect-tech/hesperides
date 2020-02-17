@@ -89,8 +89,8 @@ public class PlatformEventView {
             if (eventsIterator.hasNext()) {
                 List<PlatformChangeView> platformChanges = new ArrayList<>();
                 EventView currentEvent = eventsIterator.next();
-                Platform previousPlatformData = getPlatformDataFromCreateOrUpdateEvent(previousEvent);
-                Platform currentPlatformData = getPlatformDataFromCreateOrUpdateEvent(currentEvent);
+                Platform previousPlatformData = getPlatformDataFromEvent(previousEvent);
+                Platform currentPlatformData = getPlatformDataFromEvent(currentEvent);
 
                 if (!previousPlatformData.getVersion().equals(currentPlatformData.getVersion())) {
                     // Mise à jour de la version de la plateforme
@@ -137,12 +137,14 @@ public class PlatformEventView {
                 .collect(Collectors.toList());
     }
 
-    private static Platform getPlatformDataFromCreateOrUpdateEvent(EventView event) {
+    private static Platform getPlatformDataFromEvent(EventView event) {
         Platform platformData;
         if (isPlatformCreatedEvent(event)) {
             platformData = ((PlatformCreatedEvent) event.getData()).getPlatform();
-        } else {
+        } else if (event.getData() instanceof PlatformUpdatedEvent) {
             platformData = ((PlatformUpdatedEvent) event.getData()).getPlatform();
+        } else {
+            throw new RuntimeException("Wrong type of event return: " + event.getData().getClass().getName());
         }
         return platformData;
     }
