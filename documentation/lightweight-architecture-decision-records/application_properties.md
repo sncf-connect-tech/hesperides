@@ -12,11 +12,13 @@ Dans le but de permettre aux utilisateurs de l'API REST de définir des proprié
 - [global_properties_usages](#global-properties-usages)
 - [application_properties_usages](#application-properties-usages)
 - [Purge properties](#purge-properties)
+
 <!-- tocstop -->
 
 ## Besoin fonctionnel
 
-- Exposer via l'API REST des ressources CRUD permettant de créer/lire/modifier des propriétés d'application (comme pour les globales) partagées entre les plateformes d'une application
+- Exposer via l'API REST des ressources CRUD permettant de créer/lire/modifier des propriétés d'application 
+(comme pour les globales) partagées entre les plateformes d'une application
 - Ajouter dans le frontend une section d'édition de ces propriétés dans la section supérieure de la page /#/properties/APP
 
 ## Design 
@@ -58,25 +60,45 @@ S'inspirer des globales properties au niveau platform existant, pour réaliser c
   ## Détails notables d'implémentation
    - Le paramètre application_properties_version_id à inclure systématiquement dans le put
    - Incrémenter cet application_properties_version_id à chaque création de ces propriétés
-   - Informer de façon visuelle quand une propriété d'application est utilisé par une propriété globale/de module/d'instance, pour cela :
-     * Indiquer au niveau module et/ou globale, avec un tooltip ou une icône lorsqu'une propriété fait référence à une propriété commune  (cf. voyages-sncf-technologies/hesperides-gui#329). Ceci nécessitera la mise en place d'une méthode comme global_properties_usage pour les propriétés globales.
-     * Au niveau de la nouvelle section "propriétés d'application", indiquer où elles sont employées, de la même manière que c'est fait actuellement pour les globales.
-   - Faire en sorte que ces nouvelles propriétés ne puissent avoir aucun impact sur les fonctionnalités get-global-properties-usage, purge-properties et restore-platforms.
+   - Informer de façon visuelle quand une propriété d'application est utilisé par une propriété 
+     globale/de module/d'instance, pour cela :
+     * Indiquer au niveau module et/ou globale, avec un tooltip ou une icône, lorsqu'une propriété fait référence à une 
+     propriété d'application  (cf. voyages-sncf-technologies/hesperides-gui#329). Ceci nécessitera la mise en place d'une 
+     méthode comme global_properties_usage pour les propriétés globales.
+     * Au niveau de la nouvelle section "propriétés d'application", indiquer où elles sont employées, de la même manière
+      que c'est fait actuellement pour les globales.
+   - Faire en sorte que ces nouvelles propriétés ne puissent avoir aucun impact sur les fonctionnalités 
+   get_global_properties_usage, purge_properties et restore_platforms.
    - Prévoir : ApplicationCommad, ApplicationQuery et réutiliser EventCommand pour les commands et events.
-   - Ajout d'une nouvelle collection applications pour limiter les impacts et séparer la logique plateforme et la logique application.
+   - Ajout d'une nouvelle collection applications pour limiter les impacts et séparer la logique plateforme et la 
+   logique application.
    - Prévoir des tests BDD Validant:
-     * qu'on peut faire référence à ces propriétés dans: des propriétés de module, de plateforme (globales), d'instance ou d'autres propriétés d'application
-     * qu'une propriété d'application est bien écrasée par une propriété du même nom au niveau plateforme / module / instance  
+     * qu'on peut faire référence à ces propriétés dans: des propriétés de module, de plateforme (globales), 
+     d'instance ou d'autres propriétés d'application
+     * qu'une propriété d'application est bien écrasée par une propriété du même nom au niveau plateforme/module/instance  
     
- ## Global properties usages
-   global_properties_usages est une méthode qui permet de savoir le nombre de propriétés (propriétés de modules) qui référencent une propriété globale (proprités de plateforme), prévoir [application_properties_usages](#application-properties-usages) éviterait les impacts avec cette fonctionnalité.
+ ## global properties usages
+   global_properties_usages est une méthode qui permet de savoir le nombre de propriétés (propriétés de modules) qui 
+   référencent une propriété globale (proprité de plateforme), 
+   prévoir [application_properties_usages](#application-properties-usages) éviterait les impacts avec cette fonctionnalité.
  
- ## Application properties usages
-   Comme pour global_properties_usages, c'est une methode qui aura pour but de savoir le nombre d'utilisation d'une propriété d'application en propriétés globale (propriétés de plateforme), de modules, et d'instances.
+ ## application properties usages
+   Comme pour global_properties_usages, c'est une methode qui aura pour but de compter le nombre d'utilisation d'une 
+   propriété d'application en propriétés globales (propriétés de plateformes), de modules, et d'instances.
  
- ## Purge properties
-   Cette fonctionnalité permet de supprimer les propriétés globales non référencées au niveau module/instance, ou les propriétés de modules supprimées dans le template. Prévoir une méthode de ce type pour réaliser la même chose pour les propriétés d'application. 
-  
- ## Restore platform
-   Permet de restaurer une platform supprimé. Prévoir une fonctionnalité similaire pour restauré une propriété d'application supprimé   
+ ## purge properties
+   Cette fonctionnalité permet de supprimer les propriétés globales non référencées 
+   au niveau module/instance, ou les propriétés de modules supprimées dans le template. 
+   Prévoir une méthode de ce type pour réaliser la même chose pour les propriétés d'application. 
+   **Output**: 
+        ```
+        DELETE /applications/{application_name}/clean_unused_properties
+        ```
+  l'appel à cette méthode n'aura aucun impact sur les propriétés de plateforme et supprimera
+   les propriétés d'application non référencées au niveau plateforme/module ou instance.
+ ## restore platform
+   Permet de restaurer une plateforme supprimé.
+   Quand on restore une plateforme supprimé qui fait référence à des 
+   propriétés d'application, on peut avoir des propriétés de plateforme
+   qui référencent des propriétés d'applications qui n'existent plus. C'est un cas valide.
     

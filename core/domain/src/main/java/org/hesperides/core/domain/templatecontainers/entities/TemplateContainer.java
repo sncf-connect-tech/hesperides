@@ -4,15 +4,14 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 import org.axonframework.common.digest.Digester;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Value
 @NonFinal
@@ -114,10 +113,6 @@ public abstract class TemplateContainer {
     }
 
     public static String urlEncodeUtf8(String input) {
-        try {
-            return URLEncoder.encode(input, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return URLEncoder.encode(input, StandardCharsets.UTF_8);
     }
 }
