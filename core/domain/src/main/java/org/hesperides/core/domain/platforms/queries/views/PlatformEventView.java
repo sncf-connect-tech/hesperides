@@ -74,21 +74,22 @@ public class PlatformEventView {
 
     public static List<PlatformEventView> buildPlatformEvents(List<EventView> events, Integer page, Integer size) {
         List<PlatformEventView> platformEvents = new ArrayList<>();
-        // Il est important de trier les évènements dans l'ordre chronologique
-        // parce que l'algorithme ci-dessous dépend de ce tri
-        events.sort(Comparator.comparing(EventView::getTimestamp));
+        if (!CollectionUtils.isEmpty(events)) {
+            // Il est important de trier les évènements dans l'ordre chronologique
+            // parce que l'algorithme ci-dessous dépend de ce tri
+            events.sort(Comparator.comparing(EventView::getTimestamp));
 
-        ListIterator<EventView> eventsIterator = events.listIterator();
-        while (eventsIterator.hasNext()) {
+            ListIterator<EventView> eventsIterator = events.listIterator();
             EventView previousEvent = eventsIterator.next();
+
             if (isPlatformCreatedEvent(previousEvent)) {
                 // Évènement de création
                 platformEvents.add(new PlatformEventView(previousEvent.getTimestamp(), Collections.singletonList(new PlatformCreatedView())));
             }
 
-            if (eventsIterator.hasNext()) {
-                List<PlatformChangeView> platformChanges = new ArrayList<>();
+            while (eventsIterator.hasNext()) {
                 EventView currentEvent = eventsIterator.next();
+                List<PlatformChangeView> platformChanges = new ArrayList<>();
                 Platform previousPlatformData = getPlatformDataFromEvent(previousEvent);
                 Platform currentPlatformData = getPlatformDataFromEvent(currentEvent);
 
@@ -125,8 +126,7 @@ public class PlatformEventView {
                 if (!CollectionUtils.isEmpty(platformChanges)) {
                     platformEvents.add(new PlatformEventView(currentEvent.getTimestamp(), platformChanges));
                 }
-                // Nécessaire pour repartir de la plateforme en cours
-                eventsIterator.previous();
+                previousEvent = currentEvent;
             }
         }
         return platformEvents
