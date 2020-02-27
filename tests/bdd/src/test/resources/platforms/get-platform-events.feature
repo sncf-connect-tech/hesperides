@@ -46,3 +46,12 @@ Feature: Get platform events
     And I update this platform, changing the version to "7"
     When I get this platform's events with page 2 and size 3
     Then the event at index 0 contains "platform_version_updated" with old version "3" and new version "4"
+
+  Scenario: Get events of a restored platform
+    Given an existing platform with version "1"
+    And I update this platform, changing the version to "2"
+    And I delete and restore this platform
+    And I update this platform, changing the version to "3"
+    When I get this platform's events
+    Then the event at index 0 contains "platform_version_updated" with old version "2" and new version "3"
+    Then the event at index 1 contains "platform_version_updated" with old version "1" and new version "2"
