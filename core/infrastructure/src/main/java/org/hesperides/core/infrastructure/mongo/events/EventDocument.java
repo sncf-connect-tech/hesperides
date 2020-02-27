@@ -4,6 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import lombok.Data;
 import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.security.UserEvent;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -14,6 +15,7 @@ import static org.hesperides.core.infrastructure.mongo.Collections.DOMAINEVENTS;
 @Document(collection = DOMAINEVENTS)
 public class EventDocument {
 
+    @Indexed
     private String aggregateIdentifier;
     private String type;
     private int sequenceNumber;
