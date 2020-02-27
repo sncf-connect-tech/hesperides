@@ -170,10 +170,10 @@ public class PlatformAggregate implements Serializable {
     @EventSourcingHandler
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         log.debug("onPlatformCreatedEvent - platformId: {} - key: {} - versionId: {} - user: {}",
-                event.getPlatformId(), event.getPlatformKey(), event.getPlatform().getVersionId(), event.getUser());
+                event.getPlatformId(), event.getPlatform().getKey(), event.getPlatform().getVersionId(), event.getUser());
         logAfterEventVersionId(event.getPlatform().getVersionId());
         this.id = event.getPlatformId();
-        this.key = event.getPlatformKey();
+        this.key = event.getPlatform().getKey();
         this.versionId = event.getPlatform().getVersionId();
     }
 

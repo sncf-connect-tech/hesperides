@@ -252,17 +252,18 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // On se protège en terme de perfs en n'effectuant cette recherche que sur les 7 derniers jours.
         Instant todayLastWeek = Instant.ofEpochSecond(System.currentTimeMillis() / 1000 - 7 * 24 * 60 * 60);
         Stream<? extends TrackedEventMessage<?>> abstractEventStream = eventStorageEngine.readEvents(eventStorageEngine.createTokenAt(todayLastWeek), false);
-        Optional<PlatformEventWithKey> lastMatchingPlatformEvent = abstractEventStream
+        Optional<PlatformDeletedEvent> lastMatchingPlatformEvent = abstractEventStream
                 .map(GenericTrackedDomainEventMessage.class::cast)
                 .filter(msg -> PlatformAggregate.class.getSimpleName().equals(msg.getType()))
                 .map(MessageDecorator::getPayload)
-                .filter(PlatformEventWithKey.class::isInstance)
-                .map(PlatformEventWithKey.class::cast)
-                .filter(platformEvent -> platformEvent.getPlatformKey() != null
-                        && platformEvent.getPlatformKey().getApplicationName().equalsIgnoreCase(query.getPlatformKey().getApplicationName())
-                        && platformEvent.getPlatformKey().getPlatformName().equalsIgnoreCase(query.getPlatformKey().getPlatformName()))
+                // On part du principe qu'une plateforme à restaurer a forcément été supprimée,
+                // on peut donc n'effectuer la recherche que le évènement `PlatformDeletedEvent`
+                .filter(PlatformDeletedEvent.class::isInstance)
+                .map(PlatformDeletedEvent.class::cast)
+                .filter(platformEvent -> platformEvent.getPlatformKey().getApplicationName().equalsIgnoreCase(query.getPlatformKey().getApplicationName()) &&
+                        platformEvent.getPlatformKey().getPlatformName().equalsIgnoreCase(query.getPlatformKey().getPlatformName()))
                 .reduce((first, second) -> second); // On récupère le dernier élément
-        return lastMatchingPlatformEvent.map(PlatformEventWithKey::getPlatformId);
+        return lastMatchingPlatformEvent.map(PlatformDeletedEvent::getPlatformId);
     }
 
     @QueryHandler
