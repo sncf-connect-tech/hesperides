@@ -25,10 +25,17 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2020-02-13
 ### Fixed
 
-- On PUT /properties, detect a duplicate property differing only by a trailing whitespace - fix #836. [Lucas Cimon]
+- URL format in GET /files output (#839) [Lucas Cimon]
+
+
+
+## 2020-02-12
+### Fixed
+
+- On PUT /properties, detect a duplicate property differing only by a trailing whitespace - fix #836 (#837) [Lucas Cimon]
 
 
 
