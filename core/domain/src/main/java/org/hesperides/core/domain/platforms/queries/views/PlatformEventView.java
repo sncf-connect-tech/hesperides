@@ -29,6 +29,7 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ import static java.util.stream.Collectors.toMap;
 @Value
 public class PlatformEventView {
 
-    String timestamp;
+    Instant timestamp;
     List<PlatformChangeView> changes;
 
     @Value

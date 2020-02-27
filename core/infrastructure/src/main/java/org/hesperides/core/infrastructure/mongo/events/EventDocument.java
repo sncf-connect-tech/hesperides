@@ -6,6 +6,8 @@ import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.security.UserEvent;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+
 import static org.hesperides.core.infrastructure.mongo.Collections.DOMAINEVENTS;
 
 @Data
@@ -25,7 +27,7 @@ public class EventDocument {
         return new EventView(
                 payloadType,
                 (UserEvent) new XStream().fromXML(serializedPayload),
-                timestamp
+                Instant.parse(timestamp)
         );
     }
 }

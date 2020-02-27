@@ -5,8 +5,6 @@ import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.modules.ModuleCreatedEvent;
 import org.hesperides.core.domain.modules.TemplateCreatedEvent;
 import org.hesperides.core.domain.modules.TemplateUpdatedEvent;
-import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.security.UserEvent;
 
 
@@ -14,13 +12,13 @@ import org.hesperides.core.domain.security.UserEvent;
 public class EventOutput {
 
     String type;
-    String timestamp;
+    Long timestamp;
     String user;
     Object data;
 
     public EventOutput(EventView view) {
         this.type = view.getType();
-        this.timestamp = view.getTimestamp();
+        this.timestamp = view.getTimestamp().getEpochSecond();
         this.user = view.getData().getUser();
         this.data = getEventData(view.getData());
     }

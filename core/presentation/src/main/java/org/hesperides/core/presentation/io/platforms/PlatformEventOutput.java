@@ -41,11 +41,11 @@ import static org.hesperides.core.presentation.io.platforms.PlatformEventOutput.
 @Value
 public class PlatformEventOutput {
 
-    String timestamp;
+    Long timestamp;
     List<PlatformChangeOutput> changes;
 
     public PlatformEventOutput(PlatformEventView platformEventView) {
-        this.timestamp = platformEventView.getTimestamp();
+        this.timestamp = platformEventView.getTimestamp().getEpochSecond();
         this.changes = PlatformChangeOutput.fromsViews(platformEventView.getChanges());
     }
 
