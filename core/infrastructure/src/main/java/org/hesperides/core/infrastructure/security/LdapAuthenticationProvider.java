@@ -26,7 +26,6 @@ import com.google.gson.Gson;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
-import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.entities.springauthorities.ApplicationProdRole;
 import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
@@ -41,6 +40,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapUtils;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
@@ -118,7 +118,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     }
 
     @Override
-    @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME, key = "#username")
+    @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME)
     // Note: en cas d'exception levée dans cette méthode, rien ne sera mis en cache
     public DirContextOperations searchCN(String username, String password) {
         LdapSearchContext ldapSearchContext = createLdapSearchContext(username, password);
