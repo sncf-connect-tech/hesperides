@@ -36,12 +36,6 @@ public class EventOutput {
         if (userEvent instanceof TemplateUpdatedEvent) {
             return new TemplateUpdatedEventIO((TemplateUpdatedEvent) userEvent);
         }
-        if (userEvent instanceof PlatformCreatedEvent) {
-            return new PlatformCreatedEventIO((PlatformCreatedEvent) userEvent);
-        }
-        if (userEvent instanceof PlatformUpdatedEvent) {
-            return new PlatformUpdatedEventIO((PlatformUpdatedEvent) userEvent);
-        }
         // For TemplateDeletedEvent, only field used by legacy front is .templateName, so we pass through the event
         // For many other events (ModuleTechnosUpdatedEvent, techno events...) legacy front was totally bogus and used .platform.platform_name...
         return userEvent;
