@@ -24,6 +24,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 @Data
 @Document
 @NoArgsConstructor
+@CompoundIndexes({@CompoundIndex(name = "name_version", def = "{'name' : 1, 'version': 1}")})
 public class KeyDocument implements Serializable {
 
     private String name;
