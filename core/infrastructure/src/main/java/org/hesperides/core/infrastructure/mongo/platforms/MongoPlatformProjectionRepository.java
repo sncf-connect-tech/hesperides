@@ -257,7 +257,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .filter(msg -> PlatformAggregate.class.getSimpleName().equals(msg.getType()))
                 .map(MessageDecorator::getPayload)
                 // On part du principe qu'une plateforme à restaurer a forcément été supprimée,
-                // on peut donc n'effectuer la recherche que le évènement `PlatformDeletedEvent`
+                // on peut donc n'effectuer la recherche que sur l'évènement `PlatformDeletedEvent`
                 .filter(PlatformDeletedEvent.class::isInstance)
                 .map(PlatformDeletedEvent.class::cast)
                 .filter(platformEvent -> platformEvent.getPlatformKey().getApplicationName().equalsIgnoreCase(query.getPlatformKey().getApplicationName()) &&
