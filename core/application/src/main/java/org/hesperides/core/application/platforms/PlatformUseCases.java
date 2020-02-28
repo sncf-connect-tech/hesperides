@@ -41,6 +41,7 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -59,6 +60,9 @@ import static org.hesperides.core.domain.platforms.queries.views.properties.Abst
 
 @Component
 public class PlatformUseCases {
+
+    @Value("${hesperides.events-query-size-factor}")
+    private Integer eventsQuerySizeFactor;
 
     private final PlatformCommands platformCommands;
     private final PlatformQueries platformQueries;
@@ -592,14 +596,57 @@ public class PlatformUseCases {
         return platformCommands.createPlatform(platform, user);
     }
 
-    public List<PlatformEventView> getPlatformEvents(Platform.Key platformKey, Integer page, Integer size) {
-        List<EventView> events = platformQueries.getOptionalPlatformId(platformKey)
-                .map(platformId -> eventQueries.getEventsByTypes(platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class}, -1, -1))
-                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+    public List<PlatformEventView> getPlatformEvents(Platform.Key platformKey, Integer clientPage, Integer size) {
+
         // Certains évènements de mise à jour de plateforme ne contiennent
         // que l'incrémentation du version_id. On ne peut donc pas appliquer
         // la pagination sur la requête à l'EventStore mais une fois qu'on a
         // la liste des vraies modifications de la plateforme.
-        return PlatformEventView.buildPlatformEvents(events, page, size);
+
+        // Mais comme dans certains cas le nombre d'évènements est si élevé
+        // que les performances se dégradent significativement.
+
+        // Pour palier à ça, on récupère un nombre d'évènements supérieur à
+        // ce qui est demandé en retour (eventsQuerySizeFactor) et si ce
+        // n'est pas suffisant, on récupère les évènements suivants.
+
+        // La pagination finale est appliquée à la toute fin (une fois qu'on
+        // a suffisamment d'évènements pour renvoyer le résultat attendu).
+
+        // Cela nous permet de gagner en performances tout en restant pertinent
+        // vis à vis des données attendues. L'inconvénient est que le plus on
+        // remonte dans le passé, plus le temps de traitement augmente.
+
+        // Mais on part du principe que les évènements les plus consultés sont
+        // les derniers évènements en date et cette logique ne s'applique a
+        // priori que dans le cas des mises à jour d'une plateforme.
+
+        String platformId = platformQueries.getOptionalPlatformId(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+
+        List<PlatformEventView> platformEvents = new ArrayList<>();
+        List<EventView> rawEvents = new ArrayList<>();
+        // On s'arrête lorsqu'on a assez d'évènements de mises à jour de la
+        // plateforme à retourner, tenant compte de la pagination
+        for (Integer queryPage = 1; platformEvents.size() < (clientPage * size); queryPage++) {
+
+            List<EventView> newRawEvents = eventQueries.getEventsByTypes(
+                    platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class},
+                    queryPage,
+                    eventsQuerySizeFactor * size);
+
+            if (CollectionUtils.isEmpty(newRawEvents)) {
+                break;
+            }
+            rawEvents.addAll(newRawEvents);
+            platformEvents = PlatformEventView.buildPlatformEvents(rawEvents);
+        }
+        // Tri et pagination appliqués à la toute fin
+        return platformEvents
+                .stream()
+                .sorted(Comparator.comparing(PlatformEventView::getTimestamp).reversed())
+                .skip((clientPage - 1) * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 }

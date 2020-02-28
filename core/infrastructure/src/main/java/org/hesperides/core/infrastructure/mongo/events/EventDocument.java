@@ -26,9 +26,17 @@ public class EventDocument {
     private String eventIdentifier;
 
     public EventView toEventView() {
+        XStream xStream = new XStream();
+        // Afin d'éviter le message "Security framework of XStream
+        // not initialized, XStream is probably vulnerable"
+        // cf. https://stackoverflow.com/questions/44698296/security-framework-of-xstream-not-initialized-xstream-is-probably-vulnerable
+        xStream.allowTypesByWildcard(new String[]{
+                "org.hesperides.core.domain.**"
+        });
+
         return new EventView(
                 payloadType,
-                (UserEvent) new XStream().fromXML(serializedPayload),
+                (UserEvent) xStream.fromXML(serializedPayload),
                 Instant.parse(timestamp)
         );
     }

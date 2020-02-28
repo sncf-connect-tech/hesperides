@@ -98,13 +98,10 @@
             <groupId>com.evanlennick</groupId>
             <artifactId>retry4j</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream -->
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.4.11.1</version>
         </dependency>
-
 
         <!-- Test -->
         <dependency>

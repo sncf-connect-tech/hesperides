@@ -31,7 +31,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -73,7 +72,7 @@ public class PlatformEventView {
         String propertiesPath;
     }
 
-    public static List<PlatformEventView> buildPlatformEvents(List<EventView> events, Integer page, Integer size) {
+    public static List<PlatformEventView> buildPlatformEvents(List<EventView> events) {
         List<PlatformEventView> platformEvents = new ArrayList<>();
         if (!CollectionUtils.isEmpty(events)) {
             // Il est important de trier les évènements dans l'ordre chronologique
@@ -130,12 +129,7 @@ public class PlatformEventView {
                 previousEvent = currentEvent;
             }
         }
-        return platformEvents
-                .stream()
-                .sorted(Comparator.comparing(PlatformEventView::getTimestamp).reversed())
-                .skip((page - 1) * size)
-                .limit(size)
-                .collect(Collectors.toList());
+        return platformEvents;
     }
 
     private static Platform getPlatformDataFromEvent(EventView event) {
