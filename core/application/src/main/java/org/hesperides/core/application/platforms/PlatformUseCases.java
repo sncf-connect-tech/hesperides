@@ -1,5 +1,6 @@
 package org.hesperides.core.application.platforms;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
@@ -59,6 +60,7 @@ import static org.hesperides.core.application.platforms.properties.PropertyValua
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludeUnusedValues;
 
 @Component
+@Slf4j
 public class PlatformUseCases {
 
     @Value("${hesperides.events-query-size-factor}")
@@ -628,7 +630,8 @@ public class PlatformUseCases {
         List<EventView> rawEvents = new ArrayList<>();
         // On s'arrête lorsqu'on a assez d'évènements de mises à jour de la
         // plateforme à retourner, tenant compte de la pagination
-        for (Integer queryPage = 1; platformEvents.size() < (clientPage * size); queryPage++) {
+        Integer queryPage;
+        for (queryPage = 1; platformEvents.size() < (clientPage * size); queryPage++) {
 
             List<EventView> newRawEvents = eventQueries.getEventsByTypes(
                     platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class},
@@ -641,6 +644,8 @@ public class PlatformUseCases {
             rawEvents.addAll(newRawEvents);
             platformEvents = PlatformEventView.buildPlatformEvents(rawEvents);
         }
+        log.debug("${queryPage} querie(s) of ${eventsQuerySizeFactor * size} platform events " +
+                "to get ${size} elements for page ${clientPage} of platform update events");
         // Tri et pagination appliqués à la toute fin
         return platformEvents
                 .stream()
