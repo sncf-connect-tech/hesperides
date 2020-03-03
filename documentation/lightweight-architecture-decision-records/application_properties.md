@@ -94,8 +94,9 @@ S'inspirer des globales properties au niveau platform existant, pour réaliser c
         ```
         DELETE /applications/{application_name}/clean_unused_properties
         ```
-  l'appel à cette méthode n'aura aucun impact sur les propriétés de plateforme et supprimera
+  L'appel à cette méthode n'aura aucun impact sur les propriétés de plateforme et supprimera
    les propriétés d'application non référencées au niveau plateforme/module ou instance.
+   
  ## restore platform
    Permet de restaurer une plateforme supprimé.
    Quand on restore une plateforme supprimé qui fait référence à des 
