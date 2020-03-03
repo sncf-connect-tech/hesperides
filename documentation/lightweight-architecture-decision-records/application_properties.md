@@ -9,8 +9,8 @@ Dans le but de permettre aux utilisateurs de l'API REST de définir des proprié
     * [POST/PUT /applications/{application_name}/properties/](#postput-applicationsapplication_nameproperties)
     * [GET /applications/{application_name}/properties/](#get-applicationsapplication_nameproperties)
 - [Détails notables d'implémentation](#détails-notables-d'implémentation)
-- [global_properties_usages](#global-properties-usages)
-- [application_properties_usages](#application-properties-usages)
+- [global_properties_usage](#global-properties-usage)
+- [application_properties_usage](#application-properties-usage)
 - [Purge properties](#purge-properties)
 
 <!-- tocstop -->
@@ -77,13 +77,13 @@ S'inspirer des globales properties au niveau platform existant, pour réaliser c
      d'instance ou d'autres propriétés d'application
      * qu'une propriété d'application est bien écrasée par une propriété du même nom au niveau plateforme/module/instance  
     
- ## global properties usages
-   global_properties_usages est une méthode qui permet de savoir le nombre de propriétés (propriétés de modules) qui 
+ ## global properties usage
+   global_properties_usage est une méthode qui permet de savoir le nombre de propriétés (propriétés de modules) qui 
    référencent une propriété globale (proprité de plateforme), 
-   prévoir [application_properties_usages](#application-properties-usages) éviterait les impacts avec cette fonctionnalité.
+   prévoir [application_properties_usage](#application-properties-usage) éviterait les impacts avec cette fonctionnalité.
  
- ## application properties usages
-   Comme pour global_properties_usages, c'est une methode qui aura pour but de compter le nombre d'utilisation d'une 
+ ## application properties usage
+   Comme pour global_properties_usage, c'est une methode qui aura pour but de compter le nombre d'utilisation d'une 
    propriété d'application en propriétés globales (propriétés de plateformes), de modules, et d'instances.
  
  ## purge properties
