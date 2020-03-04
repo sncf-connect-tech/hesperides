@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import static org.hesperides.commons.SpringProfiles.LDAP;
@@ -38,15 +39,23 @@ import static org.hesperides.commons.SpringProfiles.LDAP;
 @Setter
 @Validated
 public class LdapConfiguration {
-    @NotNull
+    @NotEmpty
     private String url;
+    @NotEmpty
     private String domain;
+    @NotEmpty
     private String userSearchBase;
+    @NotEmpty
     private String roleSearchBase;
+    @NotEmpty
     private String usernameAttribute;
+    @NotEmpty
     private String connectTimeout;
+    @NotEmpty
     private String readTimeout;
+    @NotEmpty
     private String prodGroupDN;
+    @NotEmpty
     private String techGroupDN;
 
     public String getSearchFilterForCN(String username) {

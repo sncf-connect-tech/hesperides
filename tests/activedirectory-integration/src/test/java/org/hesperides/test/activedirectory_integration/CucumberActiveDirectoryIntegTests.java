@@ -20,7 +20,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @CucumberOptions(
         features = "../bdd/src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.activedirectory_integration"},
-        tags = {"@require-real-ad,@auth-related"})
+        tags = {"@require-real-ad or @auth-related"})
 public class CucumberActiveDirectoryIntegTests {
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
