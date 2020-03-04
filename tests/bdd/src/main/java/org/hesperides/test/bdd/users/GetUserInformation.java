@@ -18,8 +18,8 @@ public class GetUserInformation extends HesperidesScenario implements En {
 
     public GetUserInformation() {
 
-        When("^I get the current user information$", () ->
-                userClient.getCurrentUserInfo());
+        When("^I( try to)? get the current user information$", (String tryTo) ->
+                userClient.getCurrentUserInfo(tryTo));
 
         When("^I get user information about another prod user$", () ->
                 userClient.getUserInfo(authorizationCredentialsConfig.getProdUsername()));

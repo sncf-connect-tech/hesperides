@@ -25,6 +25,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Added
+
+- Messages d'erreur plus explicites en cas de 401 (#842) [Lucas Cimon]
+
+
+
 ## 2020-02-13
 ### Fixed
 

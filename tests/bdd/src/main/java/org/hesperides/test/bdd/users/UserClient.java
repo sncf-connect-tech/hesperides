@@ -37,8 +37,8 @@ public class UserClient {
         this.restTemplate = restTemplate;
     }
 
-    void getCurrentUserInfo() {
-        restTemplate.getForEntity("/users/auth", UserInfoOutput.class);
+    void getCurrentUserInfo(String tryTo) {
+        restTemplate.getForEntity("/users/auth", getResponseType(tryTo, UserInfoOutput.class));
     }
 
     void getUserInfo(String username) {
