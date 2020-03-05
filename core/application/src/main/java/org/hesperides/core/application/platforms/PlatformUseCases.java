@@ -1,16 +1,21 @@
 package org.hesperides.core.application.platforms;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.properties.PropertyType;
 import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.application.platforms.properties.PropertyValuationContext;
 import org.hesperides.core.domain.events.commands.EventCommands;
+import org.hesperides.core.domain.events.queries.EventQueries;
+import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -37,15 +42,17 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
@@ -53,7 +60,11 @@ import static org.hesperides.core.application.platforms.properties.PropertyValua
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.excludeUnusedValues;
 
 @Component
+@Slf4j
 public class PlatformUseCases {
+
+    @Value("${hesperides.events-query-size-factor}")
+    private Integer eventsQuerySizeFactor;
 
     private final PlatformCommands platformCommands;
     private final PlatformQueries platformQueries;
@@ -61,6 +72,7 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
     private final EventCommands eventCommands;
+    private final EventQueries eventQueries;
     private final PropertyReferenceScanner propertyReferenceScanner;
 
     @Autowired
@@ -70,6 +82,7 @@ public class PlatformUseCases {
                             TechnoQueries technoQueries,
                             ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries,
                             EventCommands eventCommands,
+                            EventQueries eventQueries,
                             PropertyReferenceScanner propertyReferenceScanner) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
@@ -77,6 +90,7 @@ public class PlatformUseCases {
         this.technoQueries = technoQueries;
         this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
         this.eventCommands = eventCommands;
+        this.eventQueries = eventQueries;
         this.propertyReferenceScanner = propertyReferenceScanner;
     }
 
@@ -209,7 +223,7 @@ public class PlatformUseCases {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<Module.Key, List<Techno.Key>> technoKeysByModuleMap = allPlatformsModules.stream().collect(Collectors.toMap(
+        Map<Module.Key, List<Techno.Key>> technoKeysByModuleMap = allPlatformsModules.stream().collect(toMap(
                 ModuleView::getKey,
                 module -> module.getTechnos().stream()
                         .map(TechnoView::getKey)
@@ -228,7 +242,7 @@ public class PlatformUseCases {
                         .map(Map.Entry::getKey))
                 .collect(Collectors.toSet());
 
-        Map<Platform.Key, List<Module.Key>> moduleKeysByPlatformMap = platforms.stream().collect(Collectors.toMap(
+        Map<Platform.Key, List<Module.Key>> moduleKeysByPlatformMap = platforms.stream().collect(toMap(
                 PlatformView::getPlatformKey,
                 platform -> platform.getDeployedModules().stream()
                         .map(DeployedModuleView::getModuleKey)
@@ -442,7 +456,7 @@ public class PlatformUseCases {
 
         return platform.getGlobalProperties().stream()
                 .map(ValuedPropertyView::getName)
-                .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
+                .collect(toMap(identity(), globalPropertyName ->
                         GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, deployedModules, modulesProperties)));
     }
 
@@ -582,5 +596,62 @@ public class PlatformUseCases {
     private String cleanCreatePlatform(Platform platform, User user) {
         eventCommands.cleanAggregateEvents(platform.getKey().generateHash());
         return platformCommands.createPlatform(platform, user);
+    }
+
+    public List<PlatformEventView> getPlatformEvents(Platform.Key platformKey, Integer clientPage, Integer size) {
+
+        // Certains évènements de mise à jour de plateforme ne contiennent
+        // que l'incrémentation du version_id. On ne peut donc pas appliquer
+        // la pagination sur la requête à l'EventStore mais une fois qu'on a
+        // la liste des vraies modifications de la plateforme.
+
+        // Mais comme dans certains cas le nombre d'évènements est si élevé
+        // que les performances se dégradent significativement.
+
+        // Pour palier à ça, on récupère un nombre d'évènements supérieur à
+        // ce qui est demandé en retour (eventsQuerySizeFactor) et si ce
+        // n'est pas suffisant, on récupère les évènements suivants.
+
+        // La pagination finale est appliquée à la toute fin (une fois qu'on
+        // a suffisamment d'évènements pour renvoyer le résultat attendu).
+
+        // Cela nous permet de gagner en performances tout en restant pertinent
+        // vis à vis des données attendues. L'inconvénient est que le plus on
+        // remonte dans le passé, plus le temps de traitement augmente.
+
+        // Mais on part du principe que les évènements les plus consultés sont
+        // les derniers évènements en date et cette logique ne s'applique a
+        // priori que dans le cas des mises à jour d'une plateforme.
+
+        String platformId = platformQueries.getOptionalPlatformId(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+
+        List<PlatformEventView> platformEvents = new ArrayList<>();
+        List<EventView> rawEvents = new ArrayList<>();
+        // On s'arrête lorsqu'on a assez d'évènements de mises à jour de la
+        // plateforme à retourner, tenant compte de la pagination
+        Integer queryPage;
+        for (queryPage = 1; platformEvents.size() < (clientPage * size); queryPage++) {
+
+            List<EventView> newRawEvents = eventQueries.getEventsByTypes(
+                    platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class},
+                    queryPage,
+                    eventsQuerySizeFactor * size);
+
+            if (CollectionUtils.isEmpty(newRawEvents)) {
+                break;
+            }
+            rawEvents.addAll(newRawEvents);
+            platformEvents = PlatformEventView.buildPlatformEvents(rawEvents);
+        }
+        log.debug("${queryPage} querie(s) of ${eventsQuerySizeFactor * size} platform events " +
+                "to get ${size} elements for page ${clientPage} of platform update events");
+        // Tri et pagination appliqués à la toute fin
+        return platformEvents
+                .stream()
+                .sorted(Comparator.comparing(PlatformEventView::getTimestamp).reversed())
+                .skip((clientPage - 1) * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 }

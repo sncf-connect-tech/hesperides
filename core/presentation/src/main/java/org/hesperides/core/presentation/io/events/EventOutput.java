@@ -18,7 +18,7 @@ public class EventOutput {
 
     public EventOutput(EventView view) {
         this.type = view.getType();
-        this.timestamp = view.getTimestamp().toEpochMilli();
+        this.timestamp = view.getTimestamp().getEpochSecond();
         this.user = view.getData().getUser();
         this.data = getEventData(view.getData());
     }

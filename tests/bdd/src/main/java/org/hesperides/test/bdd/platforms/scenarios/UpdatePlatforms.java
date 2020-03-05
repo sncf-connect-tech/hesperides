@@ -74,7 +74,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "(, adding an instance)?(?: named \"([^\"]+)\")?(?: (and|with) instance properties)?" +
             "(?:, removing the instance named \"([^\"]+)\")?" +
             "(, clearing the modules)?" +
-            "(, changing the platform version)?" +
+            "(, changing the version)?(?: to \"([^\"]+)\")?" +
             "( to a prod one)?" +
             "( and requiring the copy of properties)?$")
     public void iUpdateThisPlatform(
@@ -91,6 +91,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String removeInstance,
             String clearModules,
             String changePlatformVersion,
+            String newPlatformVersion,
             String toProd,
             String copyProperties) {
 
@@ -151,7 +152,11 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         }
 
         if (isNotEmpty(changePlatformVersion)) {
-            platformBuilder.withVersion("1.1");
+            if (isNotEmpty(newPlatformVersion)) {
+                platformBuilder.withVersion(newPlatformVersion);
+            } else {
+                platformBuilder.withVersion("1.1");
+            }
         }
 
         if (isNotEmpty(toProd)) {

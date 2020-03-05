@@ -94,11 +94,13 @@
             <artifactId>jna</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- Various -->
         <dependency>
             <groupId>com.evanlennick</groupId>
             <artifactId>retry4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
         </dependency>
 
         <!-- Test -->

@@ -50,7 +50,7 @@ public abstract class AbstractDifferingPropertyOutput {
         return abstractDifferingPropertyOutput;
     }
 
-    public static class Serializer implements JsonDeserializer<AbstractDifferingPropertyOutput>, JsonSerializer<AbstractDifferingPropertyOutput> {
+    public static class Adapter implements JsonDeserializer<AbstractDifferingPropertyOutput>, JsonSerializer<AbstractDifferingPropertyOutput> {
 
         @Override
         public AbstractDifferingPropertyOutput deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {

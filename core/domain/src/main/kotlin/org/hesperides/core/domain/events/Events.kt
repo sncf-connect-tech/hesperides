@@ -1,4 +1,6 @@
 package org.hesperides.core.domain.events
 
-data class GenericEventsByStreamQuery(val aggregateIdentifier: String)
+import org.hesperides.core.domain.security.UserEvent
+
+data class GetEventsQuery(val aggregateIdentifier: String, val eventTypes: Array<Class<UserEvent>>, val page: Integer, val size: Integer)
 data class CleanAggregateEventsQuery(val aggregateIdentifier: String)

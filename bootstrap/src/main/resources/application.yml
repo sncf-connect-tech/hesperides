@@ -23,9 +23,7 @@ server:
 hesperides:
   security:
     auth-whitelist: ${AUTH_WHITELIST:/versions|/manage/**|/swagger-resources/|/swagger-ui.html|/v2/api-docs|/webjars/**}
-  cache:
-    get-all-applications-detail:
-      duration-in-hours: ${GET_ALL_APPLICATIONS_DETAIL_CACHE_DURATION_IN_HOURS:1}
+  events-query-size-factor: ${EVENTS_QUERY_SIZE_FACTOR:2}
 
 ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
   url: ${LDAP_URL:}
