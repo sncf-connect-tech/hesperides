@@ -102,9 +102,9 @@ public class RandomPlatformViewGenerator {
     }
 
     static String genVersion() {
-        return Integer.toString(nextInt(0, 10))
-                + "." + Integer.toString(nextInt(0, 10))
-                + "." + Integer.toString(nextInt(0, 10));
+        return nextInt(0, 10)
+                + "." + nextInt(0, 10)
+                + "." + nextInt(0, 10);
     }
 
     static String genNameOrValue() {
