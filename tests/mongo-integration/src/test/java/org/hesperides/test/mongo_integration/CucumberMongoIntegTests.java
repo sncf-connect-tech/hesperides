@@ -17,9 +17,11 @@ import static org.hesperides.commons.SpringProfiles.*;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
+        strict = true,
+        plugin = "pretty",
         features = "../bdd/src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.mongo_integration"},
-        tags = "~@require-real-ad")
+        tags = "not @require-real-ad")
 public class CucumberMongoIntegTests {
 
     public static void main(String[] args) {

@@ -20,14 +20,11 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
-import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
-import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
-import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -40,10 +37,10 @@ import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.hesperides.test.bdd.platforms.scenarios.SaveProperties.dataTableToIterableProperties;
 import static org.junit.Assert.assertEquals;
 
 public class UpdatePlatforms extends HesperidesScenario implements En {
@@ -171,71 +168,6 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     }
 
     public UpdatePlatforms() {
-
-        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)(?: in version \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
-                String moduleName, String platformName, String moduleVersion, String propertiesNature, DataTable data) -> {
-
-            if (isNotEmpty(platformName)) {
-                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
-                assertEquals(platformName, platformBuilder.getPlatformName());
-            }
-
-            // possibilité de surcharger la variable membre dans le cas où c'est un module précis qui nous intéresse
-            final DeployedModuleBuilder deployedModuleBuilder = isNotEmpty(moduleName)
-                    ? platformBuilder.findDeployedModuleBuilderByName(moduleName, moduleVersion)
-                    : this.deployedModuleBuilder;
-
-            switch (propertiesNature) {
-                case "global":
-                    platformBuilder.setGlobalProperties(data.asList(ValuedPropertyIO.class));
-                    saveProperties.saveGlobalProperties();
-
-                    break;
-                case "instance":
-                    instanceBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
-                    saveProperties.saveInstanceProperties();
-
-                    break;
-                case "iterable":
-                    deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
-                    saveProperties.saveValuedProperties(deployedModuleBuilder);
-
-                    break;
-                default:
-                    deployedModuleBuilder.clearValuedProperties();
-                    List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-                    valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
-                    saveProperties.saveValuedProperties(deployedModuleBuilder);
-                    break;
-            }
-        });
-
-        Given("^the platform has nested iterable properties$", () -> {
-            List<IterableValuedPropertyIO> iterableProperties = Collections.singletonList(
-                    new IterableValuedPropertyIO("a", Collections.singletonList(
-                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
-                                    new ValuedPropertyIO("valued_in_a", "value_a"),
-                                    new IterableValuedPropertyIO("b", Collections.singletonList(
-                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
-                                                    new ValuedPropertyIO("valued_in_b", "value_b"),
-                                                    new IterableValuedPropertyIO("c", Collections.singletonList(
-                                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
-                                                                    new ValuedPropertyIO("valued_in_c", "value_c")
-                                                            )))
-                                                    ))
-                                            )))
-                                    )),
-                                    new IterableValuedPropertyIO("d", Collections.singletonList(
-                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
-                                                    new ValuedPropertyIO("valued_in_d", "value_d")
-                                            )))
-                                    ))
-                            )))
-                    ))
-            );
-            deployedModuleBuilder.setIterableProperties(iterableProperties);
-            saveProperties.saveValuedProperties();
-        });
 
         When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)" +
                 "(?: updating the value of the \"(.+)\" property accordingly)?$", (

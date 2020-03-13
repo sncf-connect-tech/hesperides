@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.DataTableType;
 import io.cucumber.java8.En;
 import lombok.Value;
 import org.hesperides.core.presentation.io.platforms.properties.*;
@@ -36,6 +37,7 @@ import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hesperides.test.bdd.commons.DataTableHelper.decodeValue;
 import static org.junit.Assert.assertEquals;
 
 public class SaveProperties extends HesperidesScenario implements En {
@@ -52,6 +54,71 @@ public class SaveProperties extends HesperidesScenario implements En {
     private InstanceBuilder instanceBuilder;
 
     public SaveProperties() {
+
+        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)(?: in version \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
+                String moduleName, String platformName, String moduleVersion, String propertiesNature, DataTable dataTable) -> {
+
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
+
+            // Possibilité de surcharger la variable membre dans le cas où c'est un module précis qui nous intéresse
+            DeployedModuleBuilder deployedModuleBuilder = isEmpty(moduleName)
+                    ? this.deployedModuleBuilder
+                    : platformBuilder.findDeployedModuleBuilderByName(moduleName, moduleVersion);
+
+            switch (propertiesNature) {
+                case "global":
+                    platformBuilder.setGlobalProperties(dataTable.asList(ValuedPropertyIO.class));
+                    saveGlobalProperties();
+
+                    break;
+                case "instance":
+                    instanceBuilder.setValuedProperties(dataTable.asList(ValuedPropertyIO.class));
+                    saveInstanceProperties();
+
+                    break;
+                case "iterable":
+                    deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(dataTable));
+                    saveValuedProperties(deployedModuleBuilder);
+
+                    break;
+                default: // Correspond au cas des propriétés valorisées au niveau module
+                    deployedModuleBuilder.clearValuedProperties();
+                    List<ValuedPropertyIO> valuedProperties = dataTable.asList(ValuedPropertyIO.class);
+                    valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue()));
+                    saveValuedProperties(deployedModuleBuilder);
+                    break;
+            }
+        });
+
+        Given("^the platform has nested iterable properties$", () -> {
+            List<IterableValuedPropertyIO> iterableProperties = Collections.singletonList(
+                    new IterableValuedPropertyIO("a", Collections.singletonList(
+                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                    new ValuedPropertyIO("valued_in_a", "value_a"),
+                                    new IterableValuedPropertyIO("b", Collections.singletonList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                                    new ValuedPropertyIO("valued_in_b", "value_b"),
+                                                    new IterableValuedPropertyIO("c", Collections.singletonList(
+                                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
+                                                                    new ValuedPropertyIO("valued_in_c", "value_c")
+                                                            )))
+                                                    ))
+                                            )))
+                                    )),
+                                    new IterableValuedPropertyIO("d", Collections.singletonList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
+                                                    new ValuedPropertyIO("valued_in_d", "value_d")
+                                            )))
+                                    ))
+                            )))
+                    ))
+            );
+            deployedModuleBuilder.setIterableProperties(iterableProperties);
+            saveValuedProperties();
+        });
 
         Given("^the deployed module has properties with values referencing global properties$", () -> {
             deployedModuleBuilder.withValuedProperty("property-a", "{{global-module-foo}}");
@@ -70,13 +137,13 @@ public class SaveProperties extends HesperidesScenario implements En {
             saveValuedProperties();
         });
 
-        When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
-            deployedModuleBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
+        When("^I( try to)? save these properties$", (String tryTo, DataTable dataTable) -> {
+            deployedModuleBuilder.setValuedProperties(dataTable.asList(ValuedPropertyIO.class));
             saveValuedProperties(tryTo, deployedModuleBuilder);
         });
 
-        When("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
-            deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
+        When("^I( try to)? save these iterable properties$", (String tryTo, DataTable dataTable) -> {
+            deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(dataTable));
             saveValuedProperties(tryTo, deployedModuleBuilder);
         });
 
@@ -147,6 +214,24 @@ public class SaveProperties extends HesperidesScenario implements En {
         platformHistory.updatePlatformBuilder(platformBuilder);
     }
 
+    @DataTableType
+    public ValuedPropertyIO valuedPropertyIO(Map<String, String> entry) {
+        return new ValuedPropertyIO(
+                decodeValue(entry.get("name")),
+                decodeValue(entry.get("value"))
+        );
+    }
+
+    @DataTableType
+    public IterableProperty iterableValuedPropertyIO(Map<String, String> entry) {
+        return new IterableProperty(
+                decodeValue(entry.get("iterable")),
+                decodeValue(entry.get("bloc")),
+                decodeValue(entry.get("name")),
+                decodeValue(entry.get("value"))
+        );
+    }
+
     @Value
     public static class IterableProperty {
         String iterable;
@@ -160,13 +245,12 @@ public class SaveProperties extends HesperidesScenario implements En {
      * contenant les colonnes "iterable", "bloc", "name", "value"
      * en une liste de IterableValuedPropertyIO.
      */
-    static List<IterableValuedPropertyIO> dataTableToIterableProperties(DataTable data) {
-        List<IterableProperty> valuedProperties = data.asList(IterableProperty.class);
-
-        Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
+    static List<IterableValuedPropertyIO> dataTableToIterableProperties(DataTable dataTable) {
+        List<IterableProperty> iterablePropertiesData = dataTable.asList(IterableProperty.class);
         // Première étape : transformer la datatable en map
         // pour mutualiser les données
-        valuedProperties.forEach(iterableProperty -> {
+        Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
+        iterablePropertiesData.forEach(iterableProperty -> {
             Map<String, Map<String, String>> itemMap = iterableMap.getOrDefault(iterableProperty.getIterable(), new HashMap<>());
             Map<String, String> propertyMap = itemMap.getOrDefault(iterableProperty.getBloc(), new HashMap<>());
             propertyMap.put(iterableProperty.getName(), iterableProperty.getValue());

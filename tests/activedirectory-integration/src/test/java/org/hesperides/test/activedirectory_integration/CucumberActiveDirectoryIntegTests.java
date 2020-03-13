@@ -18,6 +18,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
+        strict = true,
+        plugin = "pretty",
         features = "../bdd/src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.activedirectory_integration"},
         tags = {"@require-real-ad or @auth-related"})
