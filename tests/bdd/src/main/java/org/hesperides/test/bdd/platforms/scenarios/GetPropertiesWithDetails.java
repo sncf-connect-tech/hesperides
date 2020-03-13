@@ -1,8 +1,8 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.DataTableType;
 import io.cucumber.java8.En;
-import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.hesperides.test.bdd.commons.DataTableHelper.decodeValue;
 import static org.junit.Assert.assertEquals;
 
 public class GetPropertiesWithDetails extends HesperidesScenario implements En {
@@ -49,57 +49,36 @@ public class GetPropertiesWithDetails extends HesperidesScenario implements En {
             platformClient.getPropertiesWithDetails(platformBuilder.buildInput(), propertiesPath);
         });
 
-        Then("^the properties details are successfully retrieved and they are empty$", () -> {
-            PropertiesWithDetailsOutput expectedProperties = new PropertiesWithDetailsOutput(Collections.emptyList());
-            assertPropertiesDetails(expectedProperties);
-        });
+        Then("^the properties details are successfully retrieved and they are empty$", () -> assertProperties(Collections.emptyList()));
 
-        Then("^the properties details match these values$", (DataTable data) -> {
-            List<TestPropertyWithDetails> testPropertiesWithDetails = data.asList(TestPropertyWithDetails.class);
-            PropertiesWithDetailsOutput expectedProperties = TestPropertyWithDetails.toPropertiesWithDetailsOutput(testPropertiesWithDetails);
-            assertPropertiesDetails(expectedProperties);
+        Then("^the properties details match these values$", (DataTable dataTable) -> {
+            List<PropertyWithDetailsOutput> expectedProperties = dataTable.asList(PropertyWithDetailsOutput.class);
+            assertProperties(expectedProperties);
         });
     }
 
-    private void assertPropertiesDetails(PropertiesWithDetailsOutput expectedProperties) {
+    private void assertProperties(List<PropertyWithDetailsOutput> expectedProperties) {
         assertOK();
-        PropertiesWithDetailsOutput actualModuleProperties = testContext.getResponseBody();
-        assertEquals(expectedProperties, actualModuleProperties);
+        List<PropertyWithDetailsOutput> actualProperties = testContext.getResponseBody(PropertiesWithDetailsOutput.class).getValuedProperties();
+        assertEquals(expectedProperties, actualProperties);
     }
 
-    @Value
-    public static class TestPropertyWithDetails {
-        String name;
-        String storedValue;
-        String finalValue;
-        String defaultValue;
-        String transformations;
+    @DataTableType
+    public PropertyWithDetailsOutput propertiesWithDetailsOutput(Map<String, String> entry) {
+        return new PropertyWithDetailsOutput(
+                decodeValue(entry.get("name")),
+                entry.get("storedValue"),
+                decodeValue(entry.get("finalValue")),
+                decodeValue(entry.get("defaultValue")),
+                buildValuedPropertyTransformation(decodeValue(entry.get("transformations")))
+        );
+    }
 
-        static PropertiesWithDetailsOutput toPropertiesWithDetailsOutput(List<TestPropertyWithDetails> testPropertiesWithDetails) {
-            List<PropertyWithDetailsOutput> propertyWithDetailsOutputs = testPropertiesWithDetails
-                    .stream()
-                    .map(TestPropertyWithDetails::toPropertyWithDetailsOutput)
-                    .collect(Collectors.toList());
-
-            return new PropertiesWithDetailsOutput(propertyWithDetailsOutputs);
-        }
-
-        private PropertyWithDetailsOutput toPropertyWithDetailsOutput() {
-            return new PropertyWithDetailsOutput(
-                    name,
-                    defaultIfEmpty(storedValue, null),
-                    finalValue,
-                    defaultValue,
-                    getTransformationsFromString()
-            );
-        }
-
-        private ValuedPropertyTransformation[] getTransformationsFromString() {
-            return Stream.of(this.transformations.split(","))
-                    .filter(StringUtils::isNotEmpty)
-                    .map(String::trim)
-                    .map(ValuedPropertyTransformation::valueOf)
-                    .toArray(ValuedPropertyTransformation[]::new);
-        }
+    private static ValuedPropertyTransformation[] buildValuedPropertyTransformation(String value) {
+        return Stream.of(value.split(","))
+                .filter(StringUtils::isNotEmpty)
+                .map(String::trim)
+                .map(ValuedPropertyTransformation::valueOf)
+                .toArray(ValuedPropertyTransformation[]::new);
     }
 }

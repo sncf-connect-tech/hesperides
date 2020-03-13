@@ -20,9 +20,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
+        strict = true,
+        plugin = "pretty",
         features = "src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd"},
-        tags = {"~@require-real-mongo", "~@require-real-ad"}) // comma in tag = OR, comma between tags = AND
+        tags = {"not @require-real-mongo and not @require-real-ad"})
 public class CucumberTests {
 
     public static void main(String[] args) {

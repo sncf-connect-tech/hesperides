@@ -1,19 +1,18 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import io.cucumber.java.en.Then;
+import io.cucumber.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import io.cucumber.datatable.DataTable;
-import io.cucumber.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PurgeProperties extends HesperidesScenario implements En {
 
@@ -23,13 +22,13 @@ public class PurgeProperties extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
 
     public PurgeProperties() {
-        When("I try to purge unneeded global properties of this platform", () -> {
+        When("^I try to purge unneeded global properties of this platform$", () -> {
             PlatformIO selector = platformBuilder.buildInput();
 
             platformClient.cleanUnusedProperties(selector, "#", "should fail");
         });
 
-        When("I purge unneeded properties (?:of this platform|of module \"([^\"]+)\")", (String moduleName) -> {
+        When("^I purge unneeded properties (?:of this platform|of module \"([^\"]+)\")$", (String moduleName) -> {
             PlatformIO selector = platformBuilder.buildInput();
             String path = moduleName == null ? null
                     : platformBuilder.findDeployedModuleBuilderByName(moduleName).buildPropertiesPath();
@@ -37,7 +36,7 @@ public class PurgeProperties extends HesperidesScenario implements En {
             platformClient.cleanUnusedProperties(selector, path, null);
         });
 
-        When("I try to purge unneeded properties of unknown module \"([^\"]+)\"", (String badModuleName) -> {
+        When("^I try to purge unneeded properties of unknown module \"([^\"]+)\"$", (String badModuleName) -> {
             PlatformIO selector = platformBuilder.buildInput();
             String path = "#ABC#DEF#" + badModuleName + "#1.0#RELEASE";
 
@@ -45,7 +44,7 @@ public class PurgeProperties extends HesperidesScenario implements En {
         });
     }
 
-    @Then("the module \"([^\"]+)\" (?:contains only|still contains all) the following properties")
+    @Then("^the module \"([^\"]+)\" (?:contains only|still contains all) the following properties$")
     public void theModuleContainsThoseProperties(String moduleName, List<String> expectedNames) {
         PlatformIO selector = platformBuilder.buildInput();
         DeployedModuleBuilder moduleBuilder = platformBuilder.findDeployedModuleBuilderByName(moduleName);

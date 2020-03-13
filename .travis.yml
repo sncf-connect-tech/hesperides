@@ -71,5 +71,6 @@ jobs:
       script: mvn deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml
 
 notifications:
+  email:
     recipients:
       - thomas.lhostis@gmail.com

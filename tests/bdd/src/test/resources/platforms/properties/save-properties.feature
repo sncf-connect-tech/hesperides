@@ -78,8 +78,8 @@ Feature: Save properties the old way
       """
     And an existing platform with this module
     When I try to save these properties
-      | name     |
-      | property |
+      | name     | value  |
+      | property | <null> |
     Then the request is rejected with a bad request error
 
   Scenario: saving an iterable property
@@ -104,8 +104,8 @@ Feature: Save properties the old way
       """
     And an existing platform with this module
     When I try to save these iterable properties
-      | iterable          | bloc   | name            |
-      | iterable-property | bloc-1 | simple-property |
+      | iterable          | bloc   | name            | value  |
+      | iterable-property | bloc-1 | simple-property | <null> |
     Then the request is rejected with a bad request error
 
   Scenario: saving properties with a required property referencing a global property that is not defined at the module level should not fail
