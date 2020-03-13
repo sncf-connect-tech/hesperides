@@ -67,23 +67,23 @@ public class GetDetailedProperties extends HesperidesScenario implements En {
     public DetailedPropertyOutput detailedPropertyOutput(Map<String, String> entry) {
         return new DetailedPropertyOutput(
                 decodeValue(entry.get("name")),
-                entry.get("storedValue"),
-                decodeValue(entry.get("finalValue")));
+                entry.get("stored_value"),
+                decodeValue(entry.get("final_value")));
     }
 
     @DataTableType
     public ModuleDetailedProperty moduleDetailedProperty(Map<String, String> entry) {
         return new ModuleDetailedProperty(
                 decodeValue(entry.get("name")),
-                entry.get("storedValue"),
-                decodeValue(entry.get("finalValue")),
-                entry.get("defaultValue"),
-                Boolean.parseBoolean(decodeValue(entry.get("isRequired"))),
-                Boolean.parseBoolean(decodeValue(entry.get("isPassword"))),
+                entry.get("stored_value"),
+                decodeValue(entry.get("final_value")),
+                entry.get("default_value"),
+                Boolean.parseBoolean(decodeValue(entry.get("is_required"))),
+                Boolean.parseBoolean(decodeValue(entry.get("is_password"))),
                 entry.get("pattern"),
                 entry.get("comment"),
-                entry.get("referencedGlobalProperties"),
-                Boolean.parseBoolean(decodeValue(entry.get("isUnused"))));
+                entry.get("referenced_global_properties"),
+                Boolean.parseBoolean(decodeValue(entry.get("is_unused"))));
     }
 
     @Value
