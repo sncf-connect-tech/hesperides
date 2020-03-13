@@ -24,6 +24,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -50,6 +52,7 @@ public class DeployedModuleBuilder implements Serializable {
     private String name;
     @Getter
     private String version;
+    @Getter
     private String versionType;
     @Getter
     private String modulePath;
@@ -240,5 +243,9 @@ public class DeployedModuleBuilder implements Serializable {
 
     public void removeInstanceBuilder(String instanceName) {
         instanceBuilders.removeIf(instanceBuilder -> instanceBuilder.getName().equals(instanceName));
+    }
+
+    public Module.Key buildModuleKey() {
+        return new Module.Key(name, version, TemplateContainer.VersionType.fromName(versionType));
     }
 }

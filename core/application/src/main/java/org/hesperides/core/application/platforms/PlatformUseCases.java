@@ -31,6 +31,8 @@ import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView.DetailedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView.ModuleDetailedPropertyView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.ApplicationDirectoryGroupsQueries;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
@@ -53,6 +55,7 @@ import java.util.stream.Stream;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
@@ -392,26 +395,6 @@ public class PlatformUseCases {
         return String.join("#", parts);
     }
 
-    public List<PropertyWithDetailsView> getPropertiesWithDetails(Platform.Key platformKey, String propertiesPath, User user) {
-
-        PropertyVisitorsSequence propertyVisitorsSequence;
-        PlatformView extractedPlatform = getPlatform(platformKey);
-        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
-            propertyVisitorsSequence = buildPropertyVisitorsSequenceForGlobals(extractedPlatform);
-        } else {
-            String extractedModule = extractModulePathFromPropertiesPath(propertiesPath);
-            Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
-            List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
-            boolean fromShouldHidePasswordProperties = extractedPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName());
-
-            propertyVisitorsSequence = buildModulePropertyVisitorsSequence(
-                    extractedPlatform, extractedModule, moduleKey,
-                    modulePropertiesModel,
-                    null, fromShouldHidePasswordProperties);
-        }
-        return propertyVisitorsSequence.getPropertiesWithDetails();
-    }
-
     public List<AbstractValuedPropertyView> getValuedProperties(Platform.Key platformKey, String propertiesPath, Long timestamp, User user) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
@@ -444,15 +427,9 @@ public class PlatformUseCases {
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
         // On ne tient compte que des modules utilisés dans la platforme (pas des modules sauvegardés)
-        List<DeployedModuleView> deployedModules = platform.getActiveDeployedModules()
-                .collect(Collectors.toList());
-
-        List<TemplateContainer.Key> modulesKeys = deployedModules
-                .stream()
-                .map(DeployedModuleView::getModuleKey)
-                .collect(Collectors.toList());
-
-        List<ModulePropertiesView> modulesProperties = moduleQueries.getModulesProperties(modulesKeys);
+        List<DeployedModuleView> deployedModules = platform.getActiveDeployedModules().collect(Collectors.toList());
+        List<TemplateContainer.Key> moduleKeys = platform.getActiveDeployedModulesKeys();
+        List<ModulePropertiesView> modulesProperties = moduleQueries.getModulesProperties(moduleKeys);
 
         return platform.getGlobalProperties().stream()
                 .map(ValuedPropertyView::getName)
@@ -564,7 +541,7 @@ public class PlatformUseCases {
             throw new ForbiddenOperationException("Cleaning properties of a production platform is reserved to production role");
         }
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
-            throw new IllegalArgumentException("Cleaning only works on module properties (not global ones!)");
+            throw new IllegalArgumentException("Cleaning only works for module properties, not for global properties");
         }
 
         DeployedModuleView deployedModule = platform.getDeployedModule(propertiesPath);
@@ -584,6 +561,51 @@ public class PlatformUseCases {
         platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platform.getVersionId(),
                 propertiesVersionId, propertiesVersionId, filteredValuedProperties,
                 "Generated comment: cleaning unused properties", user);
+    }
+
+    public PlatformDetailedPropertiesView getDetailedProperties(Platform.Key platformKey, String propertiesPath, User user) {
+        PlatformView platform = getPlatform(platformKey);
+        boolean hidePasswords = platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platform.getPlatformKey().getApplicationName());
+        List<TemplateContainer.Key> moduleKeys = platform.getActiveDeployedModulesKeys(propertiesPath);
+        Map<Module.Key, List<AbstractPropertyView>> propertiesByModuleKey = moduleQueries.getModulesProperties(moduleKeys).stream()
+                .collect(toMap(ModulePropertiesView::getModuleKey, ModulePropertiesView::getProperties));
+
+        // Propriétés globales détaillées
+        PropertyVisitorsSequence globalPropertyVisitorsSequence = buildPropertyVisitorsSequenceForGlobals(platform);
+        List<DetailedPropertyView> globalProperties = globalPropertyVisitorsSequence.toGlobalDetailedProperties();
+
+        // Propriétés détaillées de chaque module de la plateforme
+        List<ModuleDetailedPropertyView> modulesDetailedProperties = platform.getActiveDeployedModules()
+                .filter(deployedModule -> isEmpty(propertiesPath) || deployedModule.getPropertiesPath().equals(propertiesPath))
+                .flatMap(deployedModule -> {
+                    List<AbstractPropertyView> propertiesModel = propertiesByModuleKey.get(deployedModule.getModuleKey());
+                    PropertyVisitorsSequence propertyVisitorsSequence = buildModulePropertyVisitorsSequence(
+                            platform,
+                            deployedModule.getModulePath(),
+                            deployedModule.getModuleKey(),
+                            propertiesModel,
+                            null, hidePasswords);
+
+                    // Calcul des propriétés inutilisées
+                    List<AbstractValuedPropertyView> valuedProperties = deployedModule.getValuedProperties();
+                    Set<String> referencedProperties = propertyReferenceScanner.findAll(valuedProperties, deployedModule.getInstances());
+                    List<AbstractValuedPropertyView> filteredValuedProperties = excludeUnusedValues(valuedProperties, propertiesModel, referencedProperties)
+                            .collect(Collectors.toList());
+                    Set<String> unusedProperties = valuedProperties.stream()
+                            .filter(valuedProperty -> !filteredValuedProperties.contains(valuedProperty))
+                            .map(AbstractValuedPropertyView::getName)
+                            .collect(Collectors.toSet());
+
+                    return propertyVisitorsSequence.toModuleDetailedProperties(
+                            deployedModule.getPropertiesPath(), globalProperties, unusedProperties);
+                })
+                .collect(Collectors.toList());
+
+        return new PlatformDetailedPropertiesView(
+                platform.getApplicationName(),
+                platform.getPlatformName(),
+                globalProperties,
+                modulesDetailedProperties);
     }
 
     private static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {
@@ -630,8 +652,7 @@ public class PlatformUseCases {
         List<EventView> rawEvents = new ArrayList<>();
         // On s'arrête lorsqu'on a assez d'évènements de mises à jour de la
         // plateforme à retourner, tenant compte de la pagination
-        Integer queryPage;
-        for (queryPage = 1; platformEvents.size() < (clientPage * size); queryPage++) {
+        for (int queryPage = 1; platformEvents.size() < (clientPage * size); queryPage++) {
 
             List<EventView> newRawEvents = eventQueries.getEventsByTypes(
                     platformId, new Class[]{PlatformCreatedEvent.class, PlatformUpdatedEvent.class},
