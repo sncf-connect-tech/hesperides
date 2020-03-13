@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.DataTableType;
 import io.cucumber.java8.En;
 import lombok.Value;
 import org.hesperides.core.presentation.io.platforms.properties.PlatformDetailedPropertiesOutput;
@@ -16,11 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hesperides.test.bdd.commons.DataTableHelper.decodeValue;
 import static org.junit.Assert.assertEquals;
 
 public class GetDetailedProperties extends HesperidesScenario implements En {
@@ -60,6 +62,30 @@ public class GetDetailedProperties extends HesperidesScenario implements En {
         });
     }
 
+
+    @DataTableType
+    public DetailedPropertyOutput detailedPropertyOutput(Map<String, String> entry) {
+        return new DetailedPropertyOutput(
+                decodeValue(entry.get("name")),
+                entry.get("storedValue"),
+                decodeValue(entry.get("finalValue")));
+    }
+
+    @DataTableType
+    public ModuleDetailedProperty moduleDetailedProperty(Map<String, String> entry) {
+        return new ModuleDetailedProperty(
+                decodeValue(entry.get("name")),
+                entry.get("storedValue"),
+                decodeValue(entry.get("finalValue")),
+                entry.get("defaultValue"),
+                Boolean.parseBoolean(decodeValue(entry.get("isRequired"))),
+                Boolean.parseBoolean(decodeValue(entry.get("isPassword"))),
+                entry.get("pattern"),
+                entry.get("comment"),
+                entry.get("referencedGlobalProperties"),
+                Boolean.parseBoolean(decodeValue(entry.get("isUnused"))));
+    }
+
     @Value
     public static class ModuleDetailedProperty {
         String name;
@@ -82,13 +108,13 @@ public class GetDetailedProperties extends HesperidesScenario implements En {
         public ModuleDetailedPropertyOutput toModuleDetailedPropertyOutput(String propertiesPath, PlatformBuilder platformBuilder) {
             return new ModuleDetailedPropertyOutput(
                     name,
-                    defaultIfEmpty(storedValue, null),
+                    storedValue,
                     finalValue,
-                    defaultIfEmpty(defaultValue, null),
+                    defaultValue,
                     isRequired,
                     isPassword,
-                    defaultIfEmpty(pattern, null),
-                    defaultIfEmpty(comment, null),
+                    pattern,
+                    comment,
                     propertiesPath,
                     buildReferencedGlobalPropertiesOutput(platformBuilder),
                     isUnused);
