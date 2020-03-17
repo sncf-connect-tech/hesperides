@@ -27,6 +27,7 @@ import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Value
 @AllArgsConstructor
@@ -114,6 +117,17 @@ public class PlatformView {
                 globalProperties,
                 hasPasswords
         );
+    }
+
+    public List<TemplateContainer.Key> getActiveDeployedModulesKeys() {
+        return getActiveDeployedModulesKeys(null);
+    }
+
+    public List<TemplateContainer.Key> getActiveDeployedModulesKeys(String propertiesPath) {
+        return getActiveDeployedModules()
+                .filter(deployedModule -> isEmpty(propertiesPath) || deployedModule.getPropertiesPath().equals(propertiesPath))
+                .map(DeployedModuleView::getModuleKey)
+                .collect(Collectors.toList());
     }
 }
 

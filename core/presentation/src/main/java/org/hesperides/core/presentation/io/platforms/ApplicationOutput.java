@@ -25,7 +25,6 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +34,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ApplicationOutput {
 
-    @NotEmpty
     String name;
-    @NotEmpty
     List<PlatformIO> platforms;
     Map<String, List<String>> directoryGroups;
 

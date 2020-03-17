@@ -11,12 +11,12 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
-import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PlatformDetailedPropertiesOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesWithDetailsOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,30 +46,18 @@ public class PropertiesController extends AbstractController {
 
     @ApiOperation("Get properties with the given path in a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties")
-    public ResponseEntity getValuedProperties(Authentication authentication,
-                                              @PathVariable("application_name") String applicationName,
-                                              @PathVariable("platform_name") String platformName,
-                                              @RequestParam("path") String propertiesPath,
-                                              @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
-                                              @RequestParam(value = "timestamp", required = false) Long timestamp,
-                                              @RequestParam(value = "with_details", required = false) boolean withDetails) {
+    public ResponseEntity<PropertiesIO> getValuedProperties(Authentication authentication,
+                                                            @PathVariable("application_name") final String applicationName,
+                                                            @PathVariable("platform_name") final String platformName,
+                                                            @RequestParam("path") final String propertiesPath,
+                                                            @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
+                                                            @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         User authenticatedUser = new User(authentication);
-
-        // Nous avons décidé de compléter le endpoint existant GET properties avec le
-        // paramètre with_details mais il s'agit bien de 2 cas d'utilisations différents
-        ResponseEntity responseEntity;
-        if (withDetails) {
-            List<PropertyWithDetailsView> propertyWithDetailsViews = platformUseCases.getPropertiesWithDetails(platformKey, propertiesPath, authenticatedUser);
-            PropertiesWithDetailsOutput propertiesWithDetailsOutput = PropertiesWithDetailsOutput.fromViews(propertyWithDetailsViews);
-            responseEntity = ResponseEntity.ok(propertiesWithDetailsOutput);
-        } else {
-            Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
-            List<AbstractValuedPropertyView> allValuedProperties = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);
-            PropertiesIO propertiesIO = new PropertiesIO(propertiesVersionId, allValuedProperties);
-            responseEntity = ResponseEntity.ok(propertiesIO);
-        }
-        return responseEntity;
+        Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
+        List<AbstractValuedPropertyView> allValuedProperties = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);
+        PropertiesIO propertiesIO = new PropertiesIO(propertiesVersionId, allValuedProperties);
+        return ResponseEntity.ok(propertiesIO);
     }
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
@@ -133,27 +121,6 @@ public class PropertiesController extends AbstractController {
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }
 
-    @ApiOperation("Purge properties that are no longer needed by related templates")
-    @DeleteMapping("/{application_name}/platforms/{platform_name}/properties/clean_unused_properties")
-    public ResponseEntity<Void> cleanUnusedProperties(Authentication authentication,
-                                                      @PathVariable("application_name") String applicationName,
-                                                      @PathVariable("platform_name") String platformName,
-                                                      @RequestParam(value = "properties_path", required = false) String propertiesPath) {
-        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        User authenticatedUser = new User(authentication);
-
-        if (StringUtils.isEmpty(propertiesPath)) {
-            // tous les modules
-            platformUseCases.getPlatform(platformKey).getActiveDeployedModules()
-                    .forEach(module -> platformUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
-        } else {
-            // un seul module
-            platformUseCases.purgeUnusedProperties(platformKey, propertiesPath, authenticatedUser);
-        }
-
-        return ResponseEntity.noContent().build();
-    }
-
     @ApiOperation("Get properties diff with the given paths in given platforms")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/diff")
     public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(Authentication authentication,
@@ -192,5 +159,39 @@ public class PropertiesController extends AbstractController {
                                 !globalPropertyUsage.isRemovedFromTemplate(),
                                 globalPropertyUsage.getPropertiesPath()))
                         .collect(Collectors.toSet()))));
+    }
+
+    @ApiOperation("Purge properties that are no longer needed by related templates")
+    @DeleteMapping("/{application_name}/platforms/{platform_name}/properties/clean_unused_properties")
+    public ResponseEntity<Void> cleanUnusedProperties(Authentication authentication,
+                                                      @PathVariable("application_name") String applicationName,
+                                                      @PathVariable("platform_name") String platformName,
+                                                      @RequestParam(value = "properties_path", required = false) String propertiesPath) {
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        User authenticatedUser = new User(authentication);
+
+        if (StringUtils.isEmpty(propertiesPath)) {
+            // tous les modules
+            platformUseCases.getPlatform(platformKey).getActiveDeployedModules()
+                    .forEach(module -> platformUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
+        } else {
+            // un seul module
+            platformUseCases.purgeUnusedProperties(platformKey, propertiesPath, authenticatedUser);
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @ApiOperation("Get detailed properties of a platform or a deployed module")
+    @GetMapping("/{application_name}/platforms/{platform_name}/detailed_properties")
+    public ResponseEntity<PlatformDetailedPropertiesOutput> getDetailedProperties(Authentication authentication,
+                                                                                  @PathVariable("application_name") final String applicationName,
+                                                                                  @PathVariable("platform_name") final String platformName,
+                                                                                  @RequestParam(value = "properties_path", required = false) final String propertiesPath) {
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        User user = new User(authentication);
+        PlatformDetailedPropertiesView platformDetailedPropertiesView = platformUseCases.getDetailedProperties(platformKey, propertiesPath, user);
+        PlatformDetailedPropertiesOutput platformDetailedPropertiesOutput = new PlatformDetailedPropertiesOutput(platformDetailedPropertiesView);
+        return ResponseEntity.ok(platformDetailedPropertiesOutput);
     }
 }

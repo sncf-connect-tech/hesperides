@@ -4,7 +4,8 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
-import org.hesperides.core.domain.platforms.queries.views.properties.PropertyWithDetailsView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView.DetailedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView.ModuleDetailedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -105,12 +106,6 @@ public class SimplePropertyVisitor implements PropertyVisitor {
         return this;
     }
 
-    PropertyWithDetailsView getPropertyWithDetails() {
-        String finalValue = getValueOrDefault().orElse(null);
-        String defaultValue = getDefaultValue().orElse("");
-        return new PropertyWithDetailsView(getName(), initialValue, finalValue, defaultValue, transformations);
-    }
-
     @Override
     public boolean equals(PropertyVisitor propertyVisitor, ComparisonMode comparisonMode) {
         boolean isEqual = false;
@@ -158,5 +153,27 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     @Override
     public int hashCode() {
         return Objects.hash(propertyModels, propertyValue);
+    }
+
+    public ModuleDetailedPropertyView toModuleDetailedProperty(String propertiesPath, List<DetailedPropertyView> globalProperties, Set<String> unusedProperties) {
+        String finalValue = getValueOrDefault().orElse(null);
+        String defaultValue = getDefaultValue().orElse(null);
+        return new ModuleDetailedPropertyView(
+                getName(),
+                initialValue,
+                finalValue,
+                defaultValue,
+                propertyModels,
+                propertiesPath,
+                globalProperties,
+                unusedProperties);
+    }
+
+    public DetailedPropertyView toGlobalDetailedProperty() {
+        String finalValue = getValueOrDefault().orElse(null);
+        return new DetailedPropertyView(
+                getName(),
+                initialValue,
+                finalValue);
     }
 }

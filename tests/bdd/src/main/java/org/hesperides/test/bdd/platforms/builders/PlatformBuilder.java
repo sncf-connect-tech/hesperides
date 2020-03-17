@@ -288,13 +288,15 @@ public class PlatformBuilder implements Serializable {
         return new Platform.Key(applicationName, platformName);
     }
 
-    public DeployedModuleBuilder findDeployedModuleBuilderByName(String moduleName) {
-        return findDeployedModuleBuilderByName(moduleName, null);
+    public DeployedModuleBuilder findDeployedModuleBuilder(String moduleName) {
+        return findDeployedModuleBuilder(moduleName, null, null);
     }
 
-    public DeployedModuleBuilder findDeployedModuleBuilderByName(String moduleName, @Nullable String moduleVersion) {
+    public DeployedModuleBuilder findDeployedModuleBuilder(String moduleName, @Nullable String moduleVersion, @Nullable String logicalGroup) {
         List<DeployedModuleBuilder> matchingDeployedModuleBuilder = deployedModuleBuilders.stream()
-                .filter(builder -> moduleName.equals(builder.getName()) && (moduleVersion == null || moduleVersion.equals(builder.getVersion())))
+                .filter(builder -> moduleName.equals(builder.getName()) &&
+                        (moduleVersion == null || moduleVersion.equals(builder.getVersion())) &&
+                        (logicalGroup == null || builder.getModulePath().equals("#" + logicalGroup)))
                 .collect(Collectors.toList());
         if (matchingDeployedModuleBuilder.size() == 0) {
             throw new RuntimeException("Can't find deployed module with name \"" + moduleName + "\"" + ((moduleVersion == null) ? "" : (" and version \"" + moduleVersion + "\"")));

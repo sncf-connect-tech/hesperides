@@ -55,8 +55,8 @@ public class SaveProperties extends HesperidesScenario implements En {
 
     public SaveProperties() {
 
-        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)(?: in version \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
-                String moduleName, String platformName, String moduleVersion, String propertiesNature, DataTable dataTable) -> {
+        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)(?: in version \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties(?: for the logical group \"([^\"]+)\")?$", (
+                String moduleName, String platformName, String moduleVersion, String propertiesNature, String logicalGroup, DataTable dataTable) -> {
 
             if (isNotEmpty(platformName)) {
                 // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
@@ -66,7 +66,7 @@ public class SaveProperties extends HesperidesScenario implements En {
             // Possibilité de surcharger la variable membre dans le cas où c'est un module précis qui nous intéresse
             DeployedModuleBuilder deployedModuleBuilder = isEmpty(moduleName)
                     ? this.deployedModuleBuilder
-                    : platformBuilder.findDeployedModuleBuilderByName(moduleName, moduleVersion);
+                    : platformBuilder.findDeployedModuleBuilder(moduleName, moduleVersion, logicalGroup);
 
             switch (propertiesNature) {
                 case "global":
