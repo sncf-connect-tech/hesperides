@@ -19,6 +19,7 @@ Les évènements contenant les données permettant d'extraire ces informations s
     [
         {
             timestamp: Long,
+            author: String,
             changes: [
                 {
                     event_name: "platform_created",

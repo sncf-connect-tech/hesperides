@@ -113,7 +113,7 @@ public class ModuleDocument {
         return new ModulePropertiesView(
                 getDomainKey(),
                 properties.stream()
-                        .map(abstractPropertyDocument -> abstractPropertyDocument.toView())
+                        .map(AbstractPropertyDocument::toView)
                         .collect(Collectors.toList()));
     }
 }

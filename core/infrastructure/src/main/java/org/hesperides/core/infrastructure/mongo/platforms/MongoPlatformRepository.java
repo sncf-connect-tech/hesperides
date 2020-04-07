@@ -59,4 +59,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     Optional<PlatformDocument> findGlobalPropertiesVersionIdByPlatformKey(PlatformKeyDocument platformKeyDocument);
 
     boolean existsByKeyApplicationName(String applicationName);
+
+    boolean existsByIdAndIsProductionPlatform(String platformId, boolean isProductionPlatform);
 }

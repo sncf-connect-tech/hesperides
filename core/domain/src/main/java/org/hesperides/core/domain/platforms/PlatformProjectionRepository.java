@@ -79,4 +79,7 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     List<ApplicationView> onGetAllApplicationsDetailQuery(GetAllApplicationsDetailQuery query);
+
+    @QueryHandler
+    Boolean onIsProductionPlatformQuery(IsProductionPlatformQuery query);
 }

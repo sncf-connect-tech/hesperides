@@ -11,7 +11,11 @@ public interface MongoEventRepository extends MongoRepository<EventDocument, Str
 
     List<EventDocument> findAllByAggregateIdentifierOrderByTimestampDesc(String aggregateIdentifier, Pageable pageable);
 
-    List<EventDocument> findAllByAggregateIdentifierAndPayloadTypeInOrderByTimestampDesc(String aggregateIdentifier, List<String> payloadTypes, Pageable pageable);
+    List<EventDocument> findAllByAggregateIdentifierAndPayloadTypeInOrderByTimestampDesc(
+            String aggregateIdentifier, List<String> payloadTypes, Pageable pageable);
 
     void deleteAllByAggregateIdentifier(String aggregateIdentifier);
+
+    List<EventDocument> findAllByAggregateIdentifierAndPayloadTypeAndSerializedPayloadLikeOrderByTimestampDesc(
+            String aggregateIdentifier, String payloadType, String serializedPayload, Pageable pageable);
 }

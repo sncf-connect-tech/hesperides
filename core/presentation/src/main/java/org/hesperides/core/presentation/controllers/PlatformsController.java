@@ -193,7 +193,7 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(searchResultOutputs);
     }
 
-    @ApiOperation("Retrieve a platform events")
+    @ApiOperation("Retrieve platform events")
     @GetMapping("/{application_name}/platforms/{platform_name:.+}/events")
     public ResponseEntity<List<PlatformEventOutput>> getPlatformEvents(@PathVariable("application_name") final String applicationName,
                                                                        @PathVariable("platform_name") final String platformName,

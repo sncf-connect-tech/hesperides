@@ -2,7 +2,8 @@ package org.hesperides.core.domain.events.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
-import org.hesperides.core.domain.events.GetEventsQuery;
+import org.hesperides.core.domain.events.GetLastToFirstEventsQuery;
+import org.hesperides.core.domain.events.GetLastToFirstPlatformModulePropertiesUpdatedEvents;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,11 +16,19 @@ public class EventQueries extends AxonQueries {
         super(queryGateway);
     }
 
-    public List<EventView> getEvents(String aggregateId, Integer page, Integer size) {
-        return getEventsByTypes(aggregateId, new Class[0], page, size);
+    public List<EventView> getLastToFirstEvents(String aggregateId, Integer page, Integer size) {
+        return getLastToFirstEventsByTypes(aggregateId, new Class[0], page, size);
     }
 
-    public List<EventView> getEventsByTypes(String aggregateId, Class[] eventTypes, Integer page, Integer size) {
-        return querySyncList(new GetEventsQuery(aggregateId, eventTypes, page, size), EventView.class);
+    public List<EventView> getLastToFirstEventsByType(String aggregateId, Class eventType, Integer page, Integer size) {
+        return getLastToFirstEventsByTypes(aggregateId, new Class[]{eventType}, page, size);
+    }
+
+    public List<EventView> getLastToFirstEventsByTypes(String aggregateId, Class[] eventTypes, Integer page, Integer size) {
+        return querySyncList(new GetLastToFirstEventsQuery(aggregateId, eventTypes, page, size), EventView.class);
+    }
+
+    public List<EventView> getLastToFirstPlatformModulePropertiesUpdatedEvents(String aggregateId, String propertiesPath, Integer page, Integer size) {
+        return querySyncList(new GetLastToFirstPlatformModulePropertiesUpdatedEvents(aggregateId, propertiesPath, page, size), EventView.class);
     }
 }

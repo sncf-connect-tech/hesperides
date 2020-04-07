@@ -93,6 +93,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String copyProperties) {
 
         if (isNotEmpty(newModuleVersion)) {
+            deployedModuleBuilder.withVersion(newModuleVersion);
             platformBuilder.getDeployedModuleBuilders().get(0).withVersion(newModuleVersion);
         }
 

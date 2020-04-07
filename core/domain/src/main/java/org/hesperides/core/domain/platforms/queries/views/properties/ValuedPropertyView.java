@@ -27,11 +27,7 @@ import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,7 +35,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class ValuedPropertyView extends AbstractValuedPropertyView {
 
-    private final static String OBFUSCATED_PASSWORD_VALUE = "********";
+    public final static String OBFUSCATED_PASSWORD_VALUE = "********";
 
     String value;
 

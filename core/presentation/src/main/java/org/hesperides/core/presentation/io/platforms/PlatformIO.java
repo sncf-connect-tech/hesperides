@@ -25,7 +25,6 @@ import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
@@ -90,7 +89,7 @@ public class PlatformIO {
         applicationName = platformView.getApplicationName();
         version = platformView.getVersion();
         isProductionPlatform = platformView.isProductionPlatform();
-        deployedModules = DeployedModuleIO.fromActiveDeployedModuleViews(platformView.getActiveDeployedModules());
+        deployedModules = DeployedModuleIO.fromActiveDeployedModuleViews(platformView.findActiveDeployedModules());
         versionId = platformView.getVersionId();
         this.hasPasswords = platformView.getHasPasswords();
     }

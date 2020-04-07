@@ -83,13 +83,13 @@ public class EventUseCases {
 
     public List<EventView> getEvents(TemplateContainer.Key key, Integer page, Integer size) {
         return moduleQueries.getOptionalModuleId(key)
-                .map(moduleId -> eventQueries.getEvents(moduleId, page, size))
+                .map(moduleId -> eventQueries.getLastToFirstEvents(moduleId, page, size))
                 .orElseGet(Collections::emptyList);
     }
 
     public List<EventView> getEvents(Platform.Key key, Integer page, Integer size) {
         return platformQueries.getOptionalPlatformId(key)
-                .map(platformId -> eventQueries.getEvents(platformId, page, size))
+                .map(platformId -> eventQueries.getLastToFirstEvents(platformId, page, size))
                 .orElseGet(Collections::emptyList);
     }
 }

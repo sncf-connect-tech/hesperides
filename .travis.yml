@@ -23,7 +23,7 @@ stages:
 jobs:
   include:
     - stage: build
-      env: BUILD DOCKER IMAGE
+      name: Build Docker image
       install: echo Not performing default install step
       script: |
         docker build -t hesperides/hesperides:$TRAVIS_COMMIT \
@@ -43,10 +43,10 @@ jobs:
           paths:
             - hesperides-docker-image.tar
     - stage: test
-      env: CUCUMBER TESTS
+      name: Cucumber tests
       script: mvn test -pl '!tests/activedirectory-integration,!tests/mongo-integration,!tests/regression'
     - stage: test
-      env: MONGO INTEGRATION TESTS
+      name: MongoDB integration tests
       before_script: sudo service mongod start
       script:
         - sleep 15  # waiting for MongoDB to start up
@@ -56,14 +56,14 @@ jobs:
         - sleep 30  # waiting for the SpringBoot app to start up
         - mvn -pl tests/mongo-integration verify
     - stage: deploy
-      env: DEPLOY TO DOCKER HUB
+      name: Deploy to Docker Hub
       script:
         - docker load --input hesperides-docker-image.tar
         - .travis/docker_build_push.sh
       workspaces:
         use: hesperides-docker-image
     - stage: deploy
-      env: DEPLOY TO NEXUS (SONATYPE)
+      name: Deploy to Nexus (Sonatype)
       before_script:
         - openssl aes-256-cbc -K $encrypted_2ec9da69c070_key -iv $encrypted_2ec9da69c070_iv
           -in ./.travis/codesigning.asc.enc -out ./.travis/codesigning.asc -d

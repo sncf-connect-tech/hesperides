@@ -208,7 +208,7 @@ public class FileUseCases {
                                                                           boolean shouldHidePasswordProperties) {
 
         EnumSet<PropertyType> propertiesToInclude = EnumSet.of(GLOBAL);
-        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey);
+        DeployedModuleView deployedModule = platform.findActiveDeployedModuleByModulePathAndModuleKey(modulePath, moduleKey);
 
         PropertyVisitorsSequence firstPropertyVisitorsSequence = PropertyValuationBuilder.buildFirstPropertyVisitorsSequence(
                 deployedModule, modulePropertiesModels, shouldHidePasswordProperties, propertiesToInclude);

@@ -8,7 +8,10 @@ import java.util.List;
 public interface EventRepository {
 
     @QueryHandler
-    List<EventView> onGetEventsQuery(GetEventsQuery query);
+    List<EventView> onGetLastToFirstEventsQuery(GetLastToFirstEventsQuery query);
+
+    @QueryHandler
+    List<EventView> onGetLastToFirstPlatformModulePropertiesUpdatedEvents(GetLastToFirstPlatformModulePropertiesUpdatedEvents query);
 
     void cleanAggregateEvents(String aggregateIdentifier);
 }

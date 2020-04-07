@@ -301,4 +301,20 @@ public class PlatformClient {
                 platform.getApplicationName(),
                 platform.getPlatformName());
     }
+
+    public void getPropertiesEvents(PlatformIO platform, String propertiesPath, Integer page, Integer size) {
+        String url = "/applications/{application_name}/platforms/{platform_name}/properties/events?properties_path={properties_path}";
+        if (page != null) {
+            url += "&page=" + page;
+        }
+        if (size != null) {
+            url += "&size=" + size;
+        }
+        restTemplate.getForEntity(
+                url,
+                PropertiesEventOutput[].class,
+                platform.getApplicationName(),
+                platform.getPlatformName(),
+                propertiesPath);
+    }
 }
