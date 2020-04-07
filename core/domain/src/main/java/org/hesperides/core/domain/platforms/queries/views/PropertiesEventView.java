@@ -10,11 +10,11 @@ import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -40,28 +40,27 @@ public class PropertiesEventView {
         this.removedProperties = removedProperties;
     }
 
-    public static List<PropertiesEventView> buildPropertiesEvents(List<EventView> providedEvents, boolean isModuleProperties, boolean containsFirstEvent) {
+    public static List<PropertiesEventView> buildPropertiesEvents(List<EventView> providedEvents, boolean isModuleProperties, boolean extractCreationEvent) {
         List<PropertiesEventView> propertiesEvents = new ArrayList<>();
 
         if (!isEmpty(providedEvents)) {
             // L'algorithme dépend du tri dans l'ordre chronologique
             providedEvents.sort(Comparator.comparing(EventView::getTimestamp));
             Iterator<EventView> eventsIterator = providedEvents.iterator();
+            EventView previousEvent = eventsIterator.next();
 
-            EventView previousEvent = eventsIterator.next(); // On a besoin de conserver `currentEvent` pour récupérer le timestamp
-
-            List<ValuedProperty> simpleValuedProperties = isModuleProperties
-                    ? extractSimpleValuedProperties(((PlatformModulePropertiesUpdatedEvent) previousEvent.getData()).getValuedProperties())
-                    : ((PlatformPropertiesUpdatedEvent) previousEvent.getData()).getValuedProperties();
-
-            if (containsFirstEvent) {
-                // Premier évènement
-                List<ValuedPropertyView> firstAddedProperties = simpleValuedProperties.stream()
+            if (extractCreationEvent) {
+                // Si la liste des évènements contient le tout premier évènement créé,
+                // alors on ajoute un évènement contenant la création des propriétés
+                // à notre propre liste
+                List<ValuedPropertyView> firstAddedProperties = extractSimpleValuedPropertiesFromEvent(isModuleProperties, previousEvent)
+                        .stream()
                         .map(ValuedPropertyView::new)
                         .collect(toList());
                 propertiesEvents.add(new PropertiesEventView(previousEvent, firstAddedProperties, emptyList(), emptyList()));
             }
 
+            Map<String, ValuedProperty> previousPropertiesByName = null;
             while (eventsIterator.hasNext()) {
                 // On a besoin de conserver `currentEvent` pour le timestamp
                 EventView currentEvent = eventsIterator.next();
@@ -74,16 +73,12 @@ public class PropertiesEventView {
                 List<UpdatedPropertyView> updatedProperties = new ArrayList<>();
                 List<ValuedPropertyView> removedProperties = new ArrayList<>();
 
+                // Propriétés potentiellement déjà extraites au tour précédent et récupérées dans `currentPropertiesByName`
+                if (previousPropertiesByName == null) {
+                    previousPropertiesByName = extractSimpleValuedPropertiesByName(isModuleProperties, previousEvent);
+                }
                 // Pour l'instant on ne traite que les propriétés simples
-                List<ValuedProperty> previousValuedProperties = isModuleProperties
-                        ? extractSimpleValuedProperties(((PlatformModulePropertiesUpdatedEvent) previousEvent.getData()).getValuedProperties())
-                        : ((PlatformPropertiesUpdatedEvent) previousEvent.getData()).getValuedProperties();
-                List<ValuedProperty> currentValuedProperties = isModuleProperties
-                        ? extractSimpleValuedProperties(((PlatformModulePropertiesUpdatedEvent) currentEvent.getData()).getValuedProperties())
-                        : ((PlatformPropertiesUpdatedEvent) currentEvent.getData()).getValuedProperties();
-
-                Map<String, ValuedProperty> previousPropertiesByName = simpleValuedPropertiesByName(previousValuedProperties);
-                Map<String, ValuedProperty> currentPropertiesByName = simpleValuedPropertiesByName(currentValuedProperties);
+                Map<String, ValuedProperty> currentPropertiesByName = extractSimpleValuedPropertiesByName(isModuleProperties, currentEvent);
 
                 previousPropertiesByName.values().forEach(previousProperty -> {
                     ValuedProperty remainingProperty = currentPropertiesByName.getOrDefault(previousProperty.getName(), null);
@@ -96,21 +91,37 @@ public class PropertiesEventView {
                     }
                 });
 
-                currentPropertiesByName.values().forEach(currentProperty -> {
+                for (ValuedProperty currentProperty : currentPropertiesByName.values()) {
                     if (!previousPropertiesByName.containsKey(currentProperty.getName())) {
                         // Nouvelle propriété
                         addedProperties.add(new ValuedPropertyView(currentProperty));
                     }
-                });
+                }
 
                 if (!isEmpty(addedProperties) || !isEmpty(updatedProperties) || !isEmpty(removedProperties)) {
+                    // Si aucune propriété n'est ajoutée, modifiée ou supprimée, on ne crée pas d'évènement.
+                    // Cela peut se produire notamment dans les pipelines qui sauvegardent parfois les propriétés
+                    // telles qu'elles ont été récupérées. Cela pose problème au niveau de la pagination d'ailleurs...
                     propertiesEvents.add(new PropertiesEventView(currentEvent, addedProperties, updatedProperties, removedProperties));
                 }
 
                 previousEvent = currentEvent;
+                previousPropertiesByName = currentPropertiesByName;
             }
         }
         return propertiesEvents;
+    }
+
+    private static List<ValuedProperty> extractSimpleValuedPropertiesFromEvent(boolean isModuleProperties, EventView event) {
+        return isModuleProperties
+                ? extractSimpleValuedProperties(((PlatformModulePropertiesUpdatedEvent) event.getData()).getValuedProperties())
+                : ((PlatformPropertiesUpdatedEvent) event.getData()).getValuedProperties();
+    }
+
+    private static Map<String, ValuedProperty> extractSimpleValuedPropertiesByName(boolean isModuleProperties, EventView event) {
+        return extractSimpleValuedPropertiesFromEvent(isModuleProperties, event)
+                .stream()
+                .collect(toMap(ValuedProperty::getName, identity()));
     }
 
     private static List<ValuedProperty> extractSimpleValuedProperties(List<AbstractValuedProperty> valuedProperties) {
@@ -120,27 +131,22 @@ public class PropertiesEventView {
                 .collect(toList());
     }
 
-    private static Map<String, ValuedProperty> simpleValuedPropertiesByName(List<ValuedProperty> simpleValuedProperties) {
-        return simpleValuedProperties.stream()
-                .collect(Collectors.toMap(ValuedProperty::getName, identity()));
-    }
-
-    public PropertiesEventView hidePasswords(List<String> passwordProperties) {
-        List<ValuedPropertyView> addedProperties = hideValuedPasswordProperties(passwordProperties, getAddedProperties());
-        List<UpdatedPropertyView> updatedProperties = hideUpdatedPasswordProperties(passwordProperties, getUpdatedProperties());
-        List<ValuedPropertyView> removedProperties = hideValuedPasswordProperties(passwordProperties, getRemovedProperties());
+    public PropertiesEventView hidePasswords(Set<String> passwordPropertyNames) {
+        List<ValuedPropertyView> addedProperties = hideValuedPasswordProperties(passwordPropertyNames, getAddedProperties());
+        List<UpdatedPropertyView> updatedProperties = hideUpdatedPasswordProperties(passwordPropertyNames, getUpdatedProperties());
+        List<ValuedPropertyView> removedProperties = hideValuedPasswordProperties(passwordPropertyNames, getRemovedProperties());
         return new PropertiesEventView(timestamp, author, comment, addedProperties, updatedProperties, removedProperties);
     }
 
-    private static List<ValuedPropertyView> hideValuedPasswordProperties(List<String> passwordProperties, List<ValuedPropertyView> valuedProperties) {
-        return valuedProperties.stream().map(valuedProperty -> passwordProperties.contains(valuedProperty.getName())
+    private static List<ValuedPropertyView> hideValuedPasswordProperties(Set<String> passwordPropertyNames, List<ValuedPropertyView> valuedProperties) {
+        return valuedProperties.stream().map(valuedProperty -> passwordPropertyNames.contains(valuedProperty.getName())
                 ? new ValuedPropertyView(valuedProperty.getName(), OBFUSCATED_PASSWORD_VALUE)
                 : valuedProperty
         ).collect(toList());
     }
 
-    private static List<UpdatedPropertyView> hideUpdatedPasswordProperties(List<String> passwordProperties, List<UpdatedPropertyView> updatedProperties) {
-        return updatedProperties.stream().map(updatedProperty -> passwordProperties.contains(updatedProperty.getName())
+    private static List<UpdatedPropertyView> hideUpdatedPasswordProperties(Set<String> passwordPropertyNames, List<UpdatedPropertyView> updatedProperties) {
+        return updatedProperties.stream().map(updatedProperty -> passwordPropertyNames.contains(updatedProperty.getName())
                 ? new UpdatedPropertyView(updatedProperty.getName(), OBFUSCATED_PASSWORD_VALUE, OBFUSCATED_PASSWORD_VALUE)
                 : updatedProperty
         ).collect(toList());

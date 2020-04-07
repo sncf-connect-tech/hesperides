@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
@@ -686,14 +687,13 @@ public class PlatformUseCases {
 
         String platformId = findPlatformId(platformKey);
         boolean isModuleProperties = !GLOBAL_PROPERTIES_PATH.equals(propertiesPath);
-        boolean isProductionPlatform = isModuleProperties && platformQueries.isProductionPlatform(platformId);
-        List<PropertiesEventView> propertiesEvents = new ArrayList<>();
+        boolean hidePasswords = hidePropertiesEventsPasswords(isModuleProperties, platformId, user, platformKey.getApplicationName());
 
-        boolean hidePasswords = isModuleProperties && isRestrictedPlatform(isProductionPlatform, user, platformKey.getApplicationName());
         List<EventView> events = isModuleProperties
                 ? eventQueries.getLastToFirstPlatformModulePropertiesUpdatedEvents(platformId, propertiesPath, page, size)
                 : eventQueries.getLastToFirstEventsByType(platformId, PlatformPropertiesUpdatedEvent.class, page, size);
 
+        List<PropertiesEventView> propertiesEvents = new ArrayList<>();
         if (!isEmpty(events)) {
             // On récupère le premier évènement de la page suivante pour faire
             // la comparaison avec le dernier élément de la liste en cours
@@ -703,32 +703,37 @@ public class PlatformUseCases {
             ).stream().findFirst();
             // On en profite pour déterminer si le premier évènement
             // en date fait partie de la liste en cours
-            boolean containsFirstEvent = true;
+            boolean extractCreationEvent = true;
             if (firstEventOfNextPage.isPresent()) {
                 events.add(firstEventOfNextPage.get());
-                containsFirstEvent = false;
+                extractCreationEvent = false;
             }
 
-            List<String> passwordProperties = findPasswordProperties(hidePasswords, propertiesPath);
-            propertiesEvents = PropertiesEventView.buildPropertiesEvents(events, isModuleProperties, containsFirstEvent).stream()
-                    .map(propertiesEvent -> hidePasswords ? propertiesEvent.hidePasswords(passwordProperties) : propertiesEvent)
+            Set<String> passwordPropertyNames = hidePasswords ? extractPasswordProperties(propertiesPath) : emptySet();
+            propertiesEvents = PropertiesEventView.buildPropertiesEvents(events, isModuleProperties, extractCreationEvent).stream()
+                    .map(propertiesEvent -> hidePasswords ? propertiesEvent.hidePasswords(passwordPropertyNames) : propertiesEvent)
                     .sorted(comparing(PropertiesEventView::getTimestamp).reversed())
                     .collect(toList());
         }
         return propertiesEvents;
     }
 
-    private List<String> findPasswordProperties(boolean hidePasswords, String propertiesPath) {
-        List<String> passwordProperties = new ArrayList<>();
-        if (hidePasswords) {
-            Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
-            List<AbstractPropertyView> moduleProperties = moduleQueries.getPropertiesModel(moduleKey);
-            passwordProperties = AbstractPropertyView.getAllSimpleProperties(moduleProperties)
-                    .filter(PropertyView::isPassword)
-                    .map(PropertyView::getName)
-                    .collect(toUnmodifiableList());
+    private boolean hidePropertiesEventsPasswords(boolean isModuleProperties, String platformId, User user, String applicationName) {
+        boolean hidePasswords = false;
+        if (isModuleProperties) {
+            boolean isProductionPlatform = platformQueries.isProductionPlatform(platformId);
+            hidePasswords = isRestrictedPlatform(isProductionPlatform, user, applicationName);
         }
-        return passwordProperties;
+        return hidePasswords;
+    }
+
+    private Set<String> extractPasswordProperties(String propertiesPath) {
+        Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
+        List<AbstractPropertyView> moduleProperties = moduleQueries.getPropertiesModel(moduleKey);
+        return AbstractPropertyView.getAllSimpleProperties(moduleProperties)
+                .filter(PropertyView::isPassword)
+                .map(PropertyView::getName)
+                .collect(toUnmodifiableSet());
     }
 
     private static boolean isRestrictedPlatform(User user, PlatformView platform) {
