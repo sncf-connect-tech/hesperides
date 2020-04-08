@@ -687,7 +687,7 @@ public class PlatformUseCases {
 
         String platformId = findPlatformId(platformKey);
         boolean isModuleProperties = !GLOBAL_PROPERTIES_PATH.equals(propertiesPath);
-        boolean hidePasswords = hidePropertiesEventsPasswords(isModuleProperties, platformId, user, platformKey.getApplicationName());
+        boolean hidePasswords = shouldHidePropertiesEventsPasswords(isModuleProperties, platformId, user, platformKey.getApplicationName());
 
         List<EventView> events = isModuleProperties
                 ? eventQueries.getLastToFirstPlatformModulePropertiesUpdatedEvents(platformId, propertiesPath, page, size)
@@ -703,14 +703,14 @@ public class PlatformUseCases {
             ).stream().findFirst();
             // On en profite pour déterminer si le premier évènement
             // en date fait partie de la liste en cours
-            boolean extractCreationEvent = true;
+            boolean shouldExtractCreationEvent = true;
             if (firstEventOfNextPage.isPresent()) {
                 events.add(firstEventOfNextPage.get());
-                extractCreationEvent = false;
+                shouldExtractCreationEvent = false;
             }
 
             Set<String> passwordPropertyNames = hidePasswords ? extractPasswordProperties(propertiesPath) : emptySet();
-            propertiesEvents = PropertiesEventView.buildPropertiesEvents(events, isModuleProperties, extractCreationEvent).stream()
+            propertiesEvents = PropertiesEventView.buildPropertiesEvents(events, isModuleProperties, shouldExtractCreationEvent).stream()
                     .map(propertiesEvent -> hidePasswords ? propertiesEvent.hidePasswords(passwordPropertyNames) : propertiesEvent)
                     .sorted(comparing(PropertiesEventView::getTimestamp).reversed())
                     .collect(toList());
@@ -718,7 +718,7 @@ public class PlatformUseCases {
         return propertiesEvents;
     }
 
-    private boolean hidePropertiesEventsPasswords(boolean isModuleProperties, String platformId, User user, String applicationName) {
+    private boolean shouldHidePropertiesEventsPasswords(boolean isModuleProperties, String platformId, User user, String applicationName) {
         boolean hidePasswords = false;
         if (isModuleProperties) {
             boolean isProductionPlatform = platformQueries.isProductionPlatform(platformId);

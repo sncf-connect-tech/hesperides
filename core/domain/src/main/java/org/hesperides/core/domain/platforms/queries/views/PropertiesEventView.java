@@ -40,7 +40,7 @@ public class PropertiesEventView {
         this.removedProperties = removedProperties;
     }
 
-    public static List<PropertiesEventView> buildPropertiesEvents(List<EventView> providedEvents, boolean isModuleProperties, boolean extractCreationEvent) {
+    public static List<PropertiesEventView> buildPropertiesEvents(List<EventView> providedEvents, boolean isModuleProperties, boolean shouldExtractCreationEvent) {
         List<PropertiesEventView> propertiesEvents = new ArrayList<>();
 
         if (!isEmpty(providedEvents)) {
@@ -49,7 +49,7 @@ public class PropertiesEventView {
             Iterator<EventView> eventsIterator = providedEvents.iterator();
             EventView previousEvent = eventsIterator.next();
 
-            if (extractCreationEvent) {
+            if (shouldExtractCreationEvent) {
                 // Si la liste des évènements contient le tout premier évènement créé,
                 // alors on ajoute un évènement contenant la création des propriétés
                 // à notre propre liste

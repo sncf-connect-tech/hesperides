@@ -197,7 +197,7 @@ public class PropertiesController extends AbstractController {
         return ResponseEntity.ok(platformDetailedPropertiesOutput);
     }
 
-    @ApiOperation("Retrieve properties events")
+    @ApiOperation("Get the history of raw values for module properties or global properties")
     @GetMapping("/{application_name}/platforms/{platform_name:.+}/properties/events")
     public ResponseEntity<List<PropertiesEventOutput>> getPropertiesEvents(Authentication authentication,
                                                                            @PathVariable("application_name") final String applicationName,
