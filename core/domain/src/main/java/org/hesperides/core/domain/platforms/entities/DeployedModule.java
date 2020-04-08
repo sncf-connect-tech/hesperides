@@ -205,4 +205,13 @@ public class DeployedModule {
     boolean isActiveModule() {
         return id != null && id > 0;
     }
+
+    public static String extractModulePathFromPropertiesPath(String propertiesPath) {
+        String[] parts = propertiesPath.split("#");
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Too short properties path: " + propertiesPath);
+        }
+        parts = Arrays.copyOfRange(parts, 0, parts.length - 3);
+        return String.join("#", parts);
+    }
 }

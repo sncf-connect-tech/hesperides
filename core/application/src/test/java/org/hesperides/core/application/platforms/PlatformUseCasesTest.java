@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-import static org.hesperides.core.application.platforms.PlatformUseCases.getPropertiesVersionId;
+import static org.hesperides.core.application.platforms.PropertiesUseCases.getPropertiesVersionId;
 import static org.junit.Assert.assertEquals;
 
 public class PlatformUseCasesTest {

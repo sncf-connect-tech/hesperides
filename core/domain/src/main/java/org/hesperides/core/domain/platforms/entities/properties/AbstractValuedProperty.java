@@ -22,6 +22,7 @@ package org.hesperides.core.domain.platforms.entities.properties;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,4 +54,11 @@ public abstract class AbstractValuedProperty {
     }
 
     protected abstract Stream<ValuedProperty> flattenProperties();
+
+    public static boolean containsDuplicateKeys(List<AbstractValuedProperty> list) {
+        return list.stream()
+                .map(AbstractValuedProperty::getName)
+                .map(StringUtils::trim)
+                .collect(Collectors.toSet()).size() != list.size();
+    }
 }
