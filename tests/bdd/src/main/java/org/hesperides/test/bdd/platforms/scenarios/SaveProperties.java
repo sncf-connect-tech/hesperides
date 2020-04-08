@@ -55,7 +55,10 @@ public class SaveProperties extends HesperidesScenario implements En {
 
     public SaveProperties() {
 
-        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)(?: in version \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties(?: for the logical group \"([^\"]+)\")?$", (
+        Given("^(?:the module \"([^\"]+)\"|the platform(?: \"([^\"]+)\")?)" +
+                "(?: in version \"([^\"]+)\")? " +
+                "has these (valued|global|instance|iterable)? properties" +
+                "(?: for the logical group \"([^\"]+)\")?$", (
                 String moduleName, String platformName, String moduleVersion, String propertiesNature, String logicalGroup, DataTable dataTable) -> {
 
             if (isNotEmpty(platformName)) {

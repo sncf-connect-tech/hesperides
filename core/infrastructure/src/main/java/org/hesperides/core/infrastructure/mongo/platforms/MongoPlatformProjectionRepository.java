@@ -38,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -417,9 +418,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Timed
     public List<ApplicationView> onGetAllApplicationsDetailQuery(GetAllApplicationsDetailQuery query) {
 
-        return Optional.ofNullable(platformRepository.findAll())
-                .map(List::stream)
-                .orElse(Stream.empty())
+        return Optional.ofNullable(platformRepository.findAll()).stream()
+                .flatMap(Collection::stream)
                 .map(PlatformDocument::toPlatformView)
                 .collect(groupingBy(PlatformView::getApplicationName))
                 .entrySet()
@@ -427,6 +427,11 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(entry -> new ApplicationView(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public Boolean onIsProductionPlatformQuery(IsProductionPlatformQuery query) {
+        return platformRepository.existsByIdAndIsProductionPlatform(query.getPlatformId(), true);
     }
 
     private PlatformDocument getPlatformAtPointInTime(String platformId, Long timestamp) {

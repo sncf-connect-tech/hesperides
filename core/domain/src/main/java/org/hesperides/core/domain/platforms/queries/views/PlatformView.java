@@ -80,22 +80,22 @@ public class PlatformView {
                 .collect(Collectors.toList());
     }
 
-    public Stream<DeployedModuleView> getActiveDeployedModules() {
+    public Stream<DeployedModuleView> findActiveDeployedModules() {
         return Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream().filter(deployedModule -> deployedModule.getId() != null && deployedModule.getId() > 0);
     }
 
-    public DeployedModuleView getDeployedModule(String modulePath, Module.Key moduleKey) {
-        return getActiveDeployedModules()
+    public DeployedModuleView findActiveDeployedModuleByModulePathAndModuleKey(String modulePath, Module.Key moduleKey) {
+        return findActiveDeployedModules()
                 .filter(deployedModule -> deployedModule.getModulePath().equalsIgnoreCase(modulePath)
                         && deployedModule.getModuleKey().equals(moduleKey))
                 .findFirst()
                 .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
     }
 
-    public DeployedModuleView getDeployedModule(String propertiesPath) {
-        return getActiveDeployedModules()
+    public DeployedModuleView findActiveDeployedModuleByPropertiesPath(String propertiesPath) {
+        return findActiveDeployedModules()
                 .filter(deployedModule -> deployedModule.getPropertiesPath().equals(propertiesPath))
                 .findAny().orElseThrow(() -> new DeployedModuleNotFoundException(getPlatformKey(), propertiesPath));
     }
@@ -124,7 +124,7 @@ public class PlatformView {
     }
 
     public List<TemplateContainer.Key> getActiveDeployedModulesKeys(String propertiesPath) {
-        return getActiveDeployedModules()
+        return findActiveDeployedModules()
                 .filter(deployedModule -> isEmpty(propertiesPath) || deployedModule.getPropertiesPath().equals(propertiesPath))
                 .map(DeployedModuleView::getModuleKey)
                 .collect(Collectors.toList());

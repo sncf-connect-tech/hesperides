@@ -115,4 +115,8 @@ public class PlatformQueries extends AxonQueries {
     public List<ApplicationView> getAllApplicationsDetail() {
         return querySyncList(new GetAllApplicationsDetailQuery(), ApplicationView.class);
     }
+
+    public boolean isProductionPlatform(String platformId) {
+        return querySync(new IsProductionPlatformQuery(platformId), Boolean.class);
+    }
 }

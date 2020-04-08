@@ -30,8 +30,8 @@ import org.hesperides.core.domain.platforms.queries.views.PlatformEventView.*;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.hesperides.core.presentation.io.platforms.PlatformEventOutput.DeployedModuleAddedOutput.DEPLOYED_MODULE_ADDED;
 import static org.hesperides.core.presentation.io.platforms.PlatformEventOutput.DeployedModuleRemovedOutput.DEPLOYED_MODULE_REMOVED;
 import static org.hesperides.core.presentation.io.platforms.PlatformEventOutput.DeployedModuleUpdatedOutput.DEPLOYED_MODULE_UPDATED;
@@ -50,7 +50,9 @@ public class PlatformEventOutput {
     }
 
     public static List<PlatformEventOutput> fromViews(List<PlatformEventView> platformEventViews) {
-        return platformEventViews.stream().map(PlatformEventOutput::new).collect(Collectors.toList());
+        return platformEventViews.stream()
+                .map(PlatformEventOutput::new)
+                .collect(toList());
     }
 
     @Value
@@ -124,7 +126,7 @@ public class PlatformEventOutput {
                             throw new RuntimeException("Cant map event " + change);
                         }
                         return platformChangeOutput;
-                    }).collect(Collectors.toList());
+                    }).collect(toList());
         }
     }
 

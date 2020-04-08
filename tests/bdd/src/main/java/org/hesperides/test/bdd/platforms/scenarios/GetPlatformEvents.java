@@ -24,11 +24,11 @@ public class GetPlatformEvents extends HesperidesScenario implements En {
 
     public GetPlatformEvents() {
 
-        When("^I get this platform's events(?: with page (\\d) and size (\\d))?$", (Integer page, Integer size) -> {
+        When("^I get this platform events(?: with page (\\d) and size (\\d))?$", (Integer page, Integer size) -> {
             platformClient.getPlatformEvents(platformBuilder.buildInput(), page, size);
         });
 
-        Then("^the event at index (\\d) contains \"([^\"]*)\"(?: with old version \"([^\"]*)\" and new version \"([^\"]*)\")?$", (
+        Then("^the platform event at index (\\d) contains \"([^\"]*)\"(?: with old version \"([^\"]*)\" and new version \"([^\"]*)\")?$", (
                 Integer eventIndex, String changeName, String oldVersion, String newVersion) -> {
             List<PlatformEventOutput> platformEvents = testContext.getResponseBodyAsList();
             List<PlatformChangeOutput> changes = platformEvents.get(eventIndex).getChanges();

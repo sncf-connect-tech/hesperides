@@ -9,11 +9,13 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
+import org.hesperides.core.domain.platforms.queries.views.PropertiesEventView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
+import org.hesperides.core.presentation.io.platforms.PropertiesEventOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PlatformDetailedPropertiesOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -172,7 +174,7 @@ public class PropertiesController extends AbstractController {
 
         if (StringUtils.isEmpty(propertiesPath)) {
             // tous les modules
-            platformUseCases.getPlatform(platformKey).getActiveDeployedModules()
+            platformUseCases.getPlatform(platformKey).findActiveDeployedModules()
                     .forEach(module -> platformUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
         } else {
             // un seul module
@@ -193,5 +195,21 @@ public class PropertiesController extends AbstractController {
         PlatformDetailedPropertiesView platformDetailedPropertiesView = platformUseCases.getDetailedProperties(platformKey, propertiesPath, user);
         PlatformDetailedPropertiesOutput platformDetailedPropertiesOutput = new PlatformDetailedPropertiesOutput(platformDetailedPropertiesView);
         return ResponseEntity.ok(platformDetailedPropertiesOutput);
+    }
+
+    @ApiOperation("Get the history of raw values for module properties or global properties")
+    @GetMapping("/{application_name}/platforms/{platform_name:.+}/properties/events")
+    public ResponseEntity<List<PropertiesEventOutput>> getPropertiesEvents(Authentication authentication,
+                                                                           @PathVariable("application_name") final String applicationName,
+                                                                           @PathVariable("platform_name") final String platformName,
+                                                                           @RequestParam(value = "properties_path") final String propertiesPath,
+                                                                           @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
+                                                                           @RequestParam(value = "size", required = false, defaultValue = "20") final Integer size) {
+
+        User user = new User(authentication);
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        List<PropertiesEventView> propertiesEventViews = platformUseCases.getPropertiesEvents(user, platformKey, propertiesPath, page, size);
+        List<PropertiesEventOutput> propertiesEventOutputs = PropertiesEventOutput.fromViews(propertiesEventViews);
+        return ResponseEntity.ok(propertiesEventOutputs);
     }
 }

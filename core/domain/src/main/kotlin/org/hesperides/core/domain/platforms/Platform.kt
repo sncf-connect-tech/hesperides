@@ -44,3 +44,4 @@ data class GetInstancesModelQuery(val platformKey: Platform.Key, val propertiesP
 data class InstanceExistsQuery(val platformKey: Platform.Key, val propertiesPath: String, val instanceName: String)
 data class ApplicationExistsQuery(val applicationName: String)
 class GetAllApplicationsDetailQuery
+data class IsProductionPlatformQuery(val platformId: String)

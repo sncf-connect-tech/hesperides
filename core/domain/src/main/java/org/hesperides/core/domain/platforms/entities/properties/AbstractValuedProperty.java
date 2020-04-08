@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 @NonFinal
 public abstract class AbstractValuedProperty {
     String name;
-    //boolean notActiveForThisVersion;
 
     public static <T extends AbstractValuedProperty> List<T> filterAbstractValuedPropertyWithType(List<AbstractValuedProperty> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)
