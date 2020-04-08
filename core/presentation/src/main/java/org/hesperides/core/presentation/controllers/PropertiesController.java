@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
+import org.hesperides.core.application.platforms.PropertiesUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
@@ -39,10 +40,12 @@ import static org.hesperides.core.domain.platforms.entities.properties.diff.Prop
 @RestController
 public class PropertiesController extends AbstractController {
 
+    private final PropertiesUseCases propertiesUseCases;
     private final PlatformUseCases platformUseCases;
 
     @Autowired
-    public PropertiesController(PlatformUseCases platformUseCases) {
+    public PropertiesController(PropertiesUseCases propertiesUseCases, PlatformUseCases platformUseCases) {
+        this.propertiesUseCases = propertiesUseCases;
         this.platformUseCases = platformUseCases;
     }
 
@@ -56,8 +59,8 @@ public class PropertiesController extends AbstractController {
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         User authenticatedUser = new User(authentication);
-        Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
-        List<AbstractValuedPropertyView> allValuedProperties = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);
+        Long propertiesVersionId = propertiesUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp);
+        List<AbstractValuedPropertyView> allValuedProperties = propertiesUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, authenticatedUser);
         PropertiesIO propertiesIO = new PropertiesIO(propertiesVersionId, allValuedProperties);
         return ResponseEntity.ok(propertiesIO);
     }
@@ -69,7 +72,7 @@ public class PropertiesController extends AbstractController {
                                                                   @RequestParam("path") String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
-        List<String> instancesModelView = platformUseCases.getInstancesModel(platformKey, propertiesPath);
+        List<String> instancesModelView = propertiesUseCases.getInstancesModel(platformKey, propertiesPath);
         InstancesModelOutput instancesModelOutput = InstancesModelOutput.fromInstancesModelView(instancesModelView);
         return ResponseEntity.ok(instancesModelOutput);
     }
@@ -111,7 +114,7 @@ public class PropertiesController extends AbstractController {
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(
+        List<AbstractValuedPropertyView> propertyViews = propertiesUseCases.saveProperties(
                 platformKey,
                 propertiesPath,
                 platformVersionId,
@@ -119,7 +122,7 @@ public class PropertiesController extends AbstractController {
                 properties.getPropertiesVersionId(),
                 userComment,
                 new User(authentication));
-        Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, null);
+        Long propertiesVersionId = propertiesUseCases.getPropertiesVersionId(platformKey, propertiesPath, null);
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }
 
@@ -140,7 +143,7 @@ public class PropertiesController extends AbstractController {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
 
-        PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(
+        PropertiesDiff propertiesDiff = propertiesUseCases.getPropertiesDiff(
                 fromPlatformKey, fromPropertiesPath, fromInstanceName,
                 toPlatformKey, toPropertiesPath, toInstanceName,
                 timestamp, compareStoredValues ? ComparisonMode.STORED : ComparisonMode.FINAL,
@@ -153,7 +156,7 @@ public class PropertiesController extends AbstractController {
     public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getGlobalPropertiesUsage(@PathVariable("application_name") String applicationName,
                                                                                                 @PathVariable("platform_name") String platformName) {
 
-        Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = platformUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
+        Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = propertiesUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
 
         return ResponseEntity.ok(globalPropertyUsageView.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
@@ -175,10 +178,10 @@ public class PropertiesController extends AbstractController {
         if (StringUtils.isEmpty(propertiesPath)) {
             // tous les modules
             platformUseCases.getPlatform(platformKey).findActiveDeployedModules()
-                    .forEach(module -> platformUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
+                    .forEach(module -> propertiesUseCases.purgeUnusedProperties(platformKey, module.getPropertiesPath(), authenticatedUser));
         } else {
             // un seul module
-            platformUseCases.purgeUnusedProperties(platformKey, propertiesPath, authenticatedUser);
+            propertiesUseCases.purgeUnusedProperties(platformKey, propertiesPath, authenticatedUser);
         }
 
         return ResponseEntity.noContent().build();
@@ -192,7 +195,7 @@ public class PropertiesController extends AbstractController {
                                                                                   @RequestParam(value = "properties_path", required = false) final String propertiesPath) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         User user = new User(authentication);
-        PlatformDetailedPropertiesView platformDetailedPropertiesView = platformUseCases.getDetailedProperties(platformKey, propertiesPath, user);
+        PlatformDetailedPropertiesView platformDetailedPropertiesView = propertiesUseCases.getDetailedProperties(platformKey, propertiesPath, user);
         PlatformDetailedPropertiesOutput platformDetailedPropertiesOutput = new PlatformDetailedPropertiesOutput(platformDetailedPropertiesView);
         return ResponseEntity.ok(platformDetailedPropertiesOutput);
     }
@@ -208,7 +211,7 @@ public class PropertiesController extends AbstractController {
 
         User user = new User(authentication);
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<PropertiesEventView> propertiesEventViews = platformUseCases.getPropertiesEvents(user, platformKey, propertiesPath, page, size);
+        List<PropertiesEventView> propertiesEventViews = propertiesUseCases.getPropertiesEvents(user, platformKey, propertiesPath, page, size);
         List<PropertiesEventOutput> propertiesEventOutputs = PropertiesEventOutput.fromViews(propertiesEventViews);
         return ResponseEntity.ok(propertiesEventOutputs);
     }
