@@ -1,4 +1,4 @@
-package org.hesperides.test.bdd.commons;
+package org.hesperides.test.bdd.configuration;
 
 import lombok.Getter;
 import lombok.Setter;

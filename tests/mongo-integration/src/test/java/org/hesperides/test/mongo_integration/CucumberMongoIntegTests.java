@@ -3,8 +3,8 @@ package org.hesperides.test.mongo_integration;
 import io.cucumber.java.Before;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
-import org.hesperides.test.bdd.commons.DbCleaner;
-import org.hesperides.test.bdd.commons.TestContextCleaner;
+import org.hesperides.test.bdd.configuration.TestContextCleaner;
+import org.hesperides.test.bdd.configuration.TestDatabaseCleaner;
 import org.hesperides.test.mongo_integration.config.IntegTestConfig;
 import org.hesperides.test.mongo_integration.config.IntegTestHttpConfig;
 import org.junit.runner.JUnitCore;
@@ -34,12 +34,12 @@ public class CucumberMongoIntegTests {
         @Autowired
         private TestContextCleaner testContextCleaner;
         @Autowired
-        private DbCleaner dbCleaner;
+        private TestDatabaseCleaner testDatabaseCleaner;
 
         @Before
         public void cleanUp() {
             testContextCleaner.reset();
-            dbCleaner.wipeOutCollections();
+            testDatabaseCleaner.wipeOutCollections();
         }
     }
 }

@@ -20,14 +20,13 @@
  */
 package org.hesperides.test.bdd.applications.scenarios;
 
-import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
-import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.configuration.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.scenarios.CreatePlatforms;
 import org.springframework.beans.factory.annotation.Autowired;

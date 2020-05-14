@@ -1,4 +1,4 @@
-package org.hesperides.test.bdd.commons;
+package org.hesperides.test.bdd.configuration;
 
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.files.FileBuilder;

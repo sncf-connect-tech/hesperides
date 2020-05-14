@@ -25,8 +25,8 @@ import org.assertj.core.api.Assertions;
 import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.infrastructure.security.LdapAuthenticationProvider;
 import org.hesperides.core.presentation.io.UserInfoOutput;
-import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.configuration.AuthorizationCredentialsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 
@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.hamcrest.CoreMatchers.*;
-import static org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig.LAMBDA_TEST_PROFILE;
-import static org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig.NOGROUP_TEST_PROFILE;
+import static org.hesperides.test.bdd.configuration.AuthorizationCredentialsConfig.LAMBDA_TEST_PROFILE;
+import static org.hesperides.test.bdd.configuration.AuthorizationCredentialsConfig.NOGROUP_TEST_PROFILE;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 

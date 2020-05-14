@@ -1,8 +1,9 @@
-package org.hesperides.test.bdd.commons;
+package org.hesperides.test.bdd.configuration;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.hesperides.test.bdd.commons.TestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;

@@ -5,8 +5,8 @@ import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import org.hesperides.HesperidesSpringApplication;
 import org.hesperides.test.activedirectory_integration.config.TestConfig;
-import org.hesperides.test.bdd.commons.DbCleaner;
-import org.hesperides.test.bdd.commons.TestContextCleaner;
+import org.hesperides.test.bdd.configuration.TestContextCleaner;
+import org.hesperides.test.bdd.configuration.TestDatabaseCleaner;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,12 +33,12 @@ public class CucumberActiveDirectoryIntegTests {
         @Autowired
         private TestContextCleaner testContextCleaner;
         @Autowired
-        private DbCleaner dbCleaner;
+        private TestDatabaseCleaner testDatabaseCleaner;
 
         @Before
         public void cleanUp() {
             testContextCleaner.reset();
-            dbCleaner.wipeOutCollections();
+            testDatabaseCleaner.wipeOutCollections();
         }
     }
 }

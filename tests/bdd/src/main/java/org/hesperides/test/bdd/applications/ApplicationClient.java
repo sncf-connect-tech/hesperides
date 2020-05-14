@@ -24,7 +24,7 @@ import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput
 import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.test.bdd.commons.CustomRestTemplate;
+import org.hesperides.test.bdd.configuration.CustomRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

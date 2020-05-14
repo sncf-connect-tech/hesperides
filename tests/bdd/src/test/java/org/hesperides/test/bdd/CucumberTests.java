@@ -4,9 +4,8 @@ import io.cucumber.java.Before;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import org.hesperides.HesperidesSpringApplication;
-import org.hesperides.test.bdd.commons.DbCleaner;
-import org.hesperides.test.bdd.commons.TestContextCleaner;
-import org.hesperides.test.bdd.config.TestConfig;
+import org.hesperides.test.bdd.configuration.TestContextCleaner;
+import org.hesperides.test.bdd.configuration.TestDatabaseCleaner;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class CucumberTests {
         JUnitCore.main("CucumberTests");
     }
 
-    @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
+    @SpringBootTest(classes = {HesperidesSpringApplication.class}, webEnvironment = RANDOM_PORT)
     // Ce dernier profil active la prise en compte du application-test.yml
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, TEST})
     @ContextConfiguration
@@ -41,12 +40,12 @@ public class CucumberTests {
         @Autowired
         private TestContextCleaner testContextCleaner;
         @Autowired
-        private DbCleaner dbCleaner;
+        private TestDatabaseCleaner testDatabaseCleaner;
 
         @Before
         public void cleanUp() {
             testContextCleaner.reset();
-            dbCleaner.wipeOutCollections();
+            testDatabaseCleaner.wipeOutCollections();
         }
     }
 }
