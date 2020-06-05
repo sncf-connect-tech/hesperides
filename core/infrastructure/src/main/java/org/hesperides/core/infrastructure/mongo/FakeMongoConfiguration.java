@@ -25,7 +25,6 @@ public class FakeMongoConfiguration {
     @Bean(destroyMethod = "close")
     public MongoClient mongoClient() {
         MemoryBackend backend = new MemoryBackend();
-        backend.setVersion(3, 2, 0);
         MongoServer server = new MongoServer(backend);
         // bind on a random local port
         InetSocketAddress serverAddress = server.bind();

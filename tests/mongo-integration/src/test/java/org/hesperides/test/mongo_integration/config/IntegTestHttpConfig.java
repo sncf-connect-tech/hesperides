@@ -10,7 +10,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.axonframework.config.EventHandlingConfiguration;
 import org.hesperides.core.presentation.PresentationConfiguration;
-import org.hesperides.test.bdd.commons.CustomRestTemplate;
+import org.hesperides.test.bdd.configuration.CustomRestTemplate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

@@ -27,8 +27,8 @@ import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUs
 import org.hesperides.core.presentation.io.platforms.properties.PlatformDetailedPropertiesOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
-import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.commons.TestContext;
+import org.hesperides.test.bdd.configuration.CustomRestTemplate;
 import org.hesperides.test.bdd.templatecontainers.TestVersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;

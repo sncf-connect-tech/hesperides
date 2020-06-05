@@ -21,7 +21,7 @@
 package org.hesperides.test.bdd.users;
 
 import org.hesperides.core.presentation.io.UserInfoOutput;
-import org.hesperides.test.bdd.commons.CustomRestTemplate;
+import org.hesperides.test.bdd.configuration.CustomRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

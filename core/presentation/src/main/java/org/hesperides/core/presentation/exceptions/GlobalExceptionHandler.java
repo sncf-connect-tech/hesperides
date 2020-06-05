@@ -29,67 +29,77 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    protected void beforeHandling(Exception exception) {
+    }
+
     /**
      * se produit quand on veut executer une commande sur un aggregat qui n'existe pas.
      *
-     * @param ex "not found" failure
+     * @param exception "not found" failure
      * @return entity
      */
     @ExceptionHandler(AggregateNotFoundException.class)
-    public ResponseEntity handleAggregateNotFound(AggregateNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getAggregateIdentifier() + ": " + ex.getMessage());
+    public ResponseEntity handleAggregateNotFound(AggregateNotFoundException exception) {
+        beforeHandling(exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getAggregateIdentifier() + ": " + exception.getMessage());
     }
 
     // 409: La requête ne peut être traitée en l’état actuel
     @ExceptionHandler({DuplicateException.class, OutOfDateException.class, UndeletableTechnoInUseException.class,
             ModuleUsedByPlatformsException.class, ModuleHasWorkingcopyTechnoException.class})
-    public ResponseEntity handleConflict(Exception ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    public ResponseEntity handleConflict(Exception exception) {
+        beforeHandling(exception);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 
     @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity handleBadRequest(Exception ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    public ResponseEntity handleBadRequest(Exception exception) {
+        beforeHandling(exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
     @ExceptionHandler({ForbiddenOperationException.class, AccessDeniedException.class})
-    public ResponseEntity handleForbidden(Exception ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    public ResponseEntity handleForbidden(Exception exception) {
+        beforeHandling(exception);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
 
     /**
      * se produit sur les queries.
      *
-     * @param ex "not found" failure
+     * @param exception "not found" failure
      * @return entitiy
      */
     @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity handleNotFound(Exception ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity handleNotFound(Exception exception) {
+        beforeHandling(exception);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     /**
      * Exceptions non gérées
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity handleUnexpectedException(Exception ex, WebRequest request) {
+    public ResponseEntity handleUnexpectedException(Exception exception, WebRequest request) {
+        beforeHandling(exception);
         String path = request.getDescription(false);
         logger.error("Unexpected error (path=" + path + "):");
-        logger.error(ex);
+        logger.error(exception);
         Map<String, Object> jsonData = new HashMap<>();
-        jsonData.put("message", StringUtils.isNotEmpty(ex.getMessage()) ? ex.getMessage() : ex.toString());
+        jsonData.put("message", StringUtils.isNotEmpty(exception.getMessage()) ? exception.getMessage() : exception.toString());
         jsonData.put("status", "500");
         jsonData.put("error", "Internal Server Error");
         jsonData.put("path", path);
-        jsonData.put("stacktrace", ExceptionUtils.getStackTrace(ex));
+        jsonData.put("stacktrace", ExceptionUtils.getStackTrace(exception));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonData);
     }
 
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(Exception exception, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        beforeHandling(exception);
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
-            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, exception, WebRequest.SCOPE_REQUEST);
         }
-        return new ResponseEntity<>(body != null ? body : ex.getMessage(), headers, status);
+        return new ResponseEntity<>(body != null ? body : exception.getMessage(), headers, status);
     }
 }
