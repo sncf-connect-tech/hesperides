@@ -4,6 +4,7 @@
     <artifactId>tests</artifactId>
     <groupId>org.hesperides.test</groupId>
     <version>4.3-SNAPSHOT</version>
+    <relativePath>../../../../Hespérides/hesperides-api/tests/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>perfs</artifactId>

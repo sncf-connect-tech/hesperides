@@ -39,6 +39,7 @@ import static java.util.stream.Collectors.toMap;
 public class PlatformEventView {
 
     Instant timestamp;
+    String author;
     List<PlatformChangeView> changes;
 
     @Value
@@ -84,7 +85,7 @@ public class PlatformEventView {
 
             if (isPlatformCreatedEvent(previousEvent)) {
                 // Évènement de création
-                platformEvents.add(new PlatformEventView(previousEvent.getTimestamp(), Collections.singletonList(new PlatformCreatedView())));
+                platformEvents.add(new PlatformEventView(previousEvent.getTimestamp(), previousEvent.getData().getUser(), Collections.singletonList(new PlatformCreatedView())));
             }
 
             while (eventsIterator.hasNext()) {
@@ -124,7 +125,7 @@ public class PlatformEventView {
                 });
 
                 if (!CollectionUtils.isEmpty(platformChanges)) {
-                    platformEvents.add(new PlatformEventView(currentEvent.getTimestamp(), platformChanges));
+                    platformEvents.add(new PlatformEventView(currentEvent.getTimestamp(), currentEvent.getData().getUser(), platformChanges));
                 }
                 previousEvent = currentEvent;
             }

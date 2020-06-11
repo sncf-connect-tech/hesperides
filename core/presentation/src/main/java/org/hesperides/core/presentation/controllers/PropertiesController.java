@@ -139,14 +139,16 @@ public class PropertiesController extends AbstractController {
                                                                   @RequestParam(value = "to_instance_name", required = false, defaultValue = "") String toInstanceName,
                                                                   @RequestParam(value = "compare_stored_values", required = false) boolean compareStoredValues,
                                                                   @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
-                                                                  @RequestParam(value = "timestamp", required = false) Long timestamp) {
+                                                                  @RequestParam(value = "timestamp", required = false) Long timestamp,
+                                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
+                                                                  @RequestParam(value = "origin_timestamp", required = false) Long originTimestamp) {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
 
         PropertiesDiff propertiesDiff = propertiesUseCases.getPropertiesDiff(
                 fromPlatformKey, fromPropertiesPath, fromInstanceName,
                 toPlatformKey, toPropertiesPath, toInstanceName,
-                timestamp, compareStoredValues ? ComparisonMode.STORED : ComparisonMode.FINAL,
+                timestamp, originTimestamp, compareStoredValues ? ComparisonMode.STORED : ComparisonMode.FINAL,
                 new User(authentication));
         return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
     }

@@ -29,7 +29,7 @@ public class PropertiesEventOutput {
     }
 
     public PropertiesEventOutput(PropertiesEventView view) {
-        timestamp = view.getTimestamp().getEpochSecond();
+        timestamp = view.getTimestamp().toEpochMilli();
         author = view.getAuthor();
         comment = view.getComment();
         addedProperties = ValuedPropertyOutput.fromViews(view.getAddedProperties());

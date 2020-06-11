@@ -135,10 +135,11 @@ public class PropertiesUseCases {
                                             String toPropertiesPath,
                                             String toInstanceName,
                                             @Nullable Long timestamp,
+                                            @Nullable Long originTimestamp,
                                             ComparisonMode comparisonMode,
                                             User user) {
 
-        PlatformView fromPlatform = platformUseCases.getPlatform(fromPlatformKey);
+        PlatformView fromPlatform = getPlatform(fromPlatformKey, originTimestamp);
         PlatformView toPlatform = getPlatform(toPlatformKey, timestamp);
 
         PropertiesDiff propertiesDiff;
