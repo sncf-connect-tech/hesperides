@@ -25,10 +25,31 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2020-03-17
+### Added
+
+- Liste complète des propriétés détaillées d'une plateforme (#816) [Thomas L'Hostis]
+
+
+
+## 2020-03-05
+### Fixed
+
+- #78: Améliorer la description des actions faites dans l'historique des évènements d'une plateforme (#830) [Thomas L'Hostis]
+
+
+
+## 2020-03-04
 ### Added
 
 - Messages d'erreur plus explicites en cas de 401 (#842) [Lucas Cimon]
+
+
+### Fixed
+
+- BDD scenario "current user info provides no credentials" (#845) [Lucas Cimon]
+
+- #840: Correction du log d'évènement de mise à jour de plateforme (#841) [Thomas L'Hostis]
 
 
 

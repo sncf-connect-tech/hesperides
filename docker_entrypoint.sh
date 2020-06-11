@@ -7,8 +7,7 @@ if [ -z "${MONGO_URI:-}" ]; then
         exit 1
     fi
 else
-    create_ok=$(mongo $MONGO_URI --quiet --eval "db.createCollection('test').ok")
-    if [ $create_ok -ne 1 ]; then
+    if ! mongo $MONGO_URI --quiet --eval "db.createCollection('test').ok"; then
         echo -e 'Not enough permissions to create a collection: connected to a non-PRIMARY node ?\nCheck that $MONGO_URI contains replicaSet=...' >&2
         exit 1
     fi
