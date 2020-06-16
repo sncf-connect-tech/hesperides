@@ -4,6 +4,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.PropertiesEventOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -54,7 +55,7 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
                     toPropertiesPath,
                     toInstance,
                     storedOrFinal.equals("stored"),
-                    null);
+                    null, null);
         });
 
         When("^I get the( global)?( instance)? properties diff on (stored|final) values between the first and second version of the platform values$", (
@@ -73,7 +74,7 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
                     propertiesPath,
                     instance,
                     storedOrFinal.equals("stored"),
-                    timestamp);
+                    timestamp, null);
         });
 
         When("^I get the properties diff on (stored|final) values between the currently deployed modules$", (String storedOrFinal) -> {
@@ -90,7 +91,7 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
                     toPropertiesPath,
                     null,
                     storedOrFinal.equals("stored"),
-                    null);
+                    null, null);
         });
 
         When("^I get the properties diff on final values of this platform between module versions \"([^\"]+)\" and \"([^\"]+)\"$", (
@@ -110,7 +111,27 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
                     toPropertiesPath,
                     instanceName,
                     false,
-                    null);
+                    null, null);
+        });
+
+        When("I get the global properties diff on final values between the second and third version of the platform values", () -> {
+            PlatformIO platform = platformBuilder.buildInput();
+            String propertiesPath = "#";
+            String instance = null;
+
+            platformClient.getPropertiesEvents(platform, "#", 1, 20);
+            List<PropertiesEventOutput> events = testContext.getResponseBodyAsList();
+
+            platformClient.getPropertiesDiff(
+                    platform,
+                    propertiesPath,
+                    instance,
+                    platform,
+                    propertiesPath,
+                    instance,
+                    false,
+                    events.get(1).getTimestamp(),
+                    events.get(2).getTimestamp());
         });
 
         Then("the diff is empty", () -> {

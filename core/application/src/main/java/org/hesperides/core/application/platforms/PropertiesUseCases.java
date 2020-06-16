@@ -46,7 +46,8 @@ import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.hesperides.core.application.platforms.PlatformUseCases.isRestrictedPlatform;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
@@ -261,7 +262,14 @@ public class PropertiesUseCases {
             if (valuedProperties.size() != abstractValuedProperties.size()) {
                 throw new IllegalArgumentException("Global properties should always be valued properties");
             }
-            platformCommands.savePlatformProperties(platform.getId(), platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user);
+            platformCommands.savePlatformProperties(
+                    platform.getId(),
+                    platformVersionId,
+                    propertiesVersionId,
+                    expectedPropertiesVersionId,
+                    valuedProperties,
+                    defaultString(userComment, EMPTY),
+                    user);
         } else {
             Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
@@ -275,7 +283,7 @@ public class PropertiesUseCases {
                     propertiesVersionId,
                     expectedPropertiesVersionId,
                     abstractValuedProperties,
-                    StringUtils.defaultString(userComment, StringUtils.EMPTY),
+                    defaultString(userComment, EMPTY),
                     user);
         }
 
@@ -340,7 +348,7 @@ public class PropertiesUseCases {
 
         // Propriétés détaillées de chaque module de la plateforme
         List<ModuleDetailedPropertyView> modulesDetailedProperties = platform.findActiveDeployedModules()
-                .filter(deployedModule -> isEmpty(propertiesPath) || deployedModule.getPropertiesPath().equals(propertiesPath))
+                .filter(deployedModule -> StringUtils.isEmpty(propertiesPath) || deployedModule.getPropertiesPath().equals(propertiesPath))
                 .flatMap(deployedModule -> {
                     List<AbstractPropertyView> propertiesModel = propertiesByModuleKey.get(deployedModule.getModuleKey());
                     PropertyVisitorsSequence propertyVisitorsSequence = buildModulePropertyVisitorsSequence(

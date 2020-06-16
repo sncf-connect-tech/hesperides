@@ -366,3 +366,22 @@ Feature: Get properties diffs
     Then the resulting diff matches
       | onlyLeft | onlyRight | common            | differing |
       |          |           | iterable_property |           |
+
+  Scenario: get global properties diff on the same platform at two different timestamps
+    Given an existing platform
+    And the platform has these global properties
+      | name       | value |
+      | property-a | a1    |
+    And the platform has these global properties
+      | name       | value |
+      | property-b | b1    |
+    And the platform has these global properties
+      | name       | value |
+      | property-b | b2    |
+    And the platform has these global properties
+      | name       | value |
+      | property-c | c1    |
+    When I get the global properties diff on final values between the second and third version of the platform values
+    Then the resulting diff matches
+      | onlyLeft | onlyRight | common | differing  |
+      |          |           |        | property-b |
