@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.configuration;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -11,7 +12,9 @@ public class TestDatabaseCleaner {
 
     public void wipeOutCollections() {
         for (String collection : mongoTemplate.getCollectionNames()) {
-            mongoTemplate.getCollection(collection).drop();
+            // Ne pas utiliser `.drop()` sur les collections pour ne pas supprimer
+            // les collations créées dans mongo_create_collections.js
+            mongoTemplate.getCollection(collection).deleteMany(new Document());
         }
     }
 }
