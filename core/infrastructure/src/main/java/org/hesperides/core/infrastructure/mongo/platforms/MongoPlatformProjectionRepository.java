@@ -436,7 +436,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     private PlatformDocument getPlatformAtPointInTime(String platformId, Long timestamp) {
         DomainEventStream eventStream = eventStorageEngine.readEvents(platformId).filter(domainEventMessage ->
-                (timestamp == null || domainEventMessage.getTimestamp().toEpochMilli() < timestamp)
+                (timestamp == null || domainEventMessage.getTimestamp().toEpochMilli() <= timestamp)
                         && !domainEventMessage.getPayloadType().equals(RestoreDeletedPlatformEvent.class)
         );
         InmemoryPlatformRepository inmemoryPlatformRepository = new InmemoryPlatformRepository();

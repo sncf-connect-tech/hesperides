@@ -34,10 +34,20 @@ public class PropertiesEventView {
                                List<ValuedPropertyView> removedProperties) {
         timestamp = event.getTimestamp();
         author = event.getData().getUser();
-        comment = event.getData() instanceof PlatformModulePropertiesUpdatedEvent ? ((PlatformModulePropertiesUpdatedEvent) event.getData()).getUserComment() : null;
+        comment = getComment(event);
         this.addedProperties = addedProperties;
         this.updatedProperties = updatedProperties;
         this.removedProperties = removedProperties;
+    }
+
+    private String getComment(EventView event) {
+        String comment = null;
+        if (event.getData() instanceof PlatformPropertiesUpdatedEvent) {
+            comment = ((PlatformPropertiesUpdatedEvent) event.getData()).getUserComment();
+        } else if (event.getData() instanceof PlatformModulePropertiesUpdatedEvent) {
+            comment = ((PlatformModulePropertiesUpdatedEvent) event.getData()).getUserComment();
+        }
+        return comment;
     }
 
     public static List<PropertiesEventView> buildPropertiesEvents(List<EventView> providedEvents, boolean isModuleProperties, boolean shouldExtractCreationEvent) {

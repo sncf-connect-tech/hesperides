@@ -233,7 +233,16 @@ public class PlatformClient {
                 propertiesPath);
     }
 
-    public void getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, String fromInstance, PlatformIO toPlatform, String toPropertiesPath, String toInstance, boolean compareStoredValues, Long timestamp) {
+    public void getPropertiesDiff(
+            PlatformIO fromPlatform,
+            String fromPropertiesPath,
+            String fromInstance,
+            PlatformIO toPlatform,
+            String toPropertiesPath,
+            String toInstance,
+            boolean compareStoredValues,
+            Long timestamp,
+            Long originTimestamp) {
         String url = "/applications/{application_name}/platforms/{platform_name}/properties/diff?path={properties_path}" +
                 "&instance_name={instance_name}" +
                 "&to_application={to_application}" +
@@ -243,6 +252,9 @@ public class PlatformClient {
                 "&compare_stored_values={compare_stored_values}";
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
+        }
+        if (originTimestamp != null) {
+            url += "&origin_timestamp=" + originTimestamp;
         }
         restTemplate.getForEntity(
                 url,

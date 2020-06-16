@@ -42,10 +42,12 @@ import static org.hesperides.core.presentation.io.platforms.PlatformEventOutput.
 public class PlatformEventOutput {
 
     Long timestamp;
+    String author;
     List<PlatformChangeOutput> changes;
 
     public PlatformEventOutput(PlatformEventView platformEventView) {
-        this.timestamp = platformEventView.getTimestamp().getEpochSecond();
+        this.timestamp = platformEventView.getTimestamp().toEpochMilli();
+        this.author = platformEventView.getAuthor();
         this.changes = PlatformChangeOutput.fromsViews(platformEventView.getChanges());
     }
 

@@ -6,7 +6,7 @@ import org.hesperides.core.domain.platforms.entities.properties.diff.SimpleDiffe
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-class DualDifferingPropertyOutput extends AbstractDifferingPropertyOutput {
+public class DualDifferingPropertyOutput extends AbstractDifferingPropertyOutput {
 
     PropertyDiffValueOutput left;
     PropertyDiffValueOutput right;

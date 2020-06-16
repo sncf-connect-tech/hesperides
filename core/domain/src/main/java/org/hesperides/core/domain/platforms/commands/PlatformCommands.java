@@ -71,8 +71,9 @@ public class PlatformCommands {
                                        final Long propertiesVersionId,
                                        final Long expectedPropertiesVersionId,
                                        final List<ValuedProperty> valuedProperties,
+                                       final String userComment,
                                        final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformId, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user));
+        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformId, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, userComment, user));
     }
 
     public void restoreDeletedPlatform(final String platformId, final User user) {
