@@ -84,8 +84,17 @@ public class PlatformEventView {
             EventView previousEvent = eventsIterator.next();
 
             if (isPlatformCreatedEvent(previousEvent)) {
+                List<PlatformChangeView> firstChanges = new ArrayList<>();
                 // Évènement de création
-                platformEvents.add(new PlatformEventView(previousEvent.getTimestamp(), previousEvent.getData().getUser(), Collections.singletonList(new PlatformCreatedView())));
+                firstChanges.add(new PlatformCreatedView());
+
+                // Modules déployés au moment de la création
+                Platform firstPlatformData = getPlatformDataFromEvent(previousEvent);
+                firstPlatformData.getDeployedModules().forEach(firstDeployedModule ->
+                        firstChanges.add(new DeployedModuleAddedView(firstDeployedModule.getPropertiesPath())));
+
+                platformEvents.add(new PlatformEventView(previousEvent.getTimestamp(),
+                        previousEvent.getData().getUser(), firstChanges));
             }
 
             while (eventsIterator.hasNext()) {

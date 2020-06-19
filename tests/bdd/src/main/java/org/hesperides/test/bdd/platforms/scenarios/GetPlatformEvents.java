@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GetPlatformEvents extends HesperidesScenario implements En {
 
@@ -32,11 +34,11 @@ public class GetPlatformEvents extends HesperidesScenario implements En {
                 Integer eventIndex, String changeName, String oldVersion, String newVersion) -> {
             List<PlatformEventOutput> platformEvents = testContext.getResponseBodyAsList();
             List<PlatformChangeOutput> changes = platformEvents.get(eventIndex).getChanges();
-            for (PlatformChangeOutput change : changes) {
-                if (change instanceof PlatformCreatedOutput && "platform_created".equals(changeName)) {
-                    assertEquals(1, changes.size());
+            List<String> changesName = changes.stream().map(PlatformChangeOutput::getChangeName).collect(toList());
+            assertTrue(changesName.contains(changeName));
 
-                } else if (change instanceof PlatformVersionUpdatedOutput && "platform_version_updated".equals(changeName)) {
+            for (PlatformChangeOutput change : changes) {
+                if (change instanceof PlatformVersionUpdatedOutput && "platform_version_updated".equals(changeName)) {
                     PlatformVersionUpdatedOutput platformVersionUpdated = (PlatformVersionUpdatedOutput) change;
                     assertEquals(oldVersion, platformVersionUpdated.getOldVersion());
                     assertEquals(newVersion, platformVersionUpdated.getNewVersion());
@@ -56,9 +58,6 @@ public class GetPlatformEvents extends HesperidesScenario implements En {
                 } else if (change instanceof DeployedModuleRemovedOutput && "deployed_module_removed".equals(changeName)) {
                     DeployedModuleRemovedOutput deployedModuleRemoved = (DeployedModuleRemovedOutput) change;
                     assertEquals(deployedModuleBuilder.buildPropertiesPath(), deployedModuleRemoved.getPropertiesPath());
-
-                } else {
-                    throw new IllegalArgumentException("Event at index " + eventIndex + " does not contain change \"" + changeName + "\"");
                 }
             }
         });
