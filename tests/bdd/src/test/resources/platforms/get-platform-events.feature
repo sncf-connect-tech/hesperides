@@ -55,3 +55,10 @@ Feature: Get platform events
     When I get this platform events
     Then the platform event at index 0 contains "platform_version_updated" with old version "2" and new version "3"
     Then the platform event at index 1 contains "platform_version_updated" with old version "1" and new version "2"
+
+  Scenario: Get first platform event with multiple changes
+    Given an existing module
+    And an existing platform with this module
+    When I get this platform events
+    Then the platform event at index 0 contains "deployed_module_added"
+    And the platform event at index 0 contains "platform_created"
