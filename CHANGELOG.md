@@ -25,6 +25,32 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2020-06-23
+### Fixed
+
+- Récupère l'évènement d'ajout de modules dans le premier évènement d'une plateforme (#856) [Thomas L'Hostis]
+
+
+
+## 2020-06-17
+### Added
+
+- Ajout du paramètre origin_timestamp au diff. [Thomas L'Hostis]
+
+
+### Fixed
+
+- Warning in Docker entrypoint (#853) [Lucas Cimon]
+
+
+
+## 2020-04-08
+### Fixed
+
+- #826: Historique des valorisations de propriétés (#848) [Thomas L'Hostis]
+
+
+
 ## 2020-03-17
 ### Added
 
