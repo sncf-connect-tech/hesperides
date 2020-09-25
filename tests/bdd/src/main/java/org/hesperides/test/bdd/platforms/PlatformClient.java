@@ -329,4 +329,8 @@ public class PlatformClient {
                 platform.getPlatformName(),
                 propertiesPath);
     }
+
+    public void getAllApplicationsPasswords() {
+        restTemplate.getForEntity("/applications/all_passwords", String.class);
+    }
 }

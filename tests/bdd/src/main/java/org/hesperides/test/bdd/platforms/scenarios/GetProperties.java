@@ -97,6 +97,10 @@ public class GetProperties extends HesperidesScenario implements En {
             platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput());
         });
 
+        When("I get the applications passwords", () -> {
+            platformClient.getAllApplicationsPasswords();
+        });
+
         Then("^the platform global properties usage is successfully retrieved$", () -> {
             assertOK();
             Map<String, Set<GlobalPropertyUsageOutput>> expectedGlobalPropertiesUsage = platformBuilder.buildGlobalPropertiesUsage(moduleHistory);

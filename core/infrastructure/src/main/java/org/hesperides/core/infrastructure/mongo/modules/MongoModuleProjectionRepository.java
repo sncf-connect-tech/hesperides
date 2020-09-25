@@ -8,6 +8,7 @@ import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.queries.ModulePasswordProperties;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -235,6 +236,15 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
         return moduleRepository.findModulesWithPasswordWithin(modulesKeys).stream()
                 .map(ModuleDocument::getDomainKey)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    @Timed
+    public List<ModulePasswordProperties> onFindAllPasswordProperties(FindAllPasswordProperties query) {
+        return moduleRepository.findAllPasswordProperties().stream()
+                .map(ModuleDocument::toModulePasswordProperties)
                 .collect(Collectors.toList());
     }
 }

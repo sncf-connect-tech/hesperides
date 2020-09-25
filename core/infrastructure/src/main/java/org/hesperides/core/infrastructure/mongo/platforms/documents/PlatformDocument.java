@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -204,5 +205,24 @@ public class PlatformDocument {
 
     private Optional<DeployedModuleDocument> getModuleByPath(String providedModulePath) {
         return deployedModules.stream().filter(existingModule -> providedModulePath.equals(existingModule.getPropertiesPath())).findFirst();
+    }
+
+    public PlatformProperties toApplicationProperties() {
+        List<PlatformProperties.DeployedModule> deployedModules = this.deployedModules.stream()
+                .map(deployedModule -> {
+                    List<PlatformProperties.Property> properties = deployedModule.getValuedProperties().stream()
+                            .filter(ValuedPropertyDocument.class::isInstance)
+                            .map(ValuedPropertyDocument.class::cast)
+                            .map(valuedProperty -> new PlatformProperties.Property(valuedProperty.getName(), valuedProperty.getValue()))
+                            .collect(Collectors.toList());
+
+                    return new PlatformProperties.DeployedModule(
+                            deployedModule.getPropertiesPath(),
+                            deployedModule.getId() == 0,
+                            properties);
+
+                }).collect(Collectors.toList());
+
+        return new PlatformProperties(key.getApplicationName(), key.getPlatformName(), isProductionPlatform, deployedModules);
     }
 }
