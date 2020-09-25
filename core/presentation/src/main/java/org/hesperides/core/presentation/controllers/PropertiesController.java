@@ -14,17 +14,17 @@ import org.hesperides.core.domain.platforms.queries.views.PropertiesEventView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PropertiesEventOutput;
-import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
-import org.hesperides.core.presentation.io.platforms.properties.PlatformDetailedPropertiesOutput;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -216,5 +216,21 @@ public class PropertiesController extends AbstractController {
         List<PropertiesEventView> propertiesEventViews = propertiesUseCases.getPropertiesEvents(user, platformKey, propertiesPath, page, size);
         List<PropertiesEventOutput> propertiesEventOutputs = PropertiesEventOutput.fromViews(propertiesEventViews);
         return ResponseEntity.ok(propertiesEventOutputs);
+    }
+
+    @ApiIgnore
+    @GetMapping("/all_passwords")
+    public ResponseEntity<List<?>> getPasswords(Authentication authentication,
+                                                @RequestParam(value = "flat", required = false) Boolean flat) {
+
+        User user = new User(authentication);
+        List<PlatformProperties> platformsPasswords = propertiesUseCases.findAllApplicationsPasswords(user);
+        List<?> passwords;
+        if (Boolean.TRUE.equals(flat)) {
+            passwords = FlatPasswordsOutput.fromDomainInstances(platformsPasswords);
+        } else {
+            passwords = PlatformPasswordsOutput.fromDomainInstances(platformsPasswords);
+        }
+        return ResponseEntity.ok(passwords);
     }
 }

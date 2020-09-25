@@ -60,3 +60,18 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
     And an existing prod platform with this module and valued properties
     When I get the module template file
     Then there are no obfuscated password properties in the file
+
+  Scenario: restrict access of all applications passwords to tech users
+    Given as an authenticated tech user
+    When I get the applications passwords
+    Then the request is successful
+
+  Scenario: deny access of all applications passwords to lambda users
+    Given as an authenticated lambda user
+    When I get the applications passwords
+    Then the request is rejected with a forbidden error
+
+  Scenario: deny access of all applications passwords to prod users
+    Given as an authenticated prod user
+    When I get the applications passwords
+    Then the request is rejected with a forbidden error

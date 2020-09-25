@@ -57,4 +57,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     @Query(value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }", fields = "{ 'key' : 1 }")
     List<ModuleDocument> findModulesWithPasswordWithin(List<KeyDocument> modulesKeys);
+
+    @Query(value = "{ 'properties' : { $elemMatch : { 'isPassword' : true } } }", fields = "{ 'key' : 1, 'properties' : { $elemMatch : { 'isPassword' : true } } }")
+    List<ModuleDocument> findAllPasswordProperties();
 }

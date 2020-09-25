@@ -57,7 +57,7 @@ public class TestContextCleaner {
     }
 
     private void resetRestTemplateAuthHeader() {
-        // On supprime le BasicAuthenticationInterceptor précédement configuré :
+        // On supprime le BasicAuthenticationInterceptor précédemment configuré :
         restTemplate.setInterceptors(Collections.emptyList());
     }
 

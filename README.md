@@ -1,6 +1,6 @@
 # Hesperides backend
 
-[![](https://api.travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=master)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
+[![](https://api.travis-ci.com/voyages-sncf-technologies/hesperides.svg?branch=master)](https://travis-ci.com/voyages-sncf-technologies/hesperides)
 
 [![](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)
 [![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)

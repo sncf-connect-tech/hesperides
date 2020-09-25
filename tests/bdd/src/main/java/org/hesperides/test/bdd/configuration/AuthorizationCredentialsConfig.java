@@ -12,6 +12,7 @@ public class AuthorizationCredentialsConfig {
     // Ces valeurs sont employées dans les tests.feature BDD :
     public static final String LAMBDA_TEST_PROFILE = "lambda";
     public static final String PROD_TEST_PROFILE = "prod";
+    public static final String TECH_TEST_PROFILE = "tech";
     public static final String NOGROUP_TEST_PROFILE = "nogroup";
 
     private static final String A_GROUP = "A_GROUP";
@@ -27,6 +28,11 @@ public class AuthorizationCredentialsConfig {
     private String prodUsername = "prod";
     @Setter
     private String prodPassword = "password";
+
+    @Setter
+    private String techUsername = "tech";
+    @Setter
+    private String techPassword = "password";
 
     @Setter
     private String nogroupUsername = "nogroup";
@@ -49,6 +55,8 @@ public class AuthorizationCredentialsConfig {
             username = lambdaUsername;
         } else if (PROD_TEST_PROFILE.equals(testProfile)) {
             username = prodUsername;
+        } else if (TECH_TEST_PROFILE.equals(testProfile)) {
+            username = techUsername;
         } else if (NOGROUP_TEST_PROFILE.equals(testProfile)) {
             username = nogroupUsername;
         } else {
@@ -63,6 +71,8 @@ public class AuthorizationCredentialsConfig {
             password = lambdaPassword;
         } else if (PROD_TEST_PROFILE.equals(testProfile)) {
             password = prodPassword;
+        } else if (TECH_TEST_PROFILE.equals(testProfile)) {
+            password = techPassword;
         } else if (NOGROUP_TEST_PROFILE.equals(testProfile)) {
             password = nogroupPassword;
         } else {

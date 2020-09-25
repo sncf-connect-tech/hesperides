@@ -13,7 +13,6 @@ import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,10 +48,9 @@ public class RandomPlatformViewGenerator {
 
     static List<DeployedModuleView> genDeployedModules(DeployedModuleProfile... dpProfiles) {
         return Arrays.stream(dpProfiles)
-                .map(dpProfile -> IntStream.range(0, dpProfile.times)
+                .flatMap(dpProfile -> IntStream.range(0, dpProfile.times)
                         .mapToObj(i -> genDeployedModule(dpProfile))
                 )
-                .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
 

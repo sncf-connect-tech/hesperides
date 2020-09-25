@@ -20,6 +20,7 @@ import org.hesperides.core.domain.platforms.commands.PlatformAggregate;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
@@ -429,9 +430,20 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     }
 
+    @QueryHandler
     @Override
+    @Timed
     public Boolean onIsProductionPlatformQuery(IsProductionPlatformQuery query) {
         return platformRepository.existsByIdAndIsProductionPlatform(query.getPlatformId(), true);
+    }
+
+    @QueryHandler
+    @Override
+    @Timed
+    public List<PlatformProperties> onFindAllApplicationsPropertiesQuery(FindAllApplicationsPropertiesQuery query) {
+        return platformRepository.findAllApplicationsPropertiesQuery().stream()
+                .map(PlatformDocument::toApplicationProperties)
+                .collect(Collectors.toList());
     }
 
     private PlatformDocument getPlatformAtPointInTime(String platformId, Long timestamp) {

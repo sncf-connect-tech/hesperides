@@ -63,7 +63,8 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         UrlPathHelper urlPathHelper = new UrlPathHelper();
         urlPathHelper.setUrlDecode(false);
         configurer.setUrlPathHelper(urlPathHelper);
-        configurer.setUseSuffixPatternMatch(false); // avoids bug with getInstanceFiles when instance name ends with .digit and it gets mangled
+        // avoids bug with getInstanceFiles when instance name ends with .digit and it gets mangled
+        configurer.setUseSuffixPatternMatch(false);
     }
 
     @Bean
@@ -92,7 +93,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                         return false;
                     }
                 })
-                // On doit exclure ces classes de la désérialization pour éviter une boucle circulaire infinie
+                // On doit exclure ces classes de la désérialisation pour éviter une boucle circulaire infinie
                 // lorsqu'on requête /rest/manage/mappings (cf. #414)
                 // et dans ce cas une ExclusionStrategy ne fonctionne pas (bug connu de Gson) :
                 .registerTypeAdapter(StandardWrapper.class, (JsonSerializer<StandardWrapper>) (src, typeOfSrc, context) -> null);

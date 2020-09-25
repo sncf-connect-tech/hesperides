@@ -55,10 +55,10 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalProperties' : 1 }")
     Optional<PlatformDocument> findGlobalPropertiesByPlatformKey(PlatformKeyDocument platformKeyDocument);
 
-    @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalPropertiesVersionId' : 1 }")
-    Optional<PlatformDocument> findGlobalPropertiesVersionIdByPlatformKey(PlatformKeyDocument platformKeyDocument);
-
     boolean existsByKeyApplicationName(String applicationName);
 
     boolean existsByIdAndIsProductionPlatform(String platformId, boolean isProductionPlatform);
+
+    @Query(value = "{ }", fields = "{ 'key': 1, 'isProductionPlatform': 1, 'deployedModules.id' : 1, 'deployedModules.propertiesPath' : 1, 'deployedModules.valuedProperties' : 1 }")
+    List<PlatformDocument> findAllApplicationsPropertiesQuery();
 }

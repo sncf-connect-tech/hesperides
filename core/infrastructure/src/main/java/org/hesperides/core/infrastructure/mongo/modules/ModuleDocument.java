@@ -3,6 +3,7 @@ package org.hesperides.core.infrastructure.mongo.modules;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.queries.ModulePasswordProperties;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
@@ -11,13 +12,16 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.infrastructure.mongo.Collections.MODULE;
@@ -115,5 +119,18 @@ public class ModuleDocument {
                 properties.stream()
                         .map(AbstractPropertyDocument::toView)
                         .collect(Collectors.toList()));
+    }
+
+    public ModulePasswordProperties toModulePasswordProperties() {
+        List<String> passwords = Optional.ofNullable(properties)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(PropertyDocument.class::isInstance)
+                .map(PropertyDocument.class::cast)
+                .filter(PropertyDocument::isPassword)
+                .map(PropertyDocument::getName)
+                .collect(Collectors.toList());
+
+        return new ModulePasswordProperties(getDomainKey(), passwords);
     }
 }

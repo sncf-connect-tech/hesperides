@@ -10,6 +10,7 @@ import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
+import org.hesperides.core.domain.modules.queries.ModulePasswordProperties;
 import org.hesperides.core.domain.modules.queries.ModulePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.PlatformPropertiesUpdatedEvent;
@@ -36,12 +37,14 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
@@ -439,5 +442,38 @@ public class PropertiesUseCases {
 
     private PlatformView getPlatform(Platform.Key platformKey, Long timestamp) {
         return timestamp != null ? platformUseCases.getPlatformAtPointInTime(platformKey, timestamp) : platformUseCases.getPlatform(platformKey);
+    }
+
+    public List<PlatformProperties> findAllApplicationsPasswords(User user) {
+        if (!user.isGlobalTech()) {
+            throw new AccessDeniedException("You have to be a tech user to access this resource");
+        }
+
+        List<PlatformProperties> applicationsProperties = platformQueries.findAllApplicationsProperties();
+        List<ModulePasswordProperties> modulesPasswords = moduleQueries.findAllPasswordProperties();
+        Map<Module.Key, List<String>> passwordsByModule = modulesPasswords.stream()
+                .collect(toMap(ModulePasswordProperties::getModuleKey, ModulePasswordProperties::getPasswords));
+
+        return applicationsProperties.stream()
+                .map(applicationProperties -> new PlatformProperties(
+                        applicationProperties.getApplicationName(),
+                        applicationProperties.getPlatformName(),
+                        applicationProperties.isProductionPlatform(),
+                        applicationProperties.getDeployedModules().stream()
+                                .map(deployedModule -> {
+                                    Module.Key moduleKey = Module.Key.fromPropertiesPath(deployedModule.getPropertiesPath());
+                                    List<String> modulePasswords = passwordsByModule.getOrDefault(moduleKey, emptyList());
+                                    return new PlatformProperties.DeployedModule(
+                                            deployedModule.getPropertiesPath(),
+                                            deployedModule.isArchivedModule(),
+                                            deployedModule.getProperties().stream()
+                                                    .filter(property -> modulePasswords.contains(property.getName()))
+                                                    .collect(toList()));
+                                })
+                                .filter(deployedModule -> !deployedModule.getProperties().isEmpty())
+                                .collect(toList()))
+                )
+                .filter(applicationProperties -> !applicationProperties.getDeployedModules().isEmpty())
+                .collect(toList());
     }
 }

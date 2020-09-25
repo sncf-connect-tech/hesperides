@@ -3,6 +3,7 @@ package org.hesperides.core.domain.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.List;
@@ -82,4 +83,7 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     Boolean onIsProductionPlatformQuery(IsProductionPlatformQuery query);
+
+    @QueryHandler
+    List<PlatformProperties> onFindAllApplicationsPropertiesQuery(FindAllApplicationsPropertiesQuery query);
 }

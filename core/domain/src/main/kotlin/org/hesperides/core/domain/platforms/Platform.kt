@@ -45,3 +45,4 @@ data class InstanceExistsQuery(val platformKey: Platform.Key, val propertiesPath
 data class ApplicationExistsQuery(val applicationName: String)
 class GetAllApplicationsDetailQuery
 data class IsProductionPlatformQuery(val platformId: String)
+class FindAllApplicationsPropertiesQuery

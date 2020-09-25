@@ -86,7 +86,8 @@ public class UserAuthorities extends HesperidesScenario implements En {
     public void setAuthUserRole(String authorizationRole) {
         // Note: we erase ALL interceptors here by simplicity, because we know only the BasicAuth one is used in this app
         final String testProfile = defaultIfEmpty(authorizationRole, LAMBDA_TEST_PROFILE);
-        restTemplate.setInterceptors(Collections.singletonList(authorizationCredentialsConfig.getBasicAuthInterceptorForTestProfile(testProfile)));
+        BasicAuthenticationInterceptor authInterceptor = authorizationCredentialsConfig.getBasicAuthInterceptorForTestProfile(testProfile);
+        restTemplate.setInterceptors(Collections.singletonList(authInterceptor));
         testContext.setAuthorizationRole(authorizationRole);
     }
 
