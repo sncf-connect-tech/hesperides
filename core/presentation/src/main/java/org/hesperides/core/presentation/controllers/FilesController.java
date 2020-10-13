@@ -2,6 +2,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.domain.security.entities.User;
@@ -39,6 +40,7 @@ public class FilesController extends AbstractController {
                                                                                @PathVariable("module_version") final String moduleVersion,
                                                                                @PathVariable("instance_name") final String instanceName,
                                                                                @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                                                               @ApiParam(value = "Use module values if instance does not exist")
                                                                                @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
         return ResponseEntity.ok()
                 .header("Deprecation", "version=\"2019-09-24\"")
@@ -62,6 +64,7 @@ public class FilesController extends AbstractController {
                                                     @PathVariable("template_name") final String templateName,
                                                     @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                                     @RequestParam("template_namespace") final String templateNamespace,
+                                                    @ApiParam(value = "Use module values if instance does not exist")
                                                     @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
         return ResponseEntity.ok()
@@ -80,6 +83,7 @@ public class FilesController extends AbstractController {
                                                                      @PathVariable("module_version") final String moduleVersion,
                                                                      @PathVariable("instance_name") final String instanceName,
                                                                      @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                                                     @ApiParam(value = "Use module values if instance does not exist")
                                                                      @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
 
         // Pour des raisons de retrocompatibilité avec le front,
@@ -114,6 +118,7 @@ public class FilesController extends AbstractController {
                                           @PathVariable("template_name") final String templateName,
                                           @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                           @RequestParam("template_namespace") final String templateNamespace,
+                                          @ApiParam(value = "Use module values if instance does not exist")
                                           @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
         String fileContent = filesUseCases.getFile(
