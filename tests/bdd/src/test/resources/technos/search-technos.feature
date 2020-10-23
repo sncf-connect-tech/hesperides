@@ -22,3 +22,15 @@ Feature: Search technos
     Given a list of 12 technos
     When I search for some of those technos, limiting the number of results to 100
     Then the list of techno results is limited to 12 items
+
+  # Issue 863
+  Scenario: search for an existing techno using the wrong case
+    Given an existing techno named "aTechno"
+    When I search for the techno named "ATECHNO"
+    Then the techno is found
+
+  # Issue 863
+  Scenario: search for an existing techno using the wrong case again
+    Given an existing techno named "aTechno"
+    When I search for the techno named "atechno"
+    Then the techno is found
