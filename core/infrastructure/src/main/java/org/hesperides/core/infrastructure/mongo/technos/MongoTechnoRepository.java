@@ -33,6 +33,7 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     List<TechnoDocument> findAllByKeyIn(List<KeyDocument> keys);
 
+    @Query(value = "{ 'key.name': { '$regex' : ?0, '$options' : 'i' }, 'key.version': { '$regex' : ?1, '$options' : 'i' } }")
     List<TechnoDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
     boolean existsByKey(KeyDocument keyDocument);

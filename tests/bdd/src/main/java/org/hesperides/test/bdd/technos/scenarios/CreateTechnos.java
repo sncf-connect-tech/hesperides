@@ -42,18 +42,24 @@ public class CreateTechnos extends HesperidesScenario implements En {
     public CreateTechnos() {
 
         Given("^an existing( released)? techno" +
+                "(?: named \"([^\"]*)\")?" +
                 "(?: with (?:this|a) template)?" +
                 "( with properties)?" +
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) iterable properties)?" +
                 "( (?:and|with) nested iterable properties)?$", (
                 String released,
+                String name,
                 String withProperties,
                 String withGlobalProperties,
                 String withIterableProperties,
                 String withNestedIterableProperties) -> {
 
             technoBuilder.reset();
+
+            if (isNotEmpty(name)) {
+                technoBuilder.withName(name);
+            }
 
             if (isNotEmpty(withProperties)) {
                 addPropertyToBuilders("techno-foo");
