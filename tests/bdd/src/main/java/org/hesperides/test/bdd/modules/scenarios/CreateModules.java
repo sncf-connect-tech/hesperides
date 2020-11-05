@@ -2,7 +2,6 @@ package org.hesperides.test.bdd.modules.scenarios;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java8.En;
-
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -12,7 +11,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.hesperides.test.bdd.users.UserAuthorities;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +45,7 @@ public class CreateModules extends HesperidesScenario implements En {
     @Autowired
     private UserAuthorities userAuthorities;
 
-    private List<CompletableFuture<ResponseEntity>> concurrentCreations;
+    private List<CompletableFuture<ResponseEntity<?>>> concurrentCreations;
 
     @Given("^an(other)? existing( released)? module" +
             "(?: named \"([^\"]*)\")?" +

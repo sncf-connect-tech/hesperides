@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class HesperidesScenario {
 
@@ -77,11 +74,5 @@ public class HesperidesScenario {
 
     protected void assertInternalServerError() {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.getResponseStatusCode());
-    }
-
-    protected void assertEqualsInAnyOrder(List expectedElements, List actualElements) {
-        assertTrue(expectedElements.size() == actualElements.size() &&
-                expectedElements.containsAll(actualElements) && actualElements.containsAll(expectedElements));
-
     }
 }

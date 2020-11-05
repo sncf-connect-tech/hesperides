@@ -67,5 +67,8 @@ public interface ModuleProjectionRepository {
     List<Module.Key> onGetModulesWithPasswordWithinQuery(GetModulesWithPasswordWithinQuery query);
 
     @QueryHandler
-    List<ModulePasswordProperties> onFindAllPasswordProperties(FindAllPasswordProperties query);
+    List<ModulePasswordProperties> onFindAllPasswordProperties(FindAllPasswordPropertiesQuery query);
+
+    @QueryHandler
+    List<ModulePasswordProperties> onFindPasswordPropertiesInQuery(FindPasswordPropertiesInQuery query);
 }

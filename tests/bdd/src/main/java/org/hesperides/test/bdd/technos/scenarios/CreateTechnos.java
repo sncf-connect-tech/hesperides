@@ -37,7 +37,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
     @Autowired
     private ReleaseTechnos releaseTechnos;
 
-    private List<CompletableFuture<ResponseEntity>> concurrentCreations;
+    private List<CompletableFuture<ResponseEntity<?>>> concurrentCreations;
 
     public CreateTechnos() {
 

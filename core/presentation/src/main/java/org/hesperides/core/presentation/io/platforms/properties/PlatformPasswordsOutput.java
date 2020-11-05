@@ -21,7 +21,7 @@
 package org.hesperides.core.presentation.io.platforms.properties;
 
 import lombok.Value;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformPropertiesView;
 
 import java.util.List;
 
@@ -35,14 +35,14 @@ public class PlatformPasswordsOutput {
     boolean isProductionPlatform;
     List<DeployedModule> deployedModules;
 
-    public PlatformPasswordsOutput(PlatformProperties platform) {
+    public PlatformPasswordsOutput(PlatformPropertiesView platform) {
         applicationName = platform.getApplicationName();
         platformName = platform.getPlatformName();
         isProductionPlatform = platform.isProductionPlatform();
-        deployedModules = DeployedModule.fromDomainInstances(platform.getDeployedModules());
+        deployedModules = DeployedModule.fromViews(platform.getDeployedModules());
     }
 
-    public static List<PlatformPasswordsOutput> fromDomainInstances(List<PlatformProperties> platformsPasswords) {
+    public static List<PlatformPasswordsOutput> fromViews(List<PlatformPropertiesView> platformsPasswords) {
         return platformsPasswords.stream()
                 .map(PlatformPasswordsOutput::new)
                 .collect(toList());
@@ -54,13 +54,13 @@ public class PlatformPasswordsOutput {
         boolean isArchivedModule;
         List<Password> passwords;
 
-        public DeployedModule(PlatformProperties.DeployedModule deployedModule) {
+        public DeployedModule(PlatformPropertiesView.DeployedModule deployedModule) {
             propertiesPath = deployedModule.getPropertiesPath();
             isArchivedModule = deployedModule.isArchivedModule();
-            passwords = Password.fromDomainInstances(deployedModule.getProperties());
+            passwords = Password.fromViews(deployedModule.getProperties());
         }
 
-        public static List<DeployedModule> fromDomainInstances(List<PlatformProperties.DeployedModule> deployedModules) {
+        public static List<DeployedModule> fromViews(List<PlatformPropertiesView.DeployedModule> deployedModules) {
             return deployedModules.stream().map(DeployedModule::new).collect(toList());
         }
     }
@@ -70,12 +70,12 @@ public class PlatformPasswordsOutput {
         String propertyName;
         String propertyValue;
 
-        public Password(PlatformProperties.Property password) {
+        public Password(PlatformPropertiesView.Property password) {
             propertyName = password.getName();
             propertyValue = password.getValue();
         }
 
-        public static List<Password> fromDomainInstances(List<PlatformProperties.Property> passwords) {
+        public static List<Password> fromViews(List<PlatformPropertiesView.Property> passwords) {
             return passwords.stream()
                     .map(Password::new)
                     .collect(toList());

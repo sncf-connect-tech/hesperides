@@ -6,9 +6,9 @@ Feature: Update properties (new way)
   Scenario: update properties of 2 modules of the same platform simultaneously
     Given an existing module named "toto"
     And an existing module named "tata"
-    And an existing platform with those modules and valued properties
-    When I update the properties of those modules one after the other using the same platform version_id
-    Then the properties are successfully updated for those modules
+    And an existing platform with these modules and valued properties
+    When I update the properties of these modules one after the other using the same platform version_id
+    Then the properties are successfully updated for these modules
     And the platform version_id is also updated
 
   Scenario: update properties of a module and global properties simultaneously

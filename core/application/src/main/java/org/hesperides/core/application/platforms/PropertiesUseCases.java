@@ -49,8 +49,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.*;
 import static org.hesperides.core.application.platforms.PlatformUseCases.isRestrictedPlatform;
 import static org.hesperides.core.application.platforms.properties.PropertyType.GLOBAL;
 import static org.hesperides.core.application.platforms.properties.PropertyType.WITHOUT_MODEL;
@@ -444,18 +443,19 @@ public class PropertiesUseCases {
         return timestamp != null ? platformUseCases.getPlatformAtPointInTime(platformKey, timestamp) : platformUseCases.getPlatform(platformKey);
     }
 
-    public List<PlatformProperties> findAllApplicationsPasswords(User user) {
+    public List<PlatformPropertiesView> findAllApplicationsPasswords(User user) {
         if (!user.isGlobalTech()) {
             throw new AccessDeniedException("You have to be a tech user to access this resource");
         }
 
-        List<PlatformProperties> applicationsProperties = platformQueries.findAllApplicationsProperties();
+        List<PlatformPropertiesView> applicationsProperties = platformQueries.findAllApplicationsProperties();
         List<ModulePasswordProperties> modulesPasswords = moduleQueries.findAllPasswordProperties();
-        Map<Module.Key, List<String>> passwordsByModule = modulesPasswords.stream()
-                .collect(toMap(ModulePasswordProperties::getModuleKey, ModulePasswordProperties::getPasswords));
+        Map<Module.Key, List<String>> passwordsByModule = modulesPasswords.stream().collect(toMap(
+                ModulePasswordProperties::getModuleKey,
+                ModulePasswordProperties::getPasswords));
 
         return applicationsProperties.stream()
-                .map(applicationProperties -> new PlatformProperties(
+                .map(applicationProperties -> new PlatformPropertiesView(
                         applicationProperties.getApplicationName(),
                         applicationProperties.getPlatformName(),
                         applicationProperties.isProductionPlatform(),
@@ -463,7 +463,7 @@ public class PropertiesUseCases {
                                 .map(deployedModule -> {
                                     Module.Key moduleKey = Module.Key.fromPropertiesPath(deployedModule.getPropertiesPath());
                                     List<String> modulePasswords = passwordsByModule.getOrDefault(moduleKey, emptyList());
-                                    return new PlatformProperties.DeployedModule(
+                                    return new PlatformPropertiesView.DeployedModule(
                                             deployedModule.getPropertiesPath(),
                                             deployedModule.isArchivedModule(),
                                             deployedModule.getProperties().stream()
@@ -475,5 +475,36 @@ public class PropertiesUseCases {
                 )
                 .filter(applicationProperties -> !applicationProperties.getDeployedModules().isEmpty())
                 .collect(toList());
+    }
+
+    public List<PropertySearchResultView> searchProperties(String searchedPropertyName,
+                                                           String searchedPropertyValue,
+                                                           User user) {
+
+        List<PropertySearchResultView> properties = platformQueries.searchProperties(
+                searchedPropertyName, searchedPropertyValue);
+
+        if (!user.isGlobalProd()) {
+            List<Module.Key> moduleKeys = properties.stream()
+                    .map(PropertySearchResultView::getPropertiesPath)
+                    .distinct()
+                    .map(Module.Key::fromPropertiesPath)
+                    .collect(toList());
+
+            Map<Module.Key, List<String>> passwordsByModule = moduleQueries.findPasswordPropertiesIn(moduleKeys)
+                    .stream()
+                    .collect(toMap(
+                            ModulePasswordProperties::getModuleKey,
+                            ModulePasswordProperties::getPasswords));
+
+            boolean isSearchedByValue = isNotEmpty(searchedPropertyValue);
+
+            properties = properties.stream()
+                    .map(property -> property.hideProductionPasswordOrExcludeIfSearchedByValue(passwordsByModule, isSearchedByValue))
+                    .filter(Objects::nonNull)
+                    .collect(toList());
+        }
+
+        return properties;
     }
 }

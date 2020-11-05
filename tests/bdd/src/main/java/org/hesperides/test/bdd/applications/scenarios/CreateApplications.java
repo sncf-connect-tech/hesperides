@@ -84,7 +84,7 @@ public class CreateApplications extends HesperidesScenario implements En {
     }
 
     @Given("^an application ?(.+)? associated with the directory groups$")
-    public void anAppAssociatedWithThoseDirectoryGroups(String applicationName, List<String> directoryGroups) {
+    public void anAppAssociatedWithTheseDirectoryGroups(String applicationName, List<String> directoryGroups) {
         createApplication(applicationName);
         assertOK();
         List<String> realDirectoryGroups = directoryGroups.stream().map(directoryGroup ->

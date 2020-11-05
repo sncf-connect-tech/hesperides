@@ -20,7 +20,8 @@ import org.hesperides.core.domain.platforms.commands.PlatformAggregate;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformPropertiesView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertySearchResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
@@ -440,9 +442,30 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     @Timed
-    public List<PlatformProperties> onFindAllApplicationsPropertiesQuery(FindAllApplicationsPropertiesQuery query) {
+    public List<PlatformPropertiesView> onFindAllApplicationsPropertiesQuery(FindAllApplicationsPropertiesQuery query) {
         return platformRepository.findAllApplicationsPropertiesQuery().stream()
-                .map(PlatformDocument::toApplicationProperties)
+                .map(PlatformDocument::toPlatformPropertiesView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    @Timed
+    public List<PropertySearchResultView> onSearchPropertiesQuery(SearchPropertiesQuery query) {
+        List<PlatformDocument> platformDocuments;
+
+        if (isEmpty(query.getPropertyValue())) {
+            platformDocuments = platformRepository.findPlatformsByPropertiesName(query.getPropertyName());
+        } else if (isEmpty(query.getPropertyName())) {
+            platformDocuments = platformRepository.findPlatformsByPropertiesValue(query.getPropertyValue());
+        } else {
+            platformDocuments = platformRepository.findPlatformsByPropertiesNameAndValue(query.getPropertyName(), query.getPropertyValue());
+        }
+
+        return platformDocuments.stream()
+                .map(platformDocument -> platformDocument.filterToPropertySearchResultViews(
+                        query.getPropertyName(), query.getPropertyValue()))
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 

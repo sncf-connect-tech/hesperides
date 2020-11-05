@@ -346,7 +346,7 @@ Feature: Get properties diffs
       """
       {{ property | @default false }}
       """
-    And an existing platform with those modules
+    And an existing platform with these modules
     When I get the properties diff on final values of this platform between module versions "1" and "2"
     Then the resulting diff matches
       | onlyLeft | onlyRight | common | differing |
@@ -361,7 +361,7 @@ Feature: Get properties diffs
       {{/iterable_property}}
       """
     And another existing module
-    And an existing platform with those modules
+    And an existing platform with these modules
     When I get the properties diff on final values between the currently deployed modules
     Then the resulting diff matches
       | onlyLeft | onlyRight | common            | differing |

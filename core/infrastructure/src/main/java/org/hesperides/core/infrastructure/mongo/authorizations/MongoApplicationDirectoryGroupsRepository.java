@@ -35,7 +35,7 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 @Repository
 public interface MongoApplicationDirectoryGroupsRepository extends MongoRepository<ApplicationDirectoryGroupsDocument, String> {
 
-    @Query(value = "{ 'directoryGroupDNs' : { $in: ?0 } }", fields = "{ 'applicationName' : 1 }")
+    @Query(value = "{ 'directoryGroupDNs': { $in: ?0 } }", fields = "{ 'applicationName': 1 }")
     List<ApplicationDirectoryGroupsDocument> findApplicationsWithDirectoryGroups(List<String> directoryGroups);
 
     Optional<ApplicationDirectoryGroupsDocument> findByApplicationName(String applicationName);

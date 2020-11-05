@@ -10,7 +10,7 @@ Feature: Search technos
 
   Scenario: search for existing technos
     Given a list of 12 technos
-    When I search for some of those technos
+    When I search for some of these technos
     Then the list of techno results is limited to 10 items
 
   Scenario: search for a techno that does not exist
@@ -20,7 +20,7 @@ Feature: Search technos
 
   Scenario: search for a limited number of existing technos
     Given a list of 12 technos
-    When I search for some of those technos, limiting the number of results to 100
+    When I search for some of these technos, limiting the number of results to 100
     Then the list of techno results is limited to 12 items
 
   # Issue 863

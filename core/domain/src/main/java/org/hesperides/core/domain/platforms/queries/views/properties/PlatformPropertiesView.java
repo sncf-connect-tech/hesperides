@@ -25,7 +25,7 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class PlatformProperties {
+public class PlatformPropertiesView {
 
     String applicationName;
     String platformName;
