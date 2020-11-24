@@ -41,12 +41,10 @@ ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
 logging:
   level:
     root: INFO
-
     org:
       axonframework.queryhandling.responsetypes.MultipleInstancesResponseType: WARN
       hesperides:
-        commons:
-          VersionIdLogger: ${VERSION_ID_LOG_LEVEL:INFO}
+        commons.VersionIdLogger: ${VERSION_ID_LOG_LEVEL:INFO}
         core:
           domain:
             templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
@@ -58,15 +56,10 @@ logging:
         # On ne logue pas les nombreux "Ignoring PartialResultException"
         # dus aux champs referrals ignorés, cf. https://docs.spring.io/spring-ldap/docs/2.3.2.RELEASE/reference/#ldaptemplate-configuration
         security.ldap.SpringSecurityLdapTemplate: WARN
-        web:
-          servlet:
-            mvc:
-              method:
-                annotation:
-                  # Setting this to TRACE displays JSON serialization errors wrapped in HttpMessageNotWritableException.
-                  # However it also generates very verbose multilines logs, including full template contents:
-                  # ... .w.s.m.m.a.ServletInvocableHandlerMethod : Arguments: [...TemplateIO(...content=...
-                  ServletInvocableHandlerMethod: ${SERVLET_HANDLER_LOG_LEVEL:INFO}
+        # Setting this to TRACE displays JSON serialization errors wrapped in HttpMessageNotWritableException.
+        # However it also generates very verbose multilines logs, including full template contents:
+        # ... .w.s.m.m.a.ServletInvocableHandlerMethod : Arguments: [...TemplateIO(...content=...
+        web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod: ${SERVLET_HANDLER_LOG_LEVEL:INFO}
 
 mongo:
   uri: ${MONGO_URI:mongodb://localhost:27017/hesperides}

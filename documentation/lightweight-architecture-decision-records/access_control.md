@@ -3,7 +3,7 @@
 Dans le but de permettre un contrôle fin des accès en lecture & écriture aux données,
 nous intégrons dans Hesperides un mécanisme d'[ACLs](https://fr.wikipedia.org/wiki/Access_Control_List).
 
-<!-- Pour mettre à jour ce sommaire: 
+<!-- Pour mettre à jour ce sommaire:
     markdown-toc --indent "    " -i access_control.md
 -->
 

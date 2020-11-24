@@ -19,7 +19,7 @@ stages:
   - name: build
   - name: test
   - name: deploy
-    if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
+    if: (branch = master OR branch =~ ^v[0-9] or env(PUBLISH_BRANCH)) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 jobs:
   include:
     - stage: build
