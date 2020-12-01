@@ -15,6 +15,7 @@ Recherche de propriétés par nom et/ou valeur *sur l'ensemble des applications*
 * Vérification préalable du nombre de résultats à retourner pour potentiellement demander à l'utilisateur d'être plus précis dans sa recherche si ce nombre de résultats est trop grand => *Les tests de performance actuels ne nécessitent pas de faire cette vérification, à voir ce que ça donne à l'avenir*
 * La possibilité de filtrer les résultats par application
 * Indiquer dans le retour de l'API, par propriété : son type (globale / de module / d'instance), ses annotations et s'il s'agit d'une propriété supprimée
+* Permettre d'effectuer la recherche en mode regex, dans ce cas il faudra penser à demander à l'utilisateur de renseigner au moins 3 caractères pour limiter l'impact sur les performances
 
 ## Nouveau endpoint
 
@@ -107,6 +108,8 @@ Voici un exemple de requête testée ayant de bonnes performances :
 
 Requête inspirée de https://stackoverflow.com/a/29072062/2430043
 
+En termes de performances, ce type de requête prend généralement moins d'une seconde à s'exécuter.
+
 Les inconvénients de cette solution :
 * Nécessite la connaissance du framework d'agrégation donc diminue sa maintenabilité
 * Potentiellement coûteux en mémoire car le framework d'agrégation MongoDB crée sa propre vue en mémoire avant d'appliquer le filtre définitif
@@ -128,7 +131,7 @@ Les inconvénients sont :
 * Des performances inférieures à la solution précédente
 * Le filtre sur les propriétés recherchées (par nom et/ou valeur) est appliqué sur la requête qui nous retourne les plateformes contenant ces propriétés, il faut ensuite filtrer en Java les propriétés pour ne retourner que celles qui sont concernées par la recherche
 
-*Suite à des tests grandeur nature, nous considérons que les performances sont acceptables.*
+En termes de performances et à titre d'exemple, une recherche de propriétés ayant le nom "platform" (environ 400 résultats sans autre filtre) prend environ une seconde à s'exécuter de bout en bout.
 
 C'est cette méthode qui, pour l'instant, a été implémentée.
 
