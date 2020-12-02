@@ -240,7 +240,7 @@ public class PropertiesController extends AbstractController {
             @RequestParam(value = "property_value", required = false) String propertyValue) {
 
         if (isBlank(propertyName) && isBlank(propertyValue)) {
-            throw new IllegalArgumentException("Veuillez saisir le nom et/ou la valeur de la propriété à rechercher");
+            throw new IllegalArgumentException("You have to search for a property's name and/or value");
         }
 
         User user = new User(authentication);
