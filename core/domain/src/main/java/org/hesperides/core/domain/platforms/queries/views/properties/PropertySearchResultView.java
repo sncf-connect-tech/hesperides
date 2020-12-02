@@ -3,10 +3,10 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 @Value
 public class PropertySearchResultView {
@@ -18,11 +18,11 @@ public class PropertySearchResultView {
     String propertiesPath;
 
     public PropertySearchResultView hideProductionPasswordOrExcludeIfSearchedByValue(
-            Map<Module.Key, List<String>> passwordsByModule,
+            Map<Module.Key, Set<String>> passwordsByModule,
             boolean isSearchByValue) {
 
         Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
-        List<String> modulePasswords = passwordsByModule.getOrDefault(moduleKey, emptyList());
+        Set<String> modulePasswords = passwordsByModule.getOrDefault(moduleKey, emptySet());
         boolean isProductionPassword = isProductionPlatform && modulePasswords.contains(propertyName);
 
         String filteredPropertyValue = isProductionPassword ? "******" : propertyValue;

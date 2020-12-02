@@ -18,12 +18,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toSet;
 import static org.hesperides.core.infrastructure.mongo.Collections.MODULE;
 
 @Data
@@ -122,14 +120,14 @@ public class ModuleDocument {
     }
 
     public ModulePasswordProperties toModulePasswordProperties() {
-        List<String> passwords = Optional.ofNullable(properties)
+        Set<String> passwords = Optional.ofNullable(properties)
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .filter(PropertyDocument.class::isInstance)
                 .map(PropertyDocument.class::cast)
                 .filter(PropertyDocument::isPassword)
                 .map(PropertyDocument::getName)
-                .collect(Collectors.toList());
+                .collect(toSet());
 
         return new ModulePasswordProperties(getDomainKey(), passwords);
     }

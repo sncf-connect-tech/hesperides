@@ -44,7 +44,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
@@ -450,7 +449,7 @@ public class PropertiesUseCases {
 
         List<PlatformPropertiesView> applicationsProperties = platformQueries.findAllApplicationsProperties();
         List<ModulePasswordProperties> modulesPasswords = moduleQueries.findAllPasswordProperties();
-        Map<Module.Key, List<String>> passwordsByModule = modulesPasswords.stream().collect(toMap(
+        Map<Module.Key, Set<String>> passwordsByModule = modulesPasswords.stream().collect(toMap(
                 ModulePasswordProperties::getModuleKey,
                 ModulePasswordProperties::getPasswords));
 
@@ -462,7 +461,7 @@ public class PropertiesUseCases {
                         applicationProperties.getDeployedModules().stream()
                                 .map(deployedModule -> {
                                     Module.Key moduleKey = Module.Key.fromPropertiesPath(deployedModule.getPropertiesPath());
-                                    List<String> modulePasswords = passwordsByModule.getOrDefault(moduleKey, emptyList());
+                                    Set<String> modulePasswords = passwordsByModule.getOrDefault(moduleKey, emptySet());
                                     return new PlatformPropertiesView.DeployedModule(
                                             deployedModule.getPropertiesPath(),
                                             deployedModule.isArchivedModule(),
@@ -491,7 +490,7 @@ public class PropertiesUseCases {
                     .map(Module.Key::fromPropertiesPath)
                     .collect(toList());
 
-            Map<Module.Key, List<String>> passwordsByModule = moduleQueries.findPasswordPropertiesIn(moduleKeys)
+            Map<Module.Key, Set<String>> passwordsByModule = moduleQueries.findPasswordPropertiesIn(moduleKeys)
                     .stream()
                     .collect(toMap(
                             ModulePasswordProperties::getModuleKey,
