@@ -62,6 +62,8 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{ }", fields = "{ 'key': 1, 'isProductionPlatform': 1, 'deployedModules.id': 1, 'deployedModules.propertiesPath': 1, 'deployedModules.valuedProperties': 1 }")
     List<PlatformDocument> findAllApplicationsPropertiesQuery();
 
+    // La raison pour laquelle il y a 3 requêtes pour la recherche de propriétés est que
+    // je n'ai pas réussi à rendre le nom et la valeur optionnels dans la clause `value`
     String SEARCHED_PROPERTIES_FIELDS = "{" +
             "   'key': 1," +
             "   'isProductionPlatform': 1," +

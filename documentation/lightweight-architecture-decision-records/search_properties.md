@@ -12,10 +12,16 @@ Recherche de propriétés par nom et/ou valeur *sur l'ensemble des applications*
   
  ### Évolutions envisagées
  
-* Vérification préalable du nombre de résultats à retourner pour potentiellement demander à l'utilisateur d'être plus précis dans sa recherche si ce nombre de résultats est trop grand => *Les tests de performance actuels ne nécessitent pas de faire cette vérification, à voir ce que ça donne à l'avenir*
+* Vérification préalable du nombre de résultats à retourner pour potentiellement demander à l'utilisateur d'être plus
+  précis dans sa recherche si ce nombre de résultats est trop grand => *Les tests de performance actuels ne nécessitent
+  pas de faire cette vérification, à voir ce que ça donne à l'avenir*
 * La possibilité de filtrer les résultats par application
-* Indiquer dans le retour de l'API, par propriété : son type (globale / de module / d'instance), ses annotations et s'il s'agit d'une propriété supprimée
-* Permettre d'effectuer la recherche en mode regex, dans ce cas il faudra penser à demander à l'utilisateur de renseigner au moins 3 caractères pour limiter l'impact sur les performances
+* Indiquer dans le retour de l'API, par propriété : son type (globale / de module / d'instance), ses annotations et s'il
+  s'agit d'une propriété supprimée
+* Permettre d'effectuer la recherche en mode partial match ou regex, dans ce cas il faudra penser à demander à
+  l'utilisateur de renseigner au moins 3 caractères pour limiter l'impact sur les performances
+* Lorsqu'un utilisateur n'a pas les droits de prod globaux mais seulement sur certaines applications, afficher les mots
+  de passe de prod en clair pour ces applications
 
 ## Nouveau endpoint
 
