@@ -16,7 +16,7 @@ public class SearchTechnos extends HesperidesScenario implements En {
 
         When("^I search for one specific techno$", () -> technoClient.searchTechnos("test-techno 0.3"));
 
-        When("^I search for some of those technos(?:, limiting the number of results to (\\d+))?$", (Integer resultsCount) -> {
+        When("^I search for some of these technos(?:, limiting the number of results to (\\d+))?$", (Integer resultsCount) -> {
             technoClient.searchTechnos("test-techno", resultsCount == null ? 0 : resultsCount);
         });
 

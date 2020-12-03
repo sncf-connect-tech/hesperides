@@ -169,7 +169,7 @@ Feature: Get detailed properties
     {{ property-b }}
     {{ common-property }}
     """
-    And an existing platform with those modules
+    And an existing platform with these modules
     And the module "A" has these valued properties
       | name            | value    |
       | property-a      | value-a  |

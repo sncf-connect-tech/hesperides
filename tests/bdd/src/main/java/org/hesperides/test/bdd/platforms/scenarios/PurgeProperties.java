@@ -45,7 +45,7 @@ public class PurgeProperties extends HesperidesScenario implements En {
     }
 
     @Then("^the module \"([^\"]+)\" (?:contains only|still contains all) the following properties$")
-    public void theModuleContainsThoseProperties(String moduleName, List<String> expectedNames) {
+    public void theModuleContainsTheseProperties(String moduleName, List<String> expectedNames) {
         PlatformIO selector = platformBuilder.buildInput();
         DeployedModuleBuilder moduleBuilder = platformBuilder.findDeployedModuleBuilder(moduleName);
 

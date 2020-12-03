@@ -15,7 +15,7 @@ Feature: Search modules
 
   Scenario: search for existing modules
     Given a list of 12 modules
-    When I search for some of those modules
+    When I search for some of these modules
     Then the list of module results is limited to 10 items
 
   Scenario: search for a module that does not exist
@@ -48,7 +48,7 @@ Feature: Search modules
 
   Scenario: search for a limited number of existing modules
     Given a list of 12 modules
-    When I search for some of those modules, limiting the number of results to 100
+    When I search for some of these modules, limiting the number of results to 100
     Then the list of module results is limited to 12 items
 
   #issue-595

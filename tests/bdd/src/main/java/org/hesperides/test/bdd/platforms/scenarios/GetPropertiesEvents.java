@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hesperides.test.bdd.commons.DataTableHelper.decodeValue;
 
 public class GetPropertiesEvents extends HesperidesScenario implements En {
@@ -42,15 +44,15 @@ public class GetPropertiesEvents extends HesperidesScenario implements En {
             switch (changeNature) {
                 case "added":
                     List<ValuedPropertyOutput> expectedAddedProperties = dataTable.asList(ValuedPropertyOutput.class);
-                    assertEqualsInAnyOrder(expectedAddedProperties, propertiesEvent.getAddedProperties());
+                    assertThat(propertiesEvent.getAddedProperties(), containsInAnyOrder(expectedAddedProperties.toArray()));
                     break;
                 case "updated":
                     List<UpdatedPropertyOutput> expectedUpdatedProperties = dataTable.asList(UpdatedPropertyOutput.class);
-                    assertEqualsInAnyOrder(expectedUpdatedProperties, propertiesEvent.getUpdatedProperties());
+                    assertThat(propertiesEvent.getUpdatedProperties(), containsInAnyOrder(expectedUpdatedProperties.toArray()));
                     break;
                 case "removed":
                     List<ValuedPropertyOutput> expectedRemovedProperties = dataTable.asList(ValuedPropertyOutput.class);
-                    assertEqualsInAnyOrder(expectedRemovedProperties, propertiesEvent.getRemovedProperties());
+                    assertThat(propertiesEvent.getRemovedProperties(), containsInAnyOrder(expectedRemovedProperties.toArray()));
                     break;
                 default:
                     throw new RuntimeException("Wrong type of properties change nature: ${changeNature}");

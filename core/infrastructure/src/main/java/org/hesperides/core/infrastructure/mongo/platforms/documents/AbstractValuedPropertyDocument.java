@@ -21,18 +21,17 @@
 package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Data
 public abstract class AbstractValuedPropertyDocument {
@@ -46,7 +45,7 @@ public abstract class AbstractValuedPropertyDocument {
                 .map(abstractValuedProperty -> abstractValuedProperty instanceof ValuedProperty
                         ? new ValuedPropertyDocument((ValuedProperty) abstractValuedProperty)
                         : new IterableValuedPropertyDocument((IterableValuedProperty) abstractValuedProperty)
-                ).collect(Collectors.toList());
+                ).collect(toList());
     }
 
     static List<AbstractValuedProperty> toAbstractDomainInstances(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments) {
@@ -54,7 +53,7 @@ public abstract class AbstractValuedPropertyDocument {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractValuedPropertyDocument::toDomainInstance)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public static List<AbstractValuedPropertyView> toViews(final List<AbstractValuedPropertyDocument> properties) {
@@ -62,7 +61,7 @@ public abstract class AbstractValuedPropertyDocument {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractValuedPropertyDocument::toView)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     /**
@@ -73,21 +72,14 @@ public abstract class AbstractValuedPropertyDocument {
      */
     public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
                                                                                              List<AbstractPropertyDocument> abstractModelProperties) {
-        // `Collectors.toSet()` est important car il permet d'éviter les doublons
+        // `.distinct()` est important car il permet d'éviter les doublons
         // créés par la méthode `completeWithMustacheContent`
-        return new ArrayList<>(abstractValuedProperties
+        return abstractValuedProperties
                 .stream()
                 .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContent(abstractModelProperties))
                 .flatMap(List::stream)
-                .collect(Collectors.toSet()));
-    }
-
-    private static boolean propertyHasValue(String propertyName, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
-        return abstractValuedProperties.stream()
-                .filter(ValuedPropertyDocument.class::isInstance)
-                .map(ValuedPropertyDocument.class::cast)
-                .anyMatch(valuedProperty -> valuedProperty.getName().equals(propertyName) &&
-                        StringUtils.isNotEmpty(valuedProperty.getValue()));
+                .distinct()
+                .collect(toList());
     }
 
     protected abstract AbstractValuedProperty toDomainInstance();

@@ -46,3 +46,4 @@ data class ApplicationExistsQuery(val applicationName: String)
 class GetAllApplicationsDetailQuery
 data class IsProductionPlatformQuery(val platformId: String)
 class FindAllApplicationsPropertiesQuery
+data class SearchPropertiesQuery(val propertyName: String?, val propertyValue: String?)

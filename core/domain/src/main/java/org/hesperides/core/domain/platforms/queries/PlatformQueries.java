@@ -28,7 +28,8 @@ import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformPropertiesView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertySearchResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.springframework.stereotype.Component;
 
@@ -121,7 +122,13 @@ public class PlatformQueries extends AxonQueries {
         return querySync(new IsProductionPlatformQuery(platformId), Boolean.class);
     }
 
-    public List<PlatformProperties> findAllApplicationsProperties() {
-        return querySyncList(new FindAllApplicationsPropertiesQuery(), PlatformProperties.class);
+    public List<PlatformPropertiesView> findAllApplicationsProperties() {
+        return querySyncList(new FindAllApplicationsPropertiesQuery(), PlatformPropertiesView.class);
+    }
+
+    public List<PropertySearchResultView> searchProperties(String propertyName,
+                                                           String propertyValue) {
+        return querySyncList(new SearchPropertiesQuery(propertyName, propertyValue),
+                PropertySearchResultView.class);
     }
 }

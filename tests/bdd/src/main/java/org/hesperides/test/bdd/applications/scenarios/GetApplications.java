@@ -20,7 +20,6 @@
  */
 package org.hesperides.test.bdd.applications.scenarios;
 
-import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java8.En;
 import org.assertj.core.api.Assertions;
@@ -131,7 +130,7 @@ public class GetApplications extends HesperidesScenario implements En {
     }
 
     @Then("^the application details contains the directory groups")
-    public void theAppDetailsContainsThoseDirectoryGroups(List<String> directoryGroupCNs) {
+    public void theAppDetailsContainsTheseDirectoryGroups(List<String> directoryGroupCNs) {
         assertDirectoryGroups(directoryGroupCNs);
     }
 

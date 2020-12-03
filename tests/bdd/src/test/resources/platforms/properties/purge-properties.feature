@@ -14,13 +14,13 @@ Feature: Get rid of unneeded values
       """
       {{ c_property }}
       """
-    And an existing platform with those modules
+    And an existing platform with these modules
     And the module "loh" has these valued properties
-      | name       | value        |
-      | a_property | a-value      |
-      | awwwww     | right        |
-      | b_property | other-value  |
-      | c_property | misplaced    |
+      | name       | value       |
+      | a_property | a-value     |
+      | awwwww     | right       |
+      | b_property | other-value |
+      | c_property | misplaced   |
     And the module "behold" has these valued properties
       | name       | value        |
       | c_property | something    |
@@ -43,12 +43,12 @@ Feature: Get rid of unneeded values
       """
       {{ c_property }}
       """
-    And an existing platform with those modules
+    And an existing platform with these modules
     And the module "shall_pass" has these valued properties
-      | name       | value        |
-      | a_property | a-value      |
-      | b_property | other-value  |
-      | c_property | misplaced    |
+      | name       | value       |
+      | a_property | a-value     |
+      | b_property | other-value |
+      | c_property | misplaced   |
     And the module "Istari" has these valued properties
       | name       | value        |
       | c_property | something    |

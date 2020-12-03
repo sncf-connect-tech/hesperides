@@ -71,12 +71,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private UserAuthorities userAuthorities;
 
-    private List<CompletableFuture<ResponseEntity>> concurrentCreations;
+    private List<CompletableFuture<ResponseEntity<?>>> concurrentCreations;
 
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
+            "(?: in application \"([^\"]*)\")?" +
             "(?: with version \"([^\"]*)\")?" +
-            "( (?:and|with) (?:this|those) modules?)?" +
+            "( (?:and|with) (?:this|these) modules?)?" +
             "(?: in logical group \"([^\"]*)\")?" +
             // Note: il y a actuellement un risque d'employer la formulation incorrecte « in logical group "XXX"" named "YYY" »
             // Il faudrait empêcher ça mais Cucumber 3 limite la possibilité d'imbriquer des groupes entre parenthèses en regex
@@ -91,8 +92,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public void givenAnExistingPlatform(
             String prodPlatform,
             String platformName,
+            String applicationName,
             String platformVersion,
-            String withThoseModule,
+            String withTheseModules,
             String moduleLogicalGroup,
             String withAnInstance,
             String instanceName,
@@ -113,6 +115,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(platformName)) {
             platformBuilder.withPlatformName(platformName);
+        }
+
+        if (isNotEmpty(applicationName)) {
+            platformBuilder.withApplicationName(applicationName);
         }
 
         if (isNotEmpty(platformVersion)) {
@@ -136,7 +142,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
         }
 
-        if (isNotEmpty(withThoseModule)) {
+        if (isNotEmpty(withTheseModules)) {
             moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
                 deployedModuleBuilder.fromModuleBuilder(moduleBuilder);
                 if (isNotEmpty(moduleLogicalGroup)) {

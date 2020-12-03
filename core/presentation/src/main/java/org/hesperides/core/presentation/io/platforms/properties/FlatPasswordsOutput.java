@@ -1,7 +1,7 @@
 package org.hesperides.core.presentation.io.platforms.properties;
 
 import lombok.Value;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformPropertiesView;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class FlatPasswordsOutput {
     String propertiesPath;
     boolean isArchivedModule;
 
-    public static List<FlatPasswordsOutput> fromDomainInstances(List<PlatformProperties> applicationsPasswords) {
+    public static List<FlatPasswordsOutput> fromViews(List<PlatformPropertiesView> applicationsPasswords) {
         return applicationsPasswords.stream()
                 .flatMap(platform -> platform.getDeployedModules().stream()
                         .flatMap(deployedModule -> deployedModule.getProperties().stream()

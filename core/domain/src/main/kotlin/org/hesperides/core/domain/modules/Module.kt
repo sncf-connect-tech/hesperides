@@ -34,4 +34,5 @@ data class GetModulesPropertiesQuery(val modulesKeys: List<TemplateContainer.Key
 data class GetModulesUsingTechnoQuery(val technoId: String)
 data class GetModulesWithinQuery(val modulesKeys: List<Module.Key>)
 data class GetModulesWithPasswordWithinQuery(val modulesKeys: List<Module.Key>)
-class FindAllPasswordProperties
+class FindAllPasswordPropertiesQuery
+data class FindPasswordPropertiesInQuery(val modulesKeys: List<Module.Key>)

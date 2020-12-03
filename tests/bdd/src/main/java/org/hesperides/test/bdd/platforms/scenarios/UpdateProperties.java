@@ -54,7 +54,7 @@ public class UpdateProperties extends HesperidesScenario implements En {
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
-        When("^I update the properties of those modules one after the other using the same platform version_id$", () -> {
+        When("^I update the properties of these modules one after the other using the same platform version_id$", () -> {
             Long firstPlatformVersionId = platformBuilder.getVersionId();
 
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
@@ -101,7 +101,7 @@ public class UpdateProperties extends HesperidesScenario implements En {
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
-        Then("^the properties are successfully updated for those modules$", () ->
+        Then("^the properties are successfully updated for these modules$", () ->
                 platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties));
 
         Then("^the platform version_id is also updated$", () -> {

@@ -242,8 +242,18 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     @Timed
-    public List<ModulePasswordProperties> onFindAllPasswordProperties(FindAllPasswordProperties query) {
+    public List<ModulePasswordProperties> onFindAllPasswordProperties(FindAllPasswordPropertiesQuery query) {
         return moduleRepository.findAllPasswordProperties().stream()
+                .map(ModuleDocument::toModulePasswordProperties)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    @Timed
+    public List<ModulePasswordProperties> onFindPasswordPropertiesInQuery(FindPasswordPropertiesInQuery query) {
+        List<KeyDocument> moduleKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
+        return moduleRepository.findPasswordPropertiesIn(moduleKeys).stream()
                 .map(ModuleDocument::toModulePasswordProperties)
                 .collect(Collectors.toList());
     }

@@ -24,17 +24,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
+import org.hesperides.core.domain.platforms.queries.views.properties.PlatformPropertiesView;
+import org.hesperides.core.domain.platforms.queries.views.properties.PropertySearchResultView;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
 
 
@@ -106,7 +108,7 @@ public class PlatformDocument {
                 platformDocuments
                         .stream()
                         .map(PlatformDocument::toPlatformView)
-                        .collect(Collectors.toList())
+                        .collect(toList())
         );
     }
 
@@ -115,7 +117,7 @@ public class PlatformDocument {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(deployedModule -> deployedModule.buildInstancesModel(globalProperties))
-                .collect(Collectors.toList());
+                .collect(toList());
         platformRepository.save(this);
     }
 
@@ -179,7 +181,7 @@ public class PlatformDocument {
         List<DeployedModuleDocument> remainingDeployedModules = deployedModules.stream()
                 .filter(existingModule -> existingModule.hasBeenRemovedFrom(newDeployedModules))
                 .peek(existingModule -> existingModule.setId(0L))
-                .collect(Collectors.toList());
+                .collect(toList());
         Map<String, List<DeployedModuleDocument>> inactiveDeployedModulesPerModulePathAndName = remainingDeployedModules.stream()
                 .filter(deployedModule -> deployedModule.getId() == 0)
                 .collect(groupingBy(deployedModule -> deployedModule.getModulePath() + "#" + deployedModule.getName()));
@@ -207,22 +209,43 @@ public class PlatformDocument {
         return deployedModules.stream().filter(existingModule -> providedModulePath.equals(existingModule.getPropertiesPath())).findFirst();
     }
 
-    public PlatformProperties toApplicationProperties() {
-        List<PlatformProperties.DeployedModule> deployedModules = this.deployedModules.stream()
+    public PlatformPropertiesView toPlatformPropertiesView() {
+        List<PlatformPropertiesView.DeployedModule> deployedModules = this.deployedModules.stream()
                 .map(deployedModule -> {
-                    List<PlatformProperties.Property> properties = deployedModule.getValuedProperties().stream()
+                    List<PlatformPropertiesView.Property> properties = deployedModule.getValuedProperties().stream()
                             .filter(ValuedPropertyDocument.class::isInstance)
                             .map(ValuedPropertyDocument.class::cast)
-                            .map(valuedProperty -> new PlatformProperties.Property(valuedProperty.getName(), valuedProperty.getValue()))
-                            .collect(Collectors.toList());
+                            .map(valuedProperty -> new PlatformPropertiesView.Property(valuedProperty.getName(), valuedProperty.getValue()))
+                            .collect(toList());
 
-                    return new PlatformProperties.DeployedModule(
+                    return new PlatformPropertiesView.DeployedModule(
                             deployedModule.getPropertiesPath(),
                             deployedModule.getId() == 0,
                             properties);
 
-                }).collect(Collectors.toList());
+                }).collect(toList());
 
-        return new PlatformProperties(key.getApplicationName(), key.getPlatformName(), isProductionPlatform, deployedModules);
+        return new PlatformPropertiesView(key.getApplicationName(), key.getPlatformName(), isProductionPlatform, deployedModules);
+    }
+
+    public List<PropertySearchResultView> filterToPropertySearchResultViews(String propertyName, String propertyValue) {
+        return deployedModules.stream()
+                .filter(deployedModule -> deployedModule.getId() != null && deployedModule.getId() > 0)
+                .map(deployedModule -> deployedModule.getValuedProperties()
+                        .stream()
+                        .filter(ValuedPropertyDocument.class::isInstance)
+                        .map(ValuedPropertyDocument.class::cast)
+                        .filter(property ->
+                                (isEmpty(propertyName) || property.getName().equals(propertyName)) &&
+                                        (isEmpty(propertyValue) || property.getValue().equals(propertyValue))
+                        ).map(property -> new PropertySearchResultView(
+                                property.getName(),
+                                property.getValue(),
+                                getKey().getApplicationName(),
+                                getKey().getPlatformName(),
+                                isProductionPlatform(),
+                                deployedModule.getPropertiesPath())))
+                .flatMap(Stream::distinct)
+                .collect(toList());
     }
 }

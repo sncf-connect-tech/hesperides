@@ -81,6 +81,10 @@ public class ModuleQueries extends AxonQueries {
     }
 
     public List<ModulePasswordProperties> findAllPasswordProperties() {
-        return querySyncList(new FindAllPasswordProperties(), ModulePasswordProperties.class);
+        return querySyncList(new FindAllPasswordPropertiesQuery(), ModulePasswordProperties.class);
+    }
+
+    public List<ModulePasswordProperties> findPasswordPropertiesIn(List<Module.Key> moduleKeys) {
+        return querySyncList(new FindPasswordPropertiesInQuery(moduleKeys), ModulePasswordProperties.class);
     }
 }

@@ -150,15 +150,6 @@ public class SaveProperties extends HesperidesScenario implements En {
             saveValuedProperties(tryTo, deployedModuleBuilder);
         });
 
-        Then("^the( global)? properties are successfully (?:sav|updat)ed$", (String globalProperties) -> {
-            assertOK();
-            if (isNotEmpty(globalProperties)) {
-                assertGlobalProperties();
-            } else {
-                assertValuedProperties();
-            }
-        });
-
         When("^I try to save a property declared twice with the same name but different values$", () -> {
             deployedModuleBuilder.withValuedProperty("property-a", "foo");
             deployedModuleBuilder.withValuedProperty("property-a", "bar");
@@ -169,6 +160,15 @@ public class SaveProperties extends HesperidesScenario implements En {
             deployedModuleBuilder.withValuedProperty("property-a", "foo");
             deployedModuleBuilder.withValuedProperty("property-a ", "bar");
             saveValuedProperties("should-fail", deployedModuleBuilder);
+        });
+
+        Then("^the( global)? properties are successfully (?:sav|updat)ed$", (String globalProperties) -> {
+            assertOK();
+            if (isNotEmpty(globalProperties)) {
+                assertGlobalProperties();
+            } else {
+                assertValuedProperties();
+            }
         });
     }
 

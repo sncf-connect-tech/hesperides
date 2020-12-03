@@ -11,10 +11,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.queries.views.PropertiesEventView;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
-import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformDetailedPropertiesView;
-import org.hesperides.core.domain.platforms.queries.views.properties.PlatformProperties;
+import org.hesperides.core.domain.platforms.queries.views.properties.*;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PropertiesEventOutput;
@@ -32,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff.ComparisonMode;
 
 @Slf4j
@@ -224,13 +222,32 @@ public class PropertiesController extends AbstractController {
                                                 @RequestParam(value = "flat", required = false) Boolean flat) {
 
         User user = new User(authentication);
-        List<PlatformProperties> platformsPasswords = propertiesUseCases.findAllApplicationsPasswords(user);
+        List<PlatformPropertiesView> platformsPasswords = propertiesUseCases.findAllApplicationsPasswords(user);
         List<?> passwords;
         if (Boolean.TRUE.equals(flat)) {
-            passwords = FlatPasswordsOutput.fromDomainInstances(platformsPasswords);
+            passwords = FlatPasswordsOutput.fromViews(platformsPasswords);
         } else {
-            passwords = PlatformPasswordsOutput.fromDomainInstances(platformsPasswords);
+            passwords = PlatformPasswordsOutput.fromViews(platformsPasswords);
         }
         return ResponseEntity.ok(passwords);
+    }
+
+    @ApiOperation("Search properties by exact name and/or exact value")
+    @GetMapping("/search_properties")
+    public ResponseEntity<List<PropertySearchResultOutput>> searchProperties(
+            Authentication authentication,
+            @RequestParam(value = "property_name", required = false) String propertyName,
+            @RequestParam(value = "property_value", required = false) String propertyValue) {
+
+        if (isBlank(propertyName) && isBlank(propertyValue)) {
+            throw new IllegalArgumentException("You have to search for a property's name and/or value");
+        }
+
+        User user = new User(authentication);
+        List<PropertySearchResultView> propertyViews = propertiesUseCases.searchProperties(
+                propertyName, propertyValue, user);
+        List<PropertySearchResultOutput> propertyOutputs = PropertySearchResultOutput.fromViews(propertyViews);
+
+        return ResponseEntity.ok(propertyOutputs);
     }
 }
