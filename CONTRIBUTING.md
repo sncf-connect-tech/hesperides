@@ -87,9 +87,20 @@ Vous pouvez consulter la documentation sur cette [page](documentation/postman/po
 Chaque feature/bugfix doit être testé automatiquement. Cela peut être un test fonctionnel et/ou un test unitaire.
 L'idéal est de créer un ou plusieurs tests avant d'implémenter une fonctionnalité ou de corriger un bug.
 
-Nous utilisons le framework Cucumber pour les tests fonctionnels et privilégions les tests de fonctionnalités *end-to-end*.
-Nous utilisons les tests unitaires lorsque cela nous semble pertinent. Pour plus de context, _cf._ [LADR - Stratégie de tests](documentation/lightweight-architecture-decision-records/tests-strategy.md)
+Nous utilisons le framework Cucumber pour les tests fonctionnels et privilégions les tests de fonctionnalités *
+end-to-end*. Nous utilisons les tests unitaires lorsque cela nous semble pertinent. Pour plus de context, _
+cf._ [LADR - Stratégie de tests](documentation/lightweight-architecture-decision-records/tests-strategy.md)
 
 Pour exécuter tous les tests unitaires:
 
     mvn test
+
+## Publier une branche spécifique
+
+Pour publier une branche spécifique sur Docker Hub, il suffit de lancer le workflow `Build, test and publish`
+directement
+via [l'interface GitHub Actions](https://github.com/voyages-sncf-technologies/hesperides/actions?query=workflow%3A%22Build%2C+test+and+publish%22) >
+Run workflow et de sélectionner la branche en question.
+
+Si toutes les étapes sont passantes, le CI détecte le mode `workflow_dispatch` et nous avons fait en sorte que cela
+publie l'image Docker sur le Docker Hub lors de la dernière étape.
