@@ -15,5 +15,3 @@ docker build -t $DOCKER_IMAGE:$GITHUB_SHA \
 
 # We validate that the image built can start without any error:
 docker run --rm -e SPRING_PROFILES_ACTIVE=noldap,fake_mongo -e EXIT_AFTER_INIT=true $DOCKER_IMAGE:$GITHUB_SHA
-mkdir -p $UPLOAD_PATH
-docker save $DOCKER_IMAGE:$GITHUB_SHA >$UPLOAD_PATH/$IMAGE_TARBALL_FILENAME
