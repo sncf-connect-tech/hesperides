@@ -7,7 +7,7 @@ Feature: Search properties
     When I try to search for properties without a name or a value
     Then the request is rejected with a bad request error
 
-  Scenario: search a property by name and/or value
+  Scenario: search a property by exact name and/or value
     Given an existing module
     And an existing platform with this module
     And the platform has these valued properties
@@ -15,10 +15,10 @@ Feature: Search properties
       | simple-property         | simple-value |
       | another-property        | simple-value |
       | another-simple-property | other-value  |
-    When I search for properties by name "simple-property"
+    When I search for properties by name "another-property"
     Then the list of properties found is
-      | propertyName    | propertyValue |
-      | simple-property | simple-value  |
+      | propertyName     | propertyValue |
+      | another-property | simple-value  |
     When I search for properties by value "simple-value"
     Then the list of properties found is
       | propertyName     | propertyValue |
@@ -142,3 +142,62 @@ Feature: Search properties
       | propertyName | propertyValue | applicationName |
       | property     | value         | A               |
       | property     | value         | B               |
+
+  #issue-872
+  Scenario: trying to search properties with less than 3 characters should fail
+    When I try to search for properties by name "ab"
+    Then the request is rejected with a bad request error
+    When I try to search for properties by value "ab"
+    Then the request is rejected with a bad request error
+    When I try to search for properties by name "ab" and value "de"
+    Then the request is rejected with a bad request error
+    When I try to search for properties by name "abc" and value "de"
+    Then the request is successful
+    When I try to search for properties by name "ab" and value "cde"
+    Then the request is successful
+
+  #issue-872
+  Scenario: search a property by partial name and/or value
+    Given an existing module
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name                    | value        |
+      | simple-property         | simple-value |
+      | another-property        | simple-value |
+      | another-simple-property | other-value  |
+    When I search for properties by name "simple-"
+    Then the list of properties found is
+      | propertyName            | propertyValue |
+      | simple-property         | simple-value  |
+      | another-simple-property | other-value   |
+    When I search for properties by value "simple-"
+    Then the list of properties found is
+      | propertyName     | propertyValue |
+      | simple-property  | simple-value  |
+      | another-property | simple-value  |
+    When I search for properties by name "simple-" and value "simple-"
+    Then the list of properties found is
+      | propertyName    | propertyValue |
+      | simple-property | simple-value  |
+
+  #issue-872
+  Scenario: search a property using a regular expression
+    Given an existing module
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name                    | value          |
+      | simple-property         | some-value     |
+      | another-simple-property | something-else |
+    When I search for properties by name "simpl.*y"
+    Then the list of properties found is
+      | propertyName            | propertyValue  |
+      | simple-property         | some-value     |
+      | another-simple-property | something-else |
+    When I search for properties by name "^simple-"
+    Then the list of properties found is
+      | propertyName    | propertyValue |
+      | simple-property | some-value    |
+    When I search for properties by value "ue$"
+    Then the list of properties found is
+      | propertyName    | propertyValue |
+      | simple-property | some-value    |
