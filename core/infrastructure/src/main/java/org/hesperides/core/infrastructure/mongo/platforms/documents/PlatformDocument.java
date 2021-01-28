@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
 
 
@@ -235,10 +234,8 @@ public class PlatformDocument {
                         .stream()
                         .filter(ValuedPropertyDocument.class::isInstance)
                         .map(ValuedPropertyDocument.class::cast)
-                        .filter(property ->
-                                (isEmpty(propertyName) || property.getName().equals(propertyName)) &&
-                                        (isEmpty(propertyValue) || property.getValue().equals(propertyValue))
-                        ).map(property -> new PropertySearchResultView(
+                        .filter(property -> property.getName().contains(propertyName) && property.getValue().contains(propertyValue))
+                        .map(property -> new PropertySearchResultView(
                                 property.getName(),
                                 property.getValue(),
                                 getKey().getApplicationName(),

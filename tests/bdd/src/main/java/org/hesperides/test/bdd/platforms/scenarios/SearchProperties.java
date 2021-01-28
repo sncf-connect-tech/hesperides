@@ -45,11 +45,12 @@ public class SearchProperties extends HesperidesScenario implements En {
 
     public SearchProperties() {
 
-        When("^I search for properties" +
+        When("^I( try to)? search for properties" +
                 "(?: by name \"([^\"]+)\")?" +
-                "(?: (?:by|and)? value \"([^\"]+)\")?$", (String propertyName,
+                "(?: (?:by|and)? value \"([^\"]+)\")?$", (String tryTo,
+                                                          String propertyName,
                                                           String propertyValue) -> {
-            platformClient.searchProperties(propertyName, propertyValue);
+            platformClient.searchProperties(propertyName, propertyValue, tryTo);
         });
 
         When("I try to search for properties without a name or a value", () -> {

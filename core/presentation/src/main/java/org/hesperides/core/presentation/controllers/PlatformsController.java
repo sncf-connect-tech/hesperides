@@ -88,8 +88,8 @@ public class PlatformsController extends AbstractController {
     @GetMapping("/{application_name}/platforms/{platform_name:.+}")
     public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
                                                   @PathVariable("platform_name") final String platformName,
-                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
-                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp,
+                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date : new Date('2019-01-01 12:00:00').getTime()")
+                                                      @RequestParam(value = "timestamp", required = false) final Long timestamp,
                                                   @RequestParam(value = "with_password_info", required = false) final Boolean withPasswordFlag) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
