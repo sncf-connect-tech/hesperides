@@ -20,8 +20,6 @@ LADR frontend: [Recherches de propriétés](https://github.com/voyages-sncf-tech
 * La possibilité de filtrer les résultats par application
 * Indiquer dans le retour de l'API, par propriété : son type (globale / de module / d'instance), ses annotations et s'il
   s'agit d'une propriété supprimée
-* Permettre d'effectuer la recherche en mode partial match ou regex, dans ce cas il faudra penser à demander à
-  l'utilisateur de renseigner au moins 3 caractères pour limiter l'impact sur les performances
 * Lorsqu'un utilisateur n'a pas les droits de prod globaux mais seulement sur certaines applications, afficher les mots
   de passe de prod en clair pour ces applications
 
@@ -125,7 +123,6 @@ Les inconvénients de cette solution :
 
 Si cette solution est choisie, il reste plusieurs choses à faire :
 * Reproduire cette requête en Spring Data Mongo => https://stackoverflow.com/a/55117298/2430043
-* Mettre en place un index sur `name` et `value` => `@Indexed(background = true)`
 
 Si par la suite il faut pouvoir filtrer par expression régulière, il faudra alors passer à la version 4.2 de MongoDB : https://docs.mongodb.com/manual/reference/operator/aggregation/regexMatch/
 
@@ -136,16 +133,28 @@ L'idée est de ne récupérer que les documents contenant des propriétés reche
 Cette solution est envisagée pour sa facilité de mise en œuvre et donc sa maintenabilité.
 
 Les inconvénients sont :
-* Des performances inférieures à la solution précédente
-* Le filtre sur les propriétés recherchées (par nom et/ou valeur) est appliqué sur la requête qui nous retourne les plateformes contenant ces propriétés, il faut ensuite filtrer en Java les propriétés pour ne retourner que celles qui sont concernées par la recherche
 
-En termes de performances et à titre d'exemple, une recherche de propriétés ayant le nom "platform" (environ 400 résultats sans autre filtre) prend environ une seconde à s'exécuter de bout en bout.
+* Des performances inférieures à la solution précédente
+* Le filtre sur les propriétés recherchées (par nom et/ou valeur) est appliqué sur la requête qui nous retourne les
+  plateformes contenant ces propriétés, il faut ensuite filtrer en Java les propriétés pour ne retourner que celles qui
+  sont concernées par la recherche
+
+En termes de performances et à titre d'exemple, une recherche de propriétés ayant le nom "platform" (environ 400
+résultats sans autre filtre) prend environ une seconde à s'exécuter de bout en bout.
 
 C'est cette méthode qui, pour l'instant, a été implémentée.
 
+#### Modification du 03/02/2021
+
+Mise en place de la recherche par nom et/ou valeur partielle.
+La requête MongoDB utilise désormais la méthode `$regex`
+et le filtre Java la méthode `find()` de `java.util.regex.Matcher`.
+
 ### Créer une vue à l'aide des évènements de l'application
 
-L'EventSourcing permet typiquement de créer une collection ne contenant que les données dont on a besoin pour effectuer une recherche de propriétés :
+L'EventSourcing permet typiquement de créer une collection ne contenant que les données dont on a besoin pour effectuer
+une recherche de propriétés :
+
 * Application
 * Plateforme
 * Module déployé (properties path)

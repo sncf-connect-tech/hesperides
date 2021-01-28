@@ -60,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Building Docker image
-        run: .github/workflows/docker_build.sh "${{ github.event.head_commit.message }}"
+        run: .github/workflows/docker_build.sh "${{ github.event.commits[0].message }}"
       - run: mkdir -p $UPLOAD_PATH
       - run: docker save $DOCKER_IMAGE:$GITHUB_SHA >$UPLOAD_PATH/$IMAGE_TARBALL_FILENAME
       - uses: actions/upload-artifact@v2

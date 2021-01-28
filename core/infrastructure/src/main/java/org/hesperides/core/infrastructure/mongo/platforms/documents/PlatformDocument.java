@@ -32,6 +32,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -229,16 +230,17 @@ public class PlatformDocument {
     }
 
     public List<PropertySearchResultView> filterToPropertySearchResultViews(String propertyName, String propertyValue) {
+        final Pattern propertyNamePattern = isEmpty(propertyName) ? null : Pattern.compile(".*" + propertyName + ".*");
+        final Pattern propertyValuePattern = isEmpty(propertyValue) ? null : Pattern.compile(".*" + propertyValue + ".*");
         return deployedModules.stream()
                 .filter(deployedModule -> deployedModule.getId() != null && deployedModule.getId() > 0)
                 .map(deployedModule -> deployedModule.getValuedProperties()
                         .stream()
                         .filter(ValuedPropertyDocument.class::isInstance)
                         .map(ValuedPropertyDocument.class::cast)
-                        .filter(property ->
-                                (isEmpty(propertyName) || property.getName().equals(propertyName)) &&
-                                        (isEmpty(propertyValue) || property.getValue().equals(propertyValue))
-                        ).map(property -> new PropertySearchResultView(
+                        .filter(property -> (propertyNamePattern == null || propertyNamePattern.matcher(property.getName()).find()) &&
+                                (propertyValuePattern == null || propertyValuePattern.matcher(property.getValue()).find()))
+                        .map(property -> new PropertySearchResultView(
                                 property.getName(),
                                 property.getValue(),
                                 getKey().getApplicationName(),

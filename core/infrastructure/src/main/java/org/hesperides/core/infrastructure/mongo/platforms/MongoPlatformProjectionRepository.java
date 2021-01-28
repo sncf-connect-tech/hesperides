@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
@@ -452,15 +451,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     @Timed
     public List<PropertySearchResultView> onSearchPropertiesQuery(SearchPropertiesQuery query) {
-        List<PlatformDocument> platformDocuments;
-
-        if (isEmpty(query.getPropertyValue())) {
-            platformDocuments = platformRepository.findPlatformsByPropertiesName(query.getPropertyName());
-        } else if (isEmpty(query.getPropertyName())) {
-            platformDocuments = platformRepository.findPlatformsByPropertiesValue(query.getPropertyValue());
-        } else {
-            platformDocuments = platformRepository.findPlatformsByPropertiesNameAndValue(query.getPropertyName(), query.getPropertyValue());
-        }
+        List<PlatformDocument> platformDocuments = platformRepository
+                .findPlatformsByPropertiesNameAndValue(query.getPropertyName(), query.getPropertyValue());
 
         return platformDocuments.stream()
                 .map(platformDocument -> platformDocument.filterToPropertySearchResultViews(

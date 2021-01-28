@@ -53,7 +53,7 @@ public class PropertiesController extends AbstractController {
                                                             @PathVariable("application_name") final String applicationName,
                                                             @PathVariable("platform_name") final String platformName,
                                                             @RequestParam("path") final String propertiesPath,
-                                                            @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
+                                                            @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date : new Date('2019-01-01 12:00:00').getTime()")
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         User authenticatedUser = new User(authentication);
@@ -136,9 +136,9 @@ public class PropertiesController extends AbstractController {
                                                                   @RequestParam("to_path") String toPropertiesPath,
                                                                   @RequestParam(value = "to_instance_name", required = false, defaultValue = "") String toInstanceName,
                                                                   @RequestParam(value = "compare_stored_values", required = false) boolean compareStoredValues,
-                                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Correspond au champ \"left\" de la sortie JSON. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
+                                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Correspond au champ \"left\" de la sortie JSON. Pour le générer via Javascript à partir d'une date : new Date('2019-01-01 12:00:00').getTime()")
                                                                   @RequestParam(value = "timestamp", required = false) Long timestamp,
-                                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Correspond au champ \"right\" de la sortie JSON. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
+                                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Correspond au champ \"right\" de la sortie JSON. Pour le générer via Javascript à partir d'une date : new Date('2019-01-01 12:00:00').getTime()")
                                                                   @RequestParam(value = "origin_timestamp", required = false) Long originTimestamp) {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
@@ -239,8 +239,18 @@ public class PropertiesController extends AbstractController {
             @RequestParam(value = "property_name", required = false) String propertyName,
             @RequestParam(value = "property_value", required = false) String propertyValue) {
 
+        propertyName = StringUtils.defaultString(propertyName, "");
+        propertyValue = StringUtils.defaultString(propertyValue, "");
+
         if (isBlank(propertyName) && isBlank(propertyValue)) {
-            throw new IllegalArgumentException("You have to search for a property's name and/or value");
+            throw new IllegalArgumentException("Please type in a name and/or a value");
+        }
+
+        int searchInputMinimumCharactersCount = 3;
+        // La règle est d'avoir au moins un des deux champs avec au moins trois caractères
+        if (propertyName.length() < searchInputMinimumCharactersCount && propertyValue.length() < searchInputMinimumCharactersCount) {
+            throw new IllegalArgumentException("You have to search for a property's name and/or value with at least " +
+                    searchInputMinimumCharactersCount + " characters");
         }
 
         User user = new User(authentication);
