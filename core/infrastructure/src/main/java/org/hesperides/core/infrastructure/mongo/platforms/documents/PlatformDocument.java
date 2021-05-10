@@ -28,6 +28,8 @@ import org.hesperides.core.domain.platforms.queries.views.properties.PlatformPro
 import org.hesperides.core.domain.platforms.queries.views.properties.PropertySearchResultView;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
@@ -42,6 +44,32 @@ import static org.hesperides.core.infrastructure.mongo.Collections.PLATFORM;
 @Data
 @Document(collection = PLATFORM)
 @NoArgsConstructor
+// Les index sont créés ici pour 3 raisons :
+// 1. Si on utilisait l'annotation @Indexed directement sur les champs `name` et `value`, cela
+//    créerait un index pour chaque utilisation de `ValuedPropertyDocument`, c'est-à-dire les
+//    propriétés globales et les propriétés valorisées. Or, actuellement, nous n'avons besoin
+//    d'index que pour les propriétés valorisées.
+// 2. Par défaut, le nom de l'index tient compte de l'imbrication des propriétés et il semblerait
+//    que cela ait posé problème sur la plateforme d'intégration parce que le nom des index était
+//    trop long (par exemple "deployedModules.valuedProperties.name").
+// 3. Cela permet de les regrouper.
+@CompoundIndexes({
+        @CompoundIndex(
+                name = "valued_property_name",
+                def = "{ 'deployedModules.valuedProperties.name' : 1 }"
+//        ),
+//        @CompoundIndex(
+//                name = "valued_property_value",
+//                def = "{ 'deployedModules.valuedProperties.value' : 1 }",
+//                background = true
+//        ),
+//        @CompoundIndex(
+//                name = "valued_property_name_value",
+//                def = "{ 'deployedModules.valuedProperties.name' : 1, " +
+//                        "'deployedModules.valuedProperties.value' : 1 }",
+//                background = true
+        )
+})
 public class PlatformDocument {
 
     private static int DEFAULT_NUMBER_OF_ARCHIVED_MODULE_VERSIONS = 2;
