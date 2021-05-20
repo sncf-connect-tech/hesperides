@@ -74,12 +74,12 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
         env.put("com.sun.jndi.ldap.connect.timeout", ldapConfiguration.getConnectTimeout());
         env.put("com.sun.jndi.ldap.read.timeout", ldapConfiguration.getReadTimeout());
 
-        if(ldapConfiguration.getBindDn() != "") {
+        if (ldapConfiguration.getBindDn() != null && !ldapConfiguration.getBindDn().isEmpty()) {
             env.put(Context.SECURITY_PRINCIPAL, ldapConfiguration.getBindDn());
             env.put(Context.SECURITY_CREDENTIALS, ldapConfiguration.getBindPassword());
         }
         else{
-            if(ldapConfiguration.getDomain() != ""){
+            if (ldapConfiguration.getDomain() != null && !ldapConfiguration.getDomain().isEmpty()){
                 env.put(Context.SECURITY_PRINCIPAL, String.format("%s\\%s", ldapConfiguration.getDomain(), username));
             }
             else{
