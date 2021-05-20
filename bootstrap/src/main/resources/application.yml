@@ -28,6 +28,8 @@ hesperides:
 ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
   url: ${LDAP_URL:}
   domain: ${LDAP_DOMAIN:}
+  bindDn: ${LDAP_BIND_DN:}
+  bindPassword: ${LDAP_BIND_PASSWORD:}
   userSearchBase: ${LDAP_USER_SEARCH_BASE:}
   roleSearchBase: ${LDAP_ROLE_SEARCH_BASE:}
   prodGroupDN: ${LDAP_PROD_GROUP_DN:}
