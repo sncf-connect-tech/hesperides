@@ -41,8 +41,12 @@ import static org.hesperides.commons.SpringProfiles.LDAP;
 public class LdapConfiguration {
     @NotEmpty
     private String url;
-    @NotEmpty
+    
     private String domain;
+
+    private String bindDn;
+
+    private String bindPassword;
     @NotEmpty
     private String userSearchBase;
     @NotEmpty
