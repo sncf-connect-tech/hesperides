@@ -25,6 +25,43 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Added
+
+- Simple ldap support (#878) [Suzie]
+
+
+
+## 2021-01-26
+### Added
+
+- Documentation workflow_dispatch (#871) [Thomas L'Hostis]
+
+
+
+## 2020-12-07
+### Added
+
+- #384: Recherche de propriétés (#867) [Thomas L'Hostis]
+
+
+
+## 2020-10-23
+### Fixed
+
+- #863 : La recherche des technos ignore la casse. [Thomas L'Hostis]
+
+
+
+## 2020-10-19
+### Added
+
+- Création d'un endpoint de récupération des mots de passe réservé aux utilisateurs tech. [Thomas L'Hostis]
+
+- Document meaning of "simulate" query param in Swagger. [Lucas Cimon]
+
+
+
 ## 2020-06-23
 ### Fixed
 

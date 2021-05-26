@@ -10,6 +10,7 @@ RUN mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 
 
 FROM openjdk:11-jre-slim
+LABEL maintainer="Team Avengers @ oui.sncf"
 
 # Installing curl & MongoDB shell:
 RUN apt-get update -y && apt-get install -y curl gnupg
