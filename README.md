@@ -18,7 +18,17 @@ The frontend lives in this repo: https://github.com/voyages-sncf-technologies/he
 **Development status**: this project is currently maintained & actively developped by [e-Voyageurs SNCF](https://www.sncf.com/fr/groupe/newsroom/e-voyageurs-sncf).
 The list of features planned is available in [ROADMAP.md](https://github.com/voyages-sncf-technologies/hesperides/blob/master/ROADMAP.md).
 
-## To test the app quickly
+
+## Live demo
+<https://hesperides-back.herokuapp.com/rest/swagger-ui.html>
+
+Credentials for the Basic Auth:
+
+* **Username**: `user` or `prod`
+* **Password**: `password`
+
+
+## To test the app locally
 
     docker-compose -f docker/docker-compose.yml -f docker/docker-compose-mongo.yml up -d
 

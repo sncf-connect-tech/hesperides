@@ -1,6 +1,6 @@
 build:
   docker:
     # Using the Docker Hub published image:
-    worker: Dockerfile.heroku
+    web: Dockerfile.heroku
     # We can also build it from the sources:
     # worker: Dockerfile

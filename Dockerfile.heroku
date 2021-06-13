@@ -1,2 +1,7 @@
 # Recipe from: https://stackoverflow.com/a/58204409/636849
 FROM hesperides/hesperides
+
+CMD /usr/local/bin/java $JAVA_OPTS \
+     -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow \
+     -Xms2g -Xmx4g \
+     -jar /hesperides.jar
