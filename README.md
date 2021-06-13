@@ -15,8 +15,7 @@ and the properties it stores per environment.
 
 The frontend lives in this repo: https://github.com/voyages-sncf-technologies/hesperides-gui
 
-**Development status**: this project is currently maintained & actively developped by [e-Voyageurs SNCF](https://www.sncf.com/fr/groupe/newsroom/e-voyageurs-sncf).
-The list of features planned is available in [ROADMAP.md](https://github.com/voyages-sncf-technologies/hesperides/blob/master/ROADMAP.md).
+**Development status**: this project is currently maintained by [e-Voyageurs SNCF](https://fr.wikipedia.org/wiki/E.Voyageurs_SNCF).
 
 
 ## Live demo
@@ -44,7 +43,7 @@ Credentials for the Basic Auth:
  
  * MongoDB
 
-Or just launch the application with those Spring Profiles: noldap, fake_mongo
+Or just launch the application with those Spring Profiles: `noldap`, `fake_mongo`
 
 ## Build
 
