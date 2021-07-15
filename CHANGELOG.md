@@ -25,7 +25,14 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2021-06-15
+### Added
+
+- Heroku.yml. [Lucas Cimon]
+
+
+
+## 2021-05-26
 ### Added
 
 - Simple ldap support (#878) [Suzie]

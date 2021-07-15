@@ -42,6 +42,10 @@ EXPOSE 8080
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localhost:8080/rest/manage/health || exit 1
 
 RUN cp /usr/local/openjdk-*/bin/java /usr/local/bin/java
+
+RUN useradd hesperides
+USER hesperides
+
 # -XX:+ExitOnOutOfMemoryError : an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
 # -XX:+HeapDumpOnOutOfMemoryError : get a heap dump when the app crashes
 # -XX:-OmitStackTraceInFastThrow : avoid missing stacktraces cf. https://plumbr.io/blog/java/on-a-quest-for-missing-stacktraces
