@@ -43,8 +43,9 @@ HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localh
 
 RUN cp /usr/local/openjdk-*/bin/java /usr/local/bin/java
 
-RUN useradd hesperides
-USER hesperides
+ARG UID=101
+RUN useradd --uid $UID hesperides
+USER $UID
 
 # -XX:+ExitOnOutOfMemoryError : an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
 # -XX:+HeapDumpOnOutOfMemoryError : get a heap dump when the app crashes
