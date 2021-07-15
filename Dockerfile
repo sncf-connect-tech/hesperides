@@ -37,9 +37,11 @@ ENV SENTRY_TAGS=GIT_BRANCH:$GIT_BRANCH,GIT_COMMIT:$GIT_COMMIT,GIT_TAG:$GIT_TAG
 
 ENTRYPOINT ["/docker_entrypoint.sh"]
 
-EXPOSE 8080
+ARG PORT=8080
+ENV PORT=$PORT
+EXPOSE $PORT
 
-HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localhost:8080/rest/manage/health || exit 1
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localhost:$PORT/rest/manage/health || exit 1
 
 RUN cp /usr/local/openjdk-*/bin/java /usr/local/bin/java
 
