@@ -171,7 +171,7 @@ l'_ActiveDirectory_ est toujours consulté au moins une fois par connexion d'uti
  atteinte. Cela se produit lors de la tentative de calcul de la taille du graph d'objets à référencer dans le cache, conduisant à une dégradation sévère des performances 
  si l'opération de dimensionnement se poursuit. La configuration précédente continuait l'opération de dimmensionnement. D'où cette modification pour 
  augmenter non seulement la taille maximale du nombre de références d'objets, mais aussi d'abandonner le dimmensionnement si cette limite est atteinte ou dépassé. 
- Pour cela il fallait positionner ces attributs de caheManager: `<sizeOfPolicy maxDepth="10000" maxDepthExceededBehavior="abort"/>`
+ Pour cela il fallait positionner ces attributs de cacheManager: `<sizeOfPolicy maxDepth="10000" maxDepthExceededBehavior="abort"/>`
  c.f. (#https://stackoverflow.com/questions/35074727/the-configured-limit-of-1-000-object-references-was-reached-while-attempting-to/46663625#46663625)
  (#https://github.com/jhipster/generator-jhipster/issues/1090).
  

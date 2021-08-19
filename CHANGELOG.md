@@ -31,6 +31,11 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 - Heroku.yml. [Lucas Cimon]
 
 
+### Fixed
+
+- #872 : Recherche de propriétés par nom et/ou valeur partielle + regex. [Thomas L'Hostis]
+
+
 
 ## 2021-05-26
 ### Added
