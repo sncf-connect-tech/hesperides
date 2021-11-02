@@ -1,6 +1,7 @@
 # Hesperides backend
 
 [![Build, test and publish](https://github.com/voyages-sncf-technologies/hesperides/workflows/Build,%20test%20and%20publish/badge.svg)](https://github.com/voyages-sncf-technologies/hesperides/actions?query=branch%3Amaster)
+[![codecov](https://codecov.io/gh/voyages-sncf-technologies/hesperides/branch/master/graph/badge.svg)](https://codecov.io/gh/voyages-sncf-technologies/hesperides)
 
 [![](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)](https://github.com/voyages-sncf-technologies/hesperides/graphs/contributors)
 [![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
