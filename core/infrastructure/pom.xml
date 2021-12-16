@@ -12,6 +12,12 @@
 
     <artifactId>infrastructure</artifactId>
 
+    </properties>
+        <!-- Hesperides Day / Fix Netty vulnerability-->
+        <netty-tcnative.version>2.0.46.Final</netty-tcnative.version>
+        <netty.version>4.1.71.Final</netty.version>
+    </properties>
+
     <dependencies>
         <!-- DDD -->
         <dependency>
