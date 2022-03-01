@@ -29,7 +29,9 @@ jobs:
           path: ~/.m2/repository
           key: ${{ hashFiles('**/pom.xml') }}
       - name: Launching tests with Maven
-        run: mvn test -pl '!tests/activedirectory-integration,!tests/mongo-integration,!tests/regression'
+        run: |
+          mvn test -B -pl '!tests/activedirectory-integration,!tests/mongo-integration,!tests/regression' jacoco:report-aggregate
+          bash <(curl -s https://codecov.io/bash)
 
   mongodb-integration-tests:
     runs-on: ubuntu-latest
@@ -48,12 +50,12 @@ jobs:
           mongodb-version: 4.2
       - name: Launching tests with Maven
         run: |
-          mvn install -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Djacoco.skip=true
-          mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
+          mvn install -B -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Djacoco.skip=true
+          mvn spring-boot:run -B -pl bootstrap -Dspring.profiles.active=mongo,noldap &
           mongo hesperides mongo_create_collections.js
           # Give some time for the application to start:
           sleep 30
-          mvn -pl tests/mongo-integration verify
+          mvn -B -pl tests/mongo-integration verify
 
   docker-build:
     runs-on: ubuntu-latest
