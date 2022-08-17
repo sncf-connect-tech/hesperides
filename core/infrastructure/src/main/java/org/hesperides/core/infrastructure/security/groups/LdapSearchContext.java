@@ -77,12 +77,10 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
         if (ldapConfiguration.getBindDn() != null && !ldapConfiguration.getBindDn().isEmpty()) {
             env.put(Context.SECURITY_PRINCIPAL, ldapConfiguration.getBindDn());
             env.put(Context.SECURITY_CREDENTIALS, ldapConfiguration.getBindPassword());
-        }
-        else{
-            if (ldapConfiguration.getDomain() != null && !ldapConfiguration.getDomain().isEmpty()){
+        } else {
+            if (ldapConfiguration.getDomain() != null && !ldapConfiguration.getDomain().isEmpty()) {
                 env.put(Context.SECURITY_PRINCIPAL, String.format("%s\\%s", ldapConfiguration.getDomain(), username));
-            }
-            else{
+            } else {
                 env.put(Context.SECURITY_PRINCIPAL, username);
             }
 

@@ -22,10 +22,12 @@ package org.hesperides.core.infrastructure.axon;
 
 import lombok.Setter;
 import org.axonframework.common.transaction.TransactionManager;
+import org.axonframework.config.EventProcessingConfigurer;
 import org.axonframework.eventsourcing.EventCountSnapshotTriggerDefinition;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.axonframework.messaging.annotation.ParameterResolverFactory;
 import org.axonframework.spring.eventsourcing.SpringAggregateSnapshotter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +37,7 @@ import java.util.concurrent.Executors;
 
 @Configuration
 @ConfigurationProperties("event-store")
-public class AxonSnapshotConfiguration {
+public class AxonConfiguration {
 
     @Setter
     private Integer eventsCountToTriggerSnapshot = 1000000;
@@ -48,11 +50,23 @@ public class AxonSnapshotConfiguration {
         // https://docs.axoniq.io/reference-guide/v/3.3/part-iii-infrastructure-components/repository-and-event-store#creating-a-snapshot
         // (...) Therefore, it is recommended to run the snapshotter in a different thread (...)
         Executor executor = Executors.newSingleThreadExecutor();
-        return new SpringAggregateSnapshotter(eventStore, parameterResolverFactory, executor, transactionManager);
+        return new SpringAggregateSnapshotter.Builder()
+                .eventStore(eventStore)
+                .parameterResolverFactory(parameterResolverFactory)
+                .executor(executor)
+                .transactionManager(transactionManager)
+                .build();
     }
 
     @Bean
     public EventCountSnapshotTriggerDefinition snapshotTrigger(SpringAggregateSnapshotter snapshotter) {
         return new EventCountSnapshotTriggerDefinition(snapshotter, eventsCountToTriggerSnapshot);
+    }
+
+    @Autowired
+    public void configure(EventProcessingConfigurer config) {
+        // https://docs.axoniq.io/reference-guide/v/4.0/configuring-infrastructure-components/event-processing/event-processors#configuring-processors
+        // C'est cette ligne qui m'a permis de faire fonctionner l'application avec la version 4 d'Axon
+        config.usingSubscribingEventProcessors();
     }
 }

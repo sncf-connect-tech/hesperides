@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import io.cucumber.java8.En;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
@@ -19,7 +20,6 @@ import java.util.stream.IntStream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class CreateTechnos extends HesperidesScenario implements En {
@@ -180,7 +180,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
                     .map(ResponseEntity::getStatusCode)
                     .filter(HttpStatus::isError)
                     .count();
-            assertThat(nbFail).isGreaterThan(0);
+            Assertions.assertThat(nbFail).isGreaterThan(0);
         });
 
         Then("^the techno is actually created$", () -> {

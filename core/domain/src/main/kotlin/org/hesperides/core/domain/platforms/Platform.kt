@@ -1,6 +1,6 @@
 package org.hesperides.core.domain.platforms
 
-import org.axonframework.commandhandling.TargetAggregateIdentifier
+import org.axonframework.modelling.command.TargetAggregateIdentifier
 import org.hesperides.core.domain.modules.entities.Module
 import org.hesperides.core.domain.platforms.entities.Platform
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty

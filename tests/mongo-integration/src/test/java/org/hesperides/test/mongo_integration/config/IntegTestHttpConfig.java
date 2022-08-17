@@ -8,7 +8,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.axonframework.config.EventHandlingConfiguration;
+import org.axonframework.config.EventProcessingConfiguration;
+import org.axonframework.config.EventProcessingModule;
 import org.hesperides.core.presentation.PresentationConfiguration;
 import org.hesperides.test.bdd.configuration.CustomRestTemplate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -57,7 +58,7 @@ public class IntegTestHttpConfig {
     }
 
     @Bean
-    public EventHandlingConfiguration eventHandlerConfiguration() {
-        return new EventHandlingConfiguration();
+    public EventProcessingConfiguration eventHandlerConfiguration() {
+        return new EventProcessingModule();
     }
 }

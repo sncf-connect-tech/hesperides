@@ -10,6 +10,13 @@ info:
 spring:
   application.name: HESPERIDES
   boot.admin.client.enabled: false
+  # Depuis le passage à Spring Boot 2.7, la classe `LdapAuthenticationProvider` est détectée comme ayant
+  # une référence circulaire à elle-même. Cela vient de la propriété `self` utilisée pour bénéficier du
+  # cache. Il faudrait corriger ça en extrayant les méthodes mises en cache dans un autre composant.
+  main.allow-circular-references: true
+  # Bidouille associée à `PresentationConfiguration.webEndpointServletHandlerMapping`
+  # pour faire fonctionner Springfox avec Spring Boot 2.6+
+  mvc.pathmatch.matching-strategy: ant_path_matcher
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
 
 server:

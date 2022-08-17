@@ -35,7 +35,7 @@
 
         <!-- Axon -->
         <dependency>
-            <groupId>org.axonframework</groupId>
+            <groupId>org.axonframework.extensions.mongo</groupId>
             <artifactId>axon-mongo</artifactId>
         </dependency>
 

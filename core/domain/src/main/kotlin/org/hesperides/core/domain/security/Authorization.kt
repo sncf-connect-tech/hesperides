@@ -1,6 +1,6 @@
 package org.hesperides.core.domain.security
 
-import org.axonframework.commandhandling.TargetAggregateIdentifier
+import org.axonframework.modelling.command.TargetAggregateIdentifier
 import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups
 import org.hesperides.core.domain.security.entities.User
 

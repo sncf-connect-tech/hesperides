@@ -3,8 +3,8 @@ package org.hesperides.core.domain.security.commands;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.core.domain.security.ApplicationDirectoryGroupsCreatedEvent;
 import org.hesperides.core.domain.security.ApplicationDirectoryGroupsUpdatedEvent;
@@ -15,7 +15,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
 @Slf4j
 @NoArgsConstructor

@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class GetApplications extends HesperidesScenario implements En {
@@ -115,7 +114,7 @@ public class GetApplications extends HesperidesScenario implements En {
         Then("^the application details contains no directory groups", () -> {
             String directoryGroupsKey = applicationDirectoryGroupsBuilder.getDirectoryGroupsKey();
             List<String> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups().get(directoryGroupsKey);
-            assertThat(actualDirectoryGroups).isEmpty();
+            Assertions.assertThat(actualDirectoryGroups).isEmpty();
         });
 
         Then("^the application platform has the password flag$", () -> {

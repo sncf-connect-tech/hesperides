@@ -1,13 +1,17 @@
 package org.hesperides.core.infrastructure.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import lombok.Setter;
+import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
-import org.axonframework.mongo.DefaultMongoTemplate;
-import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
+import org.axonframework.extensions.mongo.DefaultMongoTemplate;
+import org.axonframework.extensions.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
 import org.bson.Document;
+import org.hesperides.core.infrastructure.axon.SecureXStreamSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,25 +44,41 @@ public class MongoConfiguration {
     private String uri;
 
     @Bean
-    public MongoClientURI mongoClientURI() {
-        return new MongoClientURI(uri);
+    public ConnectionString connectionString() {
+        return new ConnectionString(uri);
     }
 
     @Bean
-    public MongoClient mongoClient(MongoClientURI mongoClientURI) {
-        return new MongoClient(mongoClientURI);
+    public MongoClient mongoClient(ConnectionString connectionString) {
+        MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .build();
+        return MongoClients.create(mongoClientSettings);
     }
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoClient mongoClient, MongoClientURI mongoClientURI) {
-        return new MongoTemplate(mongoClient, mongoClientURI.getDatabase());
+    public MongoTemplate mongoTemplate(MongoClient mongoClient, ConnectionString connectionString) {
+        return new MongoTemplate(mongoClient, connectionString.getDatabase());
     }
 
     @Bean
     @Primary
-    public EventStorageEngine eventStorageEngine(MongoClient mongoClient, MongoClientURI mongoClientURI) {
-        DefaultMongoTemplate axonMongoTemplate = new DefaultMongoTemplate(mongoClient, mongoClientURI.getDatabase());
-        return new MongoEventStorageEngine(axonMongoTemplate);
+    public EventStorageEngine eventStorageEngine(MongoClient mongoClient, ConnectionString connectionString) {
+        DefaultMongoTemplate mongoTemplate = DefaultMongoTemplate.builder()
+                .mongoDatabase(mongoClient, connectionString.getDatabase())
+                .build();
+        return MongoEventStorageEngine.builder()
+                .eventSerializer(SecureXStreamSerializer.get())
+                .snapshotSerializer(SecureXStreamSerializer.get())
+                .mongoTemplate(mongoTemplate)
+                .build();
+    }
+
+    @Bean
+    public EmbeddedEventStore embeddedEventStore(EventStorageEngine eventStorageEngine) {
+        return EmbeddedEventStore.builder()
+                .storageEngine(eventStorageEngine)
+                .build();
     }
 
     public static void ensureCaseInsensitivity(MongoTemplate mongoTemplate, String collectionName) {

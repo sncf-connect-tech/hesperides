@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import io.cucumber.java8.En;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -30,14 +31,11 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 
 public class GetPlatforms extends HesperidesScenario implements En {
@@ -92,18 +90,18 @@ public class GetPlatforms extends HesperidesScenario implements En {
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
             PlatformIO platform = testContext.getResponseBody();
             Boolean hasPasswords = platform.getHasPasswords();
-            assertThat(hasPasswords).isNotNull();
+            Assertions.assertThat(hasPasswords).isNotNull();
             assertEquals("true".equals(trueOrFalse), hasPasswords);
         });
 
         Then("^the platform has (\\d+) modules?$", (Integer expectedModulesCount) -> {
             PlatformIO actualPlatform = testContext.getResponseBody();
-            Assert.assertThat(actualPlatform.getDeployedModules(), hasSize(expectedModulesCount));
+            Assertions.assertThat(actualPlatform.getDeployedModules()).hasSize(expectedModulesCount);
         });
 
         Then("^the platform has (\\d+) global properties?$", (Integer expectedNumberOfGlobalProperties) -> {
             PropertiesIO globalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
-            Assert.assertThat(globalProperties.getValuedProperties(), hasSize(expectedNumberOfGlobalProperties));
+            Assertions.assertThat(globalProperties.getValuedProperties()).hasSize(expectedNumberOfGlobalProperties);
         });
 
         // Get platforms using module
@@ -122,7 +120,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
         Then("^(\\d+) platforms? (?:are|is) retrieved", (Integer count) -> {
             assertOK();
             List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
-            Assert.assertThat(actualPlatforms, hasSize(count));
+            Assertions.assertThat(actualPlatforms).hasSize(count);
         });
     }
 }

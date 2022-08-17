@@ -20,9 +20,9 @@
  */
 package org.hesperides.commons.axon;
 
+import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
-import org.axonframework.queryhandling.responsetypes.ResponseTypes;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public abstract class AxonQueries {
 
     protected <R> R querySync(Object query, Class<R> responseType) {
         try {
-            return queryGateway.query(query, responseType).get();
+            return queryGateway.query(query, ResponseTypes.instanceOf(responseType)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new QueryExecutionException(e.getMessage(), e);
         }
@@ -46,7 +46,7 @@ public abstract class AxonQueries {
 
     protected <R> Optional<R> querySyncOptional(Object query, Class<R> responseType) {
         try {
-            return queryGateway.query(query, AxonResponseType.optionalInstancesOf(responseType)).get();
+            return queryGateway.query(query, ResponseTypes.optionalInstanceOf(responseType)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new QueryExecutionException(e.getMessage(), e);
         }

@@ -1,6 +1,6 @@
 package org.hesperides.core.domain.modules
 
-import org.axonframework.commandhandling.TargetAggregateIdentifier
+import org.axonframework.modelling.command.TargetAggregateIdentifier
 import org.hesperides.core.domain.modules.entities.Module
 import org.hesperides.core.domain.security.UserEvent
 import org.hesperides.core.domain.security.entities.User
@@ -10,13 +10,24 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer
 // Command
 
 data class CreateModuleCommand(val module: Module, val user: User)
-data class UpdateModuleTechnosCommand(@TargetAggregateIdentifier val moduleId: String, val module: Module, val user: User)
+data class UpdateModuleTechnosCommand(
+    @TargetAggregateIdentifier val moduleId: String,
+    val module: Module,
+    val user: User
+)
+
 data class DeleteModuleCommand(@TargetAggregateIdentifier val moduleId: String, val user: User)
 
 // Event
 
 data class ModuleCreatedEvent(val moduleId: String, val module: Module, override val user: String) : UserEvent(user)
-data class ModuleTechnosUpdatedEvent(val moduleId: String, val technos: List<Techno>, val versionId: Long, override val user: String) : UserEvent(user)
+data class ModuleTechnosUpdatedEvent(
+    val moduleId: String,
+    val technos: List<Techno>,
+    val versionId: Long,
+    override val user: String
+) : UserEvent(user)
+
 data class ModuleDeletedEvent(val moduleId: String, override val user: String) : UserEvent(user)
 
 // Query

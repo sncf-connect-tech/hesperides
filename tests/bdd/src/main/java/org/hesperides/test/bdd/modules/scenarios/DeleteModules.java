@@ -8,8 +8,8 @@ import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 
 public class DeleteModules extends HesperidesScenario implements En {
 

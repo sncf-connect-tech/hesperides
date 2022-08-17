@@ -3,9 +3,9 @@ package org.hesperides.core.domain.technos.commands;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateIdentifier;
+import org.axonframework.modelling.command.AggregateMember;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.technos.*;
@@ -16,8 +16,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
-import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
+import static org.axonframework.modelling.command.AggregateLifecycle.apply;
+import static org.axonframework.modelling.command.AggregateLifecycle.isLive;
 
 @Slf4j
 @NoArgsConstructor

@@ -3,11 +3,7 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.axonframework.eventhandling.AnnotationEventListenerAdapter;
-import org.axonframework.eventhandling.EventHandler;
-import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.eventhandling.TrackedEventMessage;
-import org.axonframework.eventsourcing.GenericTrackedDomainEventMessage;
+import org.axonframework.eventhandling.*;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.messaging.MessageDecorator;
@@ -166,9 +162,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         platformDocument.getActiveDeployedModules()
                 .filter(currentDeployedModuleDocument -> currentDeployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
                 .findAny().ifPresent(deployedModuleDocument -> {
-            updateDeployedModuleVersionId(event.getPropertiesVersionId(), deployedModuleDocument);
-            completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument);
-        });
+                    updateDeployedModuleVersionId(event.getPropertiesVersionId(), deployedModuleDocument);
+                    completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument);
+                });
 
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
@@ -373,12 +369,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Timed
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository
-                .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
 
         return platformDocument
                 .map(PlatformDocument::getActiveDeployedModules)
                 .orElse(Stream.empty())
+                .filter(deployedModule -> deployedModule.getPropertiesPath().equalsIgnoreCase(query.getPropertiesPath()))
                 .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getInstancesModel())
                         .orElseGet(Collections::emptyList)
                         .stream())
@@ -401,9 +397,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Timed
     public Boolean onInstanceExistsQuery(InstanceExistsQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        return platformRepository.findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath())
+        return platformRepository.findOptionalByKey(platformKeyDocument)
                 .map(PlatformDocument::getActiveDeployedModules)
                 .orElse(Stream.empty())
+                .filter(deployedModule -> deployedModule.getPropertiesPath().equalsIgnoreCase(query.getPropertiesPath()))
                 .map(DeployedModuleDocument::getInstances)
                 .flatMap(List::stream)
                 .anyMatch(instance -> instance.getName().equals(query.getInstanceName()));
@@ -467,7 +464,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         && !domainEventMessage.getPayloadType().equals(RestoreDeletedPlatformEvent.class)
         );
         InmemoryPlatformRepository inmemoryPlatformRepository = new InmemoryPlatformRepository();
-        AnnotationEventListenerAdapter eventHandlerAdapter = new AnnotationEventListenerAdapter(new MongoPlatformProjectionRepository(inmemoryPlatformRepository));
+        AnnotationEventHandlerAdapter eventHandlerAdapter = new AnnotationEventHandlerAdapter(new MongoPlatformProjectionRepository(inmemoryPlatformRepository));
         boolean zeroEventsBeforeTimestamp = true;
         while (eventStream.hasNext()) {
             zeroEventsBeforeTimestamp = false;
