@@ -62,6 +62,7 @@ public class CustomMongoHealthIndicator extends AbstractHealthIndicator {
                 .withDetail("clusterTime", Optional.ofNullable(getCluster(mongoClient).getClusterTime()).map(BsonTimestamp::getValue).orElse(0L));
     }
 
+
     private static Map<String, Object> getMongoClientOptionsAsMap(MongoClientOptions mongoClientOptions) {
         Map<String, Object> config = new HashMap<>();
         config.put("applicationName", mongoClientOptions.getApplicationName());
