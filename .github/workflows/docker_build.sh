@@ -4,7 +4,7 @@ set -o pipefail -o errexit -o nounset -o xtrace
 
 GIT_COMMIT_MSG="${1?'Required parameter'}"
 
-apt-get install -y ca-certificates wget
+sudo apt-get install -y ca-certificates wget
 
 docker build -t $DOCKER_IMAGE:$GITHUB_SHA \
   --label date=$(date +%F) \
