@@ -1,6 +1,6 @@
 package org.hesperides.core.domain.modules
 
-import org.axonframework.commandhandling.TargetAggregateIdentifier
+import org.axonframework.modelling.command.TargetAggregateIdentifier
 import org.hesperides.core.domain.security.UserEvent
 import org.hesperides.core.domain.security.entities.User
 import org.hesperides.core.domain.templatecontainers.entities.Template

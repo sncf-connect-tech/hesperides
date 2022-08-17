@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import io.cucumber.java8.En;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -37,7 +38,6 @@ import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class GetProperties extends HesperidesScenario implements En {
@@ -123,7 +123,7 @@ public class GetProperties extends HesperidesScenario implements En {
             PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (!moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
-                    assertThat(valuedProperty.getValue()).doesNotContain("********");
+                    Assertions.assertThat(valuedProperty.getValue()).doesNotContain("********");
                 }
             });
         });
@@ -133,7 +133,7 @@ public class GetProperties extends HesperidesScenario implements En {
             PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
-                    assertThat(valuedProperty.getValue()).doesNotContain("********");
+                    Assertions.assertThat(valuedProperty.getValue()).doesNotContain("********");
                 }
             });
         });

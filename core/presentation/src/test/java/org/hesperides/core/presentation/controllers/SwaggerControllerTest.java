@@ -4,11 +4,11 @@ import org.hesperides.core.presentation.config.TestAppConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,7 +21,7 @@ public class SwaggerControllerTest extends AbstractControllerTest {
     @Test
     @WithMockUser
     public void ensureSnakecaseProperties() throws Exception {
-        this.mvc.perform(get("/v2/api-docs").accept(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        this.mvc.perform(get("/v2/api-docs").accept(APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.definitions.ModuleIO.properties.version_id").exists())
                 .andExpect(jsonPath("$.definitions.ModuleIO.properties.versionId").doesNotExist())

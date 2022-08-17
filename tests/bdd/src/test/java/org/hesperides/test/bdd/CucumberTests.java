@@ -3,6 +3,7 @@ package org.hesperides.test.bdd;
 import io.cucumber.java.Before;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
+import io.cucumber.spring.CucumberContextConfiguration;
 import org.hesperides.HesperidesSpringApplication;
 import org.hesperides.test.bdd.configuration.TestContextCleaner;
 import org.hesperides.test.bdd.configuration.TestDatabaseCleaner;
@@ -11,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import static org.hesperides.commons.SpringProfiles.*;
@@ -19,11 +19,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        strict = true,
         plugin = "pretty",
         features = "src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd"},
-        tags = {"not @require-real-mongo and not @require-real-ad"})
+        tags = "not @require-real-mongo and not @require-real-ad"
+)
 public class CucumberTests {
 
     public static void main(String[] args) {
@@ -34,7 +34,7 @@ public class CucumberTests {
     @SpringBootTest(classes = {HesperidesSpringApplication.class}, webEnvironment = RANDOM_PORT)
     // Ce dernier profil active la prise en compte du application-test.yml
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, TEST})
-    @ContextConfiguration
+    @CucumberContextConfiguration
     @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException
     public static class SpringUnitTests {
         @Autowired

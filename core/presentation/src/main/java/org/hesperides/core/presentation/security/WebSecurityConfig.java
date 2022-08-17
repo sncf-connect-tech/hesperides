@@ -20,41 +20,34 @@
  */
 package org.hesperides.core.presentation.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 
 import static org.hesperides.commons.SpringProfiles.LDAP;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-/**
- * L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure
- * L'authentification est testée pour chaque use case dans le module tests/tech
- */
+// L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure
 @Configuration
 @Profile(LDAP)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final AuthenticationProvider authenticationProvider;
+public class WebSecurityConfig {
 
     @Value("#{'${hesperides.security.auth-whitelist}'.split('\\|')}")
     String[] authWhitelist;
 
-    public WebSecurityConfig(final AuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
-    }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.sessionManagement().sessionCreationPolicy(STATELESS);
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.sessionManagement()
-                .sessionCreationPolicy(STATELESS);
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(authWhitelist).permitAll()
@@ -63,11 +56,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .httpBasic()
                 .authenticationEntryPoint(new VerboseBasicAuthenticationEntryPoint());
+
+        return http.build();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder authManagerBuilder) {
-        authManagerBuilder.authenticationProvider(authenticationProvider);
-        authManagerBuilder.eraseCredentials(false); // Nécessaire pour LdapUserInfoRepository
+    @Autowired
+    // Indispensable pour accéder au mot de passe dans notre système d'accès au LDAP
+    public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) {
+        authenticationManagerBuilder.eraseCredentials(false);
     }
 }

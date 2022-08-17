@@ -2,7 +2,7 @@ package org.hesperides.core.presentation.exceptions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.axonframework.commandhandling.model.AggregateNotFoundException;
+import org.axonframework.modelling.command.AggregateNotFoundException;
 import org.hesperides.core.domain.exceptions.DuplicateException;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.exceptions.NotFoundException;

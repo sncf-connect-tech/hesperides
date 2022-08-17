@@ -75,7 +75,10 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     Long delayBetweenTriesInSeconds;
     private RetryConfig retryConfig;
     @Resource
-    private LdapCNSearcher self; // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
+    // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849.
+    // Il faudrait corriger ça en extrayant les méthodes mises en cache dans un autre composant, car cela implique
+    // d'utiliser la propriété `spring.main.allow-circular-references=true`
+    private LdapCNSearcher self;
     @Autowired
     private Gson gson; // nécessaire uniquement pour les logs DEBUG
     @Autowired
