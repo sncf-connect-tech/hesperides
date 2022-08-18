@@ -12,11 +12,12 @@ RUN mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 FROM openjdk:11-jre-slim
 LABEL maintainer="Team Avengers @ oui.sncf"
 
-# Installing curl & MongoDB shell:
-RUN apt-get update -y && apt-get install -y curl gnupg
-RUN curl -s https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
-RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-RUN apt-get update -y && apt-get install -y mongodb-org-shell
+# Installing wget & MongoDB shell:
+# https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-debian/#install-mongodb-community-edition
+RUN apt-get update -y && apt-get install -y wget gnupg
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
+RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+RUN apt-get update -y && apt-get install -y mongodb-org-shell=4.2
 
 COPY --from=0 /usr/local/src/bootstrap/target/hesperides-*.jar hesperides.jar
 COPY mongo_create_collections.js /

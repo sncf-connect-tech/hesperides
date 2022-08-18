@@ -4,8 +4,6 @@ set -o pipefail -o errexit -o nounset -o xtrace
 
 GIT_COMMIT_MSG="${1?'Required parameter'}"
 
-sudo apt-get install -y ca-certificates wget
-
 docker build -t $DOCKER_IMAGE:$GITHUB_SHA \
   --label date=$(date +%F) \
   --label git_commit=$GITHUB_SHA \
