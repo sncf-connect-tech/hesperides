@@ -14,4 +14,4 @@ docker build -t $DOCKER_IMAGE:$GITHUB_SHA \
   --build-arg GIT_COMMIT_MSG="$GIT_COMMIT_MSG" .
 
 # We validate that the image built can start without any error:
-#docker run --rm -e SPRING_PROFILES_ACTIVE=noldap,fake_mongo -e EXIT_AFTER_INIT=true $DOCKER_IMAGE:$GITHUB_SHA
+docker run --rm -e SPRING_PROFILES_ACTIVE=noldap,fake_mongo -e EXIT_AFTER_INIT=true $DOCKER_IMAGE:$GITHUB_SHA
