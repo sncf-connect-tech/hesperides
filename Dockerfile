@@ -17,7 +17,7 @@ LABEL maintainer="Team Avengers @ oui.sncf"
 RUN apt-get update -y && apt-get install -y wget gnupg
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
 RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-RUN apt-get update -y && apt-get install -y mongodb-org-shell=4.2
+RUN apt-get update -y && apt-get install -y mongodb-org-shell
 
 COPY --from=0 /usr/local/src/bootstrap/target/hesperides-*.jar hesperides.jar
 COPY mongo_create_collections.js /
