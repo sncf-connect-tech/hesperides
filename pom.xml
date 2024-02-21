@@ -56,7 +56,7 @@
         <mockito.version>5.2.0</mockito.version>
         <mongo-java-server.version>1.43.0</mongo-java-server.version>
         <mustache.version>0.9.10</mustache.version>
-        <postgresql.version>42.6.0</postgresql.version>
+        <postgresql.version>42.7.2</postgresql.version>
         <retry4j.version>0.15.0</retry4j.version>
         <sentry.version>1.7.30</sentry.version>
         <spring-security-test.version>5.7.7</spring-security-test.version>
