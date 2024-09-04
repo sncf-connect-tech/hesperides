@@ -14,6 +14,7 @@ Feature: Get user authorities
     Then ABC_PROD_USER is listed under the user authority roles
 
   #issue-667
+  @require-user-without-group
   Scenario: retrieve a user that has no authorities
     Given a user that does not belong to any group
     When I get the current user information
