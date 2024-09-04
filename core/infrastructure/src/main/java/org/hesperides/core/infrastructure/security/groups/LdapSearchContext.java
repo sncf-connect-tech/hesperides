@@ -15,6 +15,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.ldap.support.LdapEncoder;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -180,7 +181,7 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         try {
             // Durant cet appel, SpringSecurityLdapTemplate logue parfois des "Ignoring PartialResultException"
-            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(dirContext, searchControls, base, searchFilter, new Object[]{cn});
+            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(dirContext, searchControls, base, searchFilter, new Object[]{LdapEncoder.nameEncode(cn)});
         } catch (NamingException exception) {
             throw LdapUtils.convertLdapException(exception);
         }
@@ -190,7 +191,7 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
      * Retourne le DN amputé de son CN
      */
     private static String getBaseFrom(String cn, String dn) {
-        return dn.substring(("cn" + cn + ",").length() + 1);
+        return dn.substring(("cn=" + LdapEncoder.nameEncode(cn) + ",").length());
     }
 
     public static HashSet<String> extractDirectParentGroupDNs(Attributes attributes) {

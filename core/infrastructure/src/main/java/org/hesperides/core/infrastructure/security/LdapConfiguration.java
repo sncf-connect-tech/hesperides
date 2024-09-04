@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Profile;
+import org.springframework.ldap.support.LdapEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -63,6 +64,6 @@ public class LdapConfiguration {
     private String techGroupDN;
 
     public String getSearchFilterForCN(String username) {
-        return String.format("(%s=%s)", usernameAttribute, username);
+        return String.format("(%s=%s)", usernameAttribute, LdapEncoder.nameEncode(username));
     }
 }
