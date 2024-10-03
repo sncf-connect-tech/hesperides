@@ -50,7 +50,7 @@
         <junit-jupiter-api.version>5.9.2</junit-jupiter-api.version>
         <liquibase.version>4.20.0</liquibase.version>
         <log4j2.version>2.15.0</log4j2.version>
-        <logback.version>1.2.11</logback.version>
+        <logback.version>1.2.13</logback.version>
         <lombok.version>1.18.26</lombok.version>
         <micrometer.version>1.10.5</micrometer.version>
         <mockito.version>5.2.0</mockito.version>
