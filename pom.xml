@@ -9,7 +9,7 @@
 
     <name>hesperides</name>
     <description>Hesperides, templated files generator</description>
-    <url>https://github.com/voyages-sncf-technologies/hesperides</url>
+    <url>https://github.com/sncf-connect-tech/hesperides</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -490,7 +490,7 @@
     <inceptionYear>2016</inceptionYear>
 
     <organization>
-        <name>voyages-sncf-technologies</name>
+        <name>sncf-connect-tech</name>
     </organization>
 
     <developers>
@@ -498,13 +498,13 @@
             <id>victorsalaun</id>
             <name>Victor SALAUN</name>
             <email>victor.salaun@gmail.com</email>
-            <organization>voyages-sncf-technologies</organization>
+            <organization>sncf-connect-tech</organization>
             <organizationUrl>https://www.oui.sncf</organizationUrl>
         </developer>
         <developer>
             <id>LCM</id>
             <name>Lucas CIMON</name>
-            <organization>voyages-sncf-technologies</organization>
+            <organization>sncf-connect-tech</organization>
             <organizationUrl>https://www.oui.sncf</organizationUrl>
         </developer>
     </developers>
@@ -518,9 +518,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:voyages-sncf-technologies/hesperides.git</connection>
-        <developerConnection>scm:git:git@github.com:voyages-sncf-technologies/hesperides.git</developerConnection>
-        <url>https://github.com/voyages-sncf-technologies/hesperides</url>
+        <connection>scm:git:git@github.com:sncf-connect-tech/hesperides.git</connection>
+        <developerConnection>scm:git:git@github.com:sncf-connect-tech/hesperides.git</developerConnection>
+        <url>https://github.com/sncf-connect-tech/hesperides</url>
     </scm>
 
     <distributionManagement>

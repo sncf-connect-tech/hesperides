@@ -12,11 +12,11 @@
 
 ### How to Contribute
 - [ ] Comment on this issue if you'd like to work/collaborate on it!
-- [ ] Fork the [repository](https://github.com/voyages-sncf-technologies/hesperides).
+- [ ] Fork the [repository](https://github.com/sncf-connect-tech/hesperides).
 - [ ] Use the [GitHub Flow](https://guides.github.com/introduction/flow/) to make changes to your fork. [This](https://services.github.com/on-demand/intro-to-github/) is a refresher course if you're unsure about how to make a change on GitHub.
 - [ ] Push your changes to your repository.
 - [ ] Submit a Pull Request
-  - Base Dropdown: voyages-sncf-technologies/hesperides
+  - Base Dropdown: sncf-connect-tech/hesperides
   - Compare Dropdown: Your fork
 
 ### Questions?

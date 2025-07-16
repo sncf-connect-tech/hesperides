@@ -63,7 +63,7 @@ S'inspirer des globales properties au niveau platform existant, pour réaliser c
    - Informer de façon visuelle quand une propriété d'application est utilisé par une propriété 
      globale/de module/d'instance, pour cela :
      * Indiquer au niveau module et/ou globale, avec un tooltip ou une icône, lorsqu'une propriété fait référence à une 
-     propriété d'application  (cf. voyages-sncf-technologies/hesperides-gui#329). Ceci nécessitera la mise en place d'une 
+     propriété d'application  (cf. sncf-connect-tech/hesperides-gui#329). Ceci nécessitera la mise en place d'une 
      méthode comme global_properties_usage pour les propriétés globales.
      * Au niveau de la nouvelle section "propriétés d'application", indiquer où elles sont employées, de la même manière
       que c'est fait actuellement pour les globales.

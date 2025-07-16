@@ -74,7 +74,7 @@ Some variables are set as environment variables:
 * `LDAP_DOMAIN`
 * `LDAP_USER_SEARCH_BASE`
 
-See [`boostrap/src/main/resources/application.yml`](https://github.com/voyages-sncf-technologies/hesperides/blob/master/bootstrap/src/main/resources/application.yml)
+See [`boostrap/src/main/resources/application.yml`](https://github.com/sncf-connect-tech/hesperides/blob/master/bootstrap/src/main/resources/application.yml)
 
 
 ## Tests manuels avec Postman
@@ -99,7 +99,7 @@ Pour exécuter tous les tests unitaires:
 
 Pour publier une branche spécifique sur Docker Hub, il suffit de lancer le workflow `Build, test and publish`
 directement
-via [l'interface GitHub Actions](https://github.com/voyages-sncf-technologies/hesperides/actions?query=workflow%3A%22Build%2C+test+and+publish%22) >
+via [l'interface GitHub Actions](https://github.com/sncf-connect-tech/hesperides/actions?query=workflow%3A%22Build%2C+test+and+publish%22) >
 Run workflow et de sélectionner la branche en question.
 
 Si toutes les étapes sont passantes, le CI détecte le mode `workflow_dispatch` et nous avons fait en sorte que cela

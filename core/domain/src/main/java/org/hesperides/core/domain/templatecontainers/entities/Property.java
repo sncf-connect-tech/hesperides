@@ -337,7 +337,7 @@ public class Property extends AbstractProperty {
     }
 
     /**
-     * cf. https://github.com/voyages-sncf-technologies/hesperides/issues/324
+     * cf. https://github.com/sncf-connect-tech/hesperides/issues/324
      */
     private static String extractCommentThatStartsWithQuotes(String propertyAnnotations) {
         String annotation = "@comment ";

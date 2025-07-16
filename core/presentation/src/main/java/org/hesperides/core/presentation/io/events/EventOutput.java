@@ -24,7 +24,7 @@ public class EventOutput {
     }
 
     /*
-     * For legacy retro-compatibility, look for usage of event.data in: https://github.com/voyages-sncf-technologies/hesperides-gui/tree/master/src/app/event/directives
+     * For legacy retro-compatibility, look for usage of event.data in: https://github.com/sncf-connect-tech/hesperides-gui/tree/master/src/app/event/directives
      */
     private static Object getEventData(final UserEvent userEvent) {
         if (userEvent instanceof ModuleCreatedEvent) {

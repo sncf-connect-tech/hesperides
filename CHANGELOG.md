@@ -1,5 +1,5 @@
 # CHANGELOG
-Le changelog du frontend est ici: [hesperides-gui/CHANGELOG.md](https://github.com/voyages-sncf-technologies/hesperides-gui/blob/master/CHANGELOG.md)
+Le changelog du frontend est ici: [hesperides-gui/CHANGELOG.md](https://github.com/sncf-connect-tech/hesperides-gui/blob/master/CHANGELOG.md)
 
 Tous les changements notables sur ce projet sont documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](http://keepachangelog.com).
@@ -550,7 +550,7 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 ## 2019-04-18
 ### Changed
-- le même ID ne peut plus être réutilisé pour plusieurs _deployed modules_ lors de requêtes `POST` & `PUT` sur `platforms` - _cf._ https://github.com/voyages-sncf-technologies/hesperides/issues/574
+- le même ID ne peut plus être réutilisé pour plusieurs _deployed modules_ lors de requêtes `POST` & `PUT` sur `platforms` - _cf._ https://github.com/sncf-connect-tech/hesperides/issues/574
 
 ### Fixed
 - un espace est désormais autorisé dans les version de plateforme

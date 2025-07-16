@@ -1,7 +1,7 @@
 /*
  *
  * This file is part of the Hesperides distribution.
- * (https://github.com/voyages-sncf-technologies/hesperides)
+ * (https://github.com/sncf-connect-tech/hesperides)
  * Copyright (c) 2016 VSCT.
  *
  * Hesperides is free software: you can redistribute it and/or modify
@@ -55,8 +55,8 @@ public class VersionsController extends AbstractController {
         propertiesMap.put("GIT_COMMIT", System.getenv("GIT_COMMIT"));
         propertiesMap.put("GIT_COMMIT_MSG", System.getenv("GIT_COMMIT_MSG"));
         propertiesMap.put("GIT_TAG", System.getenv("GIT_TAG"));
-        propertiesMap.put("url_to_github_commit", "https://github.com/voyages-sncf-technologies/hesperides/commit/" + System.getenv("GIT_COMMIT"));
-        propertiesMap.put("url_to_github_changelog", "https://github.com/voyages-sncf-technologies/hesperides/blob/master/CHANGELOG.md#" + System.getenv("GIT_TAG"));
+        propertiesMap.put("url_to_github_commit", "https://github.com/sncf-connect-tech/hesperides/commit/" + System.getenv("GIT_COMMIT"));
+        propertiesMap.put("url_to_github_changelog", "https://github.com/sncf-connect-tech/hesperides/blob/master/CHANGELOG.md#" + System.getenv("GIT_TAG"));
         propertiesMap.put("HOSTNAME", System.getenv("HOSTNAME"));
 
         return ResponseEntity.ok(propertiesMap);
