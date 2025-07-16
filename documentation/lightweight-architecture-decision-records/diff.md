@@ -28,7 +28,7 @@ nous y ajoutons une fonctionnalité de _diff_.
 
 Plutôt que d'employer une lib existante comme [`Maps.difference` de Guava](https://guava.dev/releases/23.0/api/docs/com/google/common/collect/Maps.html#difference-java.util.Map-java.util.Map-),
 qui introduirait une importante dépendance supplémentaire et nous astreindrait à employer des classes natives (`Map`, `List`...),
-nous avons décider d'implémenter la logique de "diff" nous-même sur les classes du domaine comme [AbstractProperty](https://github.com/voyages-sncf-technologies/hesperides/blob/access-control/core/domain/src/main/java/org/hesperides/core/domain/templatecontainers/entities/AbstractProperty.java).
+nous avons décider d'implémenter la logique de "diff" nous-même sur les classes du domaine comme [AbstractProperty](https://github.com/sncf-connect-tech/hesperides/blob/access-control/core/domain/src/main/java/org/hesperides/core/domain/templatecontainers/entities/AbstractProperty.java).
 
 
 ## Ressources REST

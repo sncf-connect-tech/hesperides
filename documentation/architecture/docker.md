@@ -1,6 +1,6 @@
 # Docker
 
-Hespérides est dockerisée à chaque build via [Travis](https://travis-ci.com/voyages-sncf-technologies/hesperides/) et pushée sur le [hub Docker](https://hub.docker.com/r/hesperides).
+Hespérides est dockerisée à chaque build via [Travis](https://travis-ci.com/sncf-connect-tech/hesperides/) et pushée sur le [hub Docker](https://hub.docker.com/r/hesperides).
 Les noms des tags des images docker correspondent aux noms des branches sur GitHub.
 
 

@@ -111,7 +111,7 @@ public class PlatformUseCases {
                     .collect(toList());
         }
         List<ValuedProperty> globalProperties = copyInstancesAndProperties ? ValuedPropertyView.toDomainValuedProperties(existingPlatform.getGlobalProperties()) : emptyList();
-        // cf. createPlatformFromExistingPlatform in https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/AbstractApplicationsAggregate.java#L156
+        // cf. createPlatformFromExistingPlatform in https://github.com/sncf-connect-tech/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/AbstractApplicationsAggregate.java#L156
         Platform newFullPlatform = new Platform(
                 newPlatform.getKey(),
                 newPlatform.getVersion(),

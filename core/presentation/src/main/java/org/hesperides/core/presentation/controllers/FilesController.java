@@ -87,7 +87,7 @@ public class FilesController extends AbstractController {
                                                                      @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
 
         // Pour des raisons de retrocompatibilité avec le front,
-        // en attendant que https://github.com/voyages-sncf-technologies/hesperides-gui/pull/164 soit en prod,
+        // en attendant que https://github.com/sncf-connect-tech/hesperides-gui/pull/164 soit en prod,
         // nous devons pour le moment supporter simulate=undefined en valeur de paramètre
         List<InstanceFileOutput> files = filesUseCases.getFiles(
                 applicationName,

@@ -2,7 +2,7 @@
 
 Recherche de propriétés par nom et/ou valeur *sur l'ensemble des applications*.
 
-LADR frontend: [Recherches de propriétés](https://github.com/voyages-sncf-technologies/hesperides-gui/blob/master/tech_docs/lightweight-architecture-decision-records/properties_search.md)
+LADR frontend: [Recherches de propriétés](https://github.com/sncf-connect-tech/hesperides-gui/blob/master/tech_docs/lightweight-architecture-decision-records/properties_search.md)
 
 ## Règles spécifiques
 
